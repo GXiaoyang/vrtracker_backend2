@@ -110,7 +110,7 @@ void read_ordering_test_int()
 			typedef std::list<int, SimpleAllocator<int>> list_t;
 			list_t shared_list(ss);
 			std::vector<std::thread*> threads;
-			printf("SegmentSize: %d starting with fast: %d num_readers %d\n", SegmentSize, fast_writer, num_readers);
+			printf("threading test. SegmentSize: %d starting with fast: %d num_readers %d\n", SegmentSize, fast_writer, num_readers);
 			for (int i = 0; i < num_readers; i++)
 			{
 				std::thread *t = new std::thread(reader<list_t>, NUM_WRITES, expected_value, termination_value, &shared_list);
@@ -128,10 +128,6 @@ void read_ordering_test_int()
 			}
 		}	
 	}
-
-	printf("bla");
-
-
 }
 
 
@@ -354,7 +350,6 @@ void sort_test()
 		std::vector<T> ref(list_size);
 		for_each(ref.begin(), ref.end(), [](T &n) { n++; });
 		for_each(segmented_list0.begin(), segmented_list0.end(), [](T &n) { n++; });
-		printf("bla");
 	}
 }
 
@@ -666,6 +661,13 @@ void const_test()
 		// I can access randomly
 		viter[2];
 		siter[2];
+
+		// end is const
+		for (auto iter = vc.cbegin(); iter != vc.cend(); iter++) {}
+		for (auto iter = sc.cbegin(); iter != sc.cend(); iter++) {}
+		for (auto iter = vc.begin();  iter != vc.end(); iter++) {}
+		for (auto iter = sc.begin();  iter != sc.end(); iter++) {}
+
 	}
 	
 	
@@ -675,7 +677,6 @@ void const_test()
 static void basic_behaviour_test()
 {
 	const_test<10>();
-	return;
 
 	printf("compare segmented list vs vector constructor\n");
 	initializer_test_iter_constructor<1>();

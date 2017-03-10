@@ -12,10 +12,6 @@ struct segmented_list_iterator;
 template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>>
 struct segmented_list
 {
-private:
-	//segment_container_type		m_segment_container;
-	std::list<T*, A>            m_segment_container;
-	std::atomic<size_t>		m_size;
 public:
 	
 	typedef T					value_type;
@@ -66,9 +62,6 @@ public:
 	}
 	
 
-	
-
-	
 	iterator begin() 
 	{
 		return{ m_segment_container.begin(), 0, 0 };
@@ -79,30 +72,39 @@ public:
 		return{ m_segment_container.begin(), 0, 0 };
 	}
 
-#if 0
+	
+
+
 	const_iterator cbegin() const { return{ m_segment_container.begin(), 0, 0 }; }
 	const_iterator cend()	const { return end(); }
-	const_iterator begin() const
-	{
-		//const_iterator i(m_segment_container.cbegin(), 0, 0);
-		//got: std::_List_const_iterator<std::_List_val<std::_List_simple_types<int *>>>
-		//expect: const std::_List_iterator<std::_List_val<std::_List_simple_types<int *>>> &
 
-		const_iterator i(m_segment_container.begin(), 0, 0);
-		// got: std::_List_const_iterator<std::_List_val<std::_List_simple_types<int *>>>' to 
-		//want:'const std::_List_iterator<std::_List_val<std::_List_simple_types<int *>>> &
-
-		return i;
-	}
-#endif 
 	T& operator[] (size_type i) 
 	{
 		return begin()[i];
 	}
 
-	
+	const_iterator end() const
+	{
+		// figuring out the end without locking the writer isn't that easy
+		// if i can grab the end use it. otherwise fall back to linear search
+		std::atomic<int> size_before;
+		size_before.store(m_size);
+		auto the_end = m_segment_container.end();
+		if (size_before == m_size) // <-- if this is true, then the_end I got is a good one
+		{
+			the_end--;
+			const_iterator it2{ the_end, size_before / SegmentSize, size_before };
+			return it2;
+		}
+		else
+		{
+			const_iterator it(begin());
+			it.change_index(m_size);
+			return it;
+		}
+	}
 
-	iterator end()
+	iterator end() 
 	{
 		// figuring out the end without locking the writer isn't that easy
 		// if i can grab the end use it. otherwise fall back to linear search
@@ -278,12 +280,15 @@ public:
 		m_size++;
 	}
 
+private:
+	segment_container_type		m_segment_container;
+	std::atomic<size_type>		m_size;
 
 };
 
 // difference type - a type that can hold the distance between two iterators
 template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A>
-struct segmented_list_iterator : std::iterator<std::bidirectional_iterator_tag, T, ptrdiff_t>
+struct segmented_list_iterator : std::iterator<std::random_access_iterator_tag, T, ptrdiff_t>
 {
 	typedef size_t			size_type;
 	typedef ptrdiff_t		difference_type;
