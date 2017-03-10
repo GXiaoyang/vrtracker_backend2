@@ -5,30 +5,18 @@
 #include <thread>
 #include <assert.h>
 
-// i prefer it to be contiguous on reload. so thats what the copy constructor does
 
-class spin_lock {
-	std::atomic_flag locked = ATOMIC_FLAG_INIT;
-public:
-	void lock() {
-		while (locked.test_and_set(std::memory_order_acquire))
-		{
-			std::this_thread::yield();
-		}
-	}
-	void unlock() {
-		locked.clear(std::memory_order_release);
-	}
-};
-
-
-
-template <typename T, uint32_t SegmentSize, typename A>
+template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A = std::allocator<T>>
 struct segmented_list_iterator;
 
 template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>>
 struct segmented_list
 {
+private:
+	//segment_container_type		m_segment_container;
+	std::list<T*, A>            m_segment_container;
+	std::atomic<size_t>		m_size;
+public:
 	
 	typedef T					value_type;
 	typedef T&					reference;
@@ -37,15 +25,13 @@ struct segmented_list
 	typedef ptrdiff_t			difference_type;
 	typedef size_t				size_type;
 
-	
-
-	typedef segmented_list_iterator<T, SegmentSize, A> iterator;
-	typedef const segmented_list_iterator<T, SegmentSize, A> const_iterator;
-
 	// internal:
 	typedef std::list<T*, A>	segment_container_type;
-	typedef typename segment_container_type::iterator segment_iterator_type;
-
+	typedef std::list<const T*, A> const_segment_container_type;
+	typedef typename segment_container_type::const_iterator segment_iterator_type;
+	
+	typedef segmented_list_iterator<T, segment_iterator_type, SegmentSize, A> iterator;
+	typedef segmented_list_iterator<const T, segment_iterator_type, SegmentSize, A> const_iterator;
 
 	bool operator == (const segmented_list &rhs) const
 	{
@@ -80,8 +66,7 @@ struct segmented_list
 	}
 	
 
-	const_iterator cbegin() const { return{ m_segment_container.begin(), 0, 0 }; }
-	const_iterator cend()	const { return end(); }
+	
 
 	
 	iterator begin() 
@@ -89,6 +74,27 @@ struct segmented_list
 		return{ m_segment_container.begin(), 0, 0 };
 	}
 
+	const_iterator begin() const
+	{
+		return{ m_segment_container.begin(), 0, 0 };
+	}
+
+#if 0
+	const_iterator cbegin() const { return{ m_segment_container.begin(), 0, 0 }; }
+	const_iterator cend()	const { return end(); }
+	const_iterator begin() const
+	{
+		//const_iterator i(m_segment_container.cbegin(), 0, 0);
+		//got: std::_List_const_iterator<std::_List_val<std::_List_simple_types<int *>>>
+		//expect: const std::_List_iterator<std::_List_val<std::_List_simple_types<int *>>> &
+
+		const_iterator i(m_segment_container.begin(), 0, 0);
+		// got: std::_List_const_iterator<std::_List_val<std::_List_simple_types<int *>>>' to 
+		//want:'const std::_List_iterator<std::_List_val<std::_List_simple_types<int *>>> &
+
+		return i;
+	}
+#endif 
 	T& operator[] (size_type i) 
 	{
 		return begin()[i];
@@ -272,28 +278,37 @@ struct segmented_list
 		m_size++;
 	}
 
-private:
-	segment_container_type		m_segment_container;
-	std::atomic<size_type>		m_size;
+
 };
 
 // difference type - a type that can hold the distance between two iterators
-template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>>
+template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A>
 struct segmented_list_iterator : std::iterator<std::bidirectional_iterator_tag, T, ptrdiff_t>
 {
 	typedef size_t			size_type;
 	typedef ptrdiff_t		difference_type;
 	typedef T&				reference;
 
-	typedef typename segmented_list<T, SegmentSize, A>::segment_iterator_type segment_iterator_type;
+	SegmentContainerIterator _segment;			// pointer to current segment
+	size_type				 _segment_index;		// 0..n-1 segment index
+	size_type				 _listwide_index;				// index into the entire list
 
-	segment_iterator_type	_segment;			// pointer to current segment
-	size_type				_segment_index;		// 0..n-1 segment index
-	size_type				_listwide_index;				// index into the entire list
-
-	segmented_list_iterator(const segment_iterator_type &segment, size_type segment_index, size_type listwide_index)
+	segmented_list_iterator(const SegmentContainerIterator &segment, size_type segment_index, size_type listwide_index)
 		: _segment(segment), _segment_index(segment_index), _listwide_index(listwide_index)
 	{}
+
+	segmented_list_iterator(const segmented_list_iterator &rhs)
+		: _segment(rhs._segment), _segment_index(rhs._segment_index), _listwide_index(rhs._listwide_index)
+	{
+	}
+
+	segmented_list_iterator& operator=(const segmented_list_iterator &rhs)
+	{
+		_segment = rhs._segment;
+		_segment_index = rhs._segment_index;
+		_listwide_index = rhs._listwide_index;
+		return *this;
+	}
 
 	// adjust segment for the current index value
 	void change_index(size_type listwide_index)
@@ -385,6 +400,12 @@ struct segmented_list_iterator : std::iterator<std::bidirectional_iterator_tag, 
 		return *(base_addr + _listwide_index % SegmentSize);
 	}
 
+	const T & operator *() const
+	{
+		const T* base_addr = *_segment;
+		return *(base_addr + _listwide_index % SegmentSize);
+	}
+
 	bool operator != (segmented_list_iterator &rhs) const
 	{
 		return _listwide_index != rhs._listwide_index;
@@ -417,22 +438,24 @@ struct segmented_list_iterator : std::iterator<std::bidirectional_iterator_tag, 
 };
 
 
-template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>>
-inline bool operator==(const segmented_list_iterator<T,SegmentSize,A>& a,
-	const  segmented_list_iterator<T, SegmentSize, A>& b)
+
+template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A = std::allocator<T>>
+inline bool operator==(const segmented_list_iterator<T, SegmentContainerIterator,SegmentSize,A>& a,
+	const  segmented_list_iterator<T, SegmentContainerIterator, SegmentSize, A>& b)
 {
 	return a._listwide_index == b._listwide_index;
 }
 
-template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>>
-inline bool operator!=(const segmented_list_iterator<T, SegmentSize, A>& a,
-	const  segmented_list_iterator<T, SegmentSize, A>& b)
+template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A = std::allocator<T>>
+inline bool operator!=(const segmented_list_iterator<T, SegmentContainerIterator, SegmentSize, A>& a,
+	const  segmented_list_iterator<T, SegmentContainerIterator, SegmentSize, A>& b)
 {
 	return a._listwide_index != b._listwide_index;
 }
 
-template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>>
-void swap(segmented_list<T, SegmentSize, A> &a, segmented_list<T, SegmentSize, A> &b)
+template <typename T,uint32_t SegmentSize, typename A = std::allocator<T>>
+void swap(segmented_list<T, SegmentSize, A> &a, 
+	segmented_list<T, SegmentSize, A> &b)
 {
 	a.swap(b);
 }

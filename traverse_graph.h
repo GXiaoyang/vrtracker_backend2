@@ -561,7 +561,7 @@ void structure_check(int *structure_version,
 	PropertiesIndexer::PropertySettingType prop_type, VRAllocator &allocator)
 {
 	int num_props = indexer->GetNumPropertiesOfType(prop_type);
-	if (vec.size() < num_props)
+	if (size_as_int(vec.size()) < num_props)
 	{
 		vec.reserve(num_props);
 		for (int index = 0; index < num_props; index++)

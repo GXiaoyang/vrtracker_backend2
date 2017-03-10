@@ -607,10 +607,6 @@ void compare_against_ref()
 		::swap(segmented_list0, segmented_list1);
 		assert(!std::equal(segmented_list1.begin(), segmented_list1.end(), ref_list.begin()));
 		assert(std::equal(segmented_list0.begin(), segmented_list0.end(), ref_list.begin()));
-
-		
-		
-
 	}
 }
 
@@ -625,9 +621,61 @@ static void threading_tests()
 	read_ordering_test_int<1025>();
 }
 
+// see if const stuff works
+template <size_t N>
+void const_test()
+{
+	std::vector<int> v = { 1,2,3 };
+	segmented_list<int, N> s = { 1,2,3 };
+
+	const auto viter = v.begin();
+	const auto siter = s.begin();	// const iterator from non-const container
+	const auto viter2 = v.end();
+	const auto siter2 = s.end();
+	const int &x = *viter;
+	const int &y = *siter;
+	assert(x == y);
+
+	{
+		const std::vector<int> &vc = v;
+		const segmented_list<int, N> &sc = s;
+
+		// iterator from const container should be able to read and move the iterator
+		auto viter = vc.begin();
+		auto siter = sc.begin();
+
+		// shouldn't compile (uncomment to test)
+		//*vc.begin() = 11;
+		//*sc.begin() = 12;
+
+		const int &x = *viter;
+		const int &y = *siter;
+		assert(x == y);
+
+		// i can increment the iterator
+		viter++;
+		viter += 2;
+		viter--;
+		viter -= 2;
+
+		siter++;
+		siter += 2;
+		siter--;
+		siter -= 2;
+
+		// I can access randomly
+		viter[2];
+		siter[2];
+	}
+	
+	
+}
+
 // runs through basic interfaces and checks them
 static void basic_behaviour_test()
 {
+	const_test<10>();
+	return;
 
 	printf("compare segmented list vs vector constructor\n");
 	initializer_test_iter_constructor<1>();
@@ -765,6 +813,7 @@ static void basic_behaviour_test()
 	printf("%d", *titer);
 
 }
+
 
 
 void TEST_SEGMENTED_LIST()

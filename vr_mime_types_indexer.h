@@ -1,4 +1,5 @@
 #pragma once
+#include "platform.h"
 #include "string.h"
 
 class MimeTypesIndexer
@@ -15,7 +16,7 @@ private:
 
 inline bool MimeTypesIndexer::GetIndexForMimeType(const char *pchMimeType, int *index)
 {
-	for (int i = 0; i < m_table_size; i++)
+	for (int i = 0; i < size_as_int(m_table_size); i++)
 	{
 		if (strcmp(m_table_ref[i], pchMimeType) == 0)
 		{
