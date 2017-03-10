@@ -13,6 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\results">
+      <UniqueIdentifier>{6cd4378b-1a97-421e-a6b1-fd251c23ab8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\base">
+      <UniqueIdentifier>{e5b8d387-ac8b-415b-86fe-5d349bd77190}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\w tracker">
+      <UniqueIdentifier>{50081c09-ad67-4649-ba99-89c295afc033}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vr base">
+      <UniqueIdentifier>{2fdd1293-eea0-4b18-a0c1-d2ddeec3c30d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vr_wrappers">
+      <UniqueIdentifier>{623f9db7-b5cb-444f-930b-62a2c6e71ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x vr visitors">
+      <UniqueIdentifier>{5f213dd7-4926-444e-a559-ae16253a5b45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vr keys">
+      <UniqueIdentifier>{b84fdd1e-9ead-46f1-9974-8afaa28238ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\unit tests">
+      <UniqueIdentifier>{e40380c8-f01c-4faa-91af-0571bfdf2b3f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -24,6 +48,138 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="history.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="url_named.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="time_containers.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="range.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="range_algorithm.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="result.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="slab_allocator.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="segmented_list.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="tmp_vector.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_keys.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_schema.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_tracker.h">
+      <Filter>Source Files\w tracker</Filter>
+    </ClInclude>
+    <ClInclude Include="traverse_graph.h">
+      <Filter>Source Files\x vr visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_types.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_wrappers_common.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_system_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_render_model_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="schema_common.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_properties_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="openvr_serialization.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_mime_types_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_applications_properties_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_device_properties_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_settings_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="string2int.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_overlay_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_overlay_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_applications_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_settings_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_chaperone_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_chaperone_setup_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_compositor_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_extended_display_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_tracked_camera_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_resources_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="openvr_broker.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="tracker_config.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_applications_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_tmp_vector.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_constants.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_resources_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
+    <ClInclude Include="typehelper.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
+    <ClInclude Include="stl_container_check.h">
+      <Filter>Source Files\results</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -31,6 +187,63 @@
     </ClCompile>
     <ClCompile Include="rangesplay.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="design_goal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="design_goal2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="slab_allocator.cpp">
+      <Filter>Source Files\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp">
+      <Filter>Source Files\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp">
+      <Filter>Source Files\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp">
+      <Filter>Source Files\base</Filter>
+    </ClCompile>
+    <ClCompile Include="update_history_visitor.h">
+      <Filter>Source Files\x vr visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UPDATE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_properties_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_mime_types_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_applications_properties_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_device_properties_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_overlay_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_applications_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_resources_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_tmp_vector.cpp">
+      <Filter>Source Files\vr base</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_segmented_list.cpp">
+      <Filter>Source Files\unit tests</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
