@@ -83,6 +83,8 @@ template <	typename T,
 	{}
 
 	bool empty() const { return container.empty(); }
+	size_t size() const { return container.size(); }
+
 	const T& operator()() const { return container.back().get_value(); }
 	const time_indexed<T>& latest() const { return container.back(); }
 	const time_indexed<T>& earliest() const { return container.front(); }

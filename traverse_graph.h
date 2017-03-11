@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gsl.h"
 #include "vr_schema.h"
 
 #include "vr_system_wrapper.h"
@@ -95,10 +96,9 @@ static void visit_hidden_mesh(visitor_fn &visitor,
 
 
 		visitor.visit_node(ss->hidden_mesh_triangle_count, hidden_mesh_triangle_count);
-#if 0
-		// TODO: another case of the old invoke with array and count instead of a result
-		visitor.visit_node(ss->hidden_mesh_vertices, vertex_data, vertex_data_count);
-#endif
+		
+		Result<gsl::span<const vr::HmdVector2_t>, NoReturnCode> r(gsl::make_span(vertex_data, vertex_data_count));
+		visitor.visit_node(ss->hidden_mesh_vertices, r);
 	}
 	else
 	{

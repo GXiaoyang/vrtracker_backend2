@@ -26,6 +26,11 @@ void test_ops_on_container()
 
 	assert((range.end() - 1)->get_time_index() == 4);
 	assert(range.back().get_time_index() == 4);
+	for (int i = 0; i < 1024; i++)
+	{
+		v.emplace_back(4 + i, 10000 + i, true);
+	}
+	assert(v.size() == 1024 + 2);
 }
 
 template <typename T, typename A = std::allocator<T>>
@@ -40,9 +45,5 @@ void TEST_TIME_CONTAINERS()
 	time_indexed<Result<int, bool>> r;
 
 	test_ops_on_container<std::vector>();
-
-
-
 	test_ops_on_container<segmented_list_1024>();
-	
 }

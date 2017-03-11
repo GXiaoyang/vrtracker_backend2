@@ -172,7 +172,7 @@ template <typename ElementType, typename ReturnCode, typename ResultType2>
 static bool not_equals(const Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0) 
 {
-	static_assert(std::is_same<typename ElementType::value_type, typename ResultType2::value_type>::value, "ha");
+	static_assert(std::is_same<decltype(a.val.data()), decltype(b.val.data())>::value, "same type");
 	static_assert(std::is_pod<typename ElementType::value_type>::value, "values are not pods.  the memcmp prob won't work");
 
 	if (return_code_not_equals(a, b))
