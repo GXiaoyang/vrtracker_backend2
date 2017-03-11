@@ -34,34 +34,6 @@ private:
 	T value;
 };
 
-#if 0
-template <typename T>
-bool operator<(const time_indexed<T> &a, const time_indexed<T> &b)
-{
-	return a.time_index < b.time_index;
-}
-
-template <typename T>
-bool operator>(const time_indexed<T> &a, const time_indexed<T> &b)
-{
-	return a.time_index > b.time_index;
-}
-
-
-template <typename T>
-bool operator>=(const time_indexed<T> &a, const time_indexed<T> &b)
-{
-	return a.time_index >= b.time_index;
-}
-
-template <typename T>
-bool operator==(const time_indexed<T> &a, const time_indexed<T> &b)
-{
-	return a.time_index == b.time_index; // TODO this was put here to get ranges to work, but I think it's not a good idea to define
-	// this operator without considerint the entire object
-}
-#endif
-
 template <	typename T,
 	template <typename, typename> class Container,
 	typename A = std::allocator<time_indexed<T>>>

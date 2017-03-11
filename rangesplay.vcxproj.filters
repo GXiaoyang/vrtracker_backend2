@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\results">
-      <UniqueIdentifier>{6cd4378b-1a97-421e-a6b1-fd251c23ab8f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\base">
       <UniqueIdentifier>{e5b8d387-ac8b-415b-86fe-5d349bd77190}</UniqueIdentifier>
     </Filter>
@@ -37,6 +34,9 @@
     <Filter Include="Source Files\unit tests">
       <UniqueIdentifier>{e40380c8-f01c-4faa-91af-0571bfdf2b3f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\time_containers">
+      <UniqueIdentifier>{6cd4378b-1a97-421e-a6b1-fd251c23ab8f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -51,20 +51,11 @@
     <ClInclude Include="history.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="url_named.h">
-      <Filter>Source Files\results</Filter>
-    </ClInclude>
     <ClInclude Include="time_containers.h">
-      <Filter>Source Files\results</Filter>
-    </ClInclude>
-    <ClInclude Include="range.h">
-      <Filter>Source Files\results</Filter>
+      <Filter>Source Files\time_containers</Filter>
     </ClInclude>
     <ClInclude Include="range_algorithm.h">
-      <Filter>Source Files\results</Filter>
-    </ClInclude>
-    <ClInclude Include="result.h">
-      <Filter>Source Files\results</Filter>
+      <Filter>Source Files\time_containers</Filter>
     </ClInclude>
     <ClInclude Include="slab_allocator.h">
       <Filter>Source Files\base</Filter>
@@ -103,13 +94,10 @@
       <Filter>Source Files\base</Filter>
     </ClInclude>
     <ClInclude Include="schema_common.h">
-      <Filter>Source Files\results</Filter>
+      <Filter>Source Files\time_containers</Filter>
     </ClInclude>
     <ClInclude Include="vr_properties_indexer.h">
       <Filter>Source Files\vr keys</Filter>
-    </ClInclude>
-    <ClInclude Include="openvr_serialization.h">
-      <Filter>Source Files\base</Filter>
     </ClInclude>
     <ClInclude Include="vr_mime_types_indexer.h">
       <Filter>Source Files\vr keys</Filter>
@@ -174,11 +162,23 @@
     <ClInclude Include="vr_resources_indexer.h">
       <Filter>Source Files\vr keys</Filter>
     </ClInclude>
-    <ClInclude Include="typehelper.h">
-      <Filter>Source Files\results</Filter>
+    <ClInclude Include="base_serialization.h">
+      <Filter>Source Files\base</Filter>
     </ClInclude>
-    <ClInclude Include="stl_container_check.h">
-      <Filter>Source Files\results</Filter>
+    <ClInclude Include="openvr_serialization.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="url_named.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="typehelper.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="range.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="result.h">
+      <Filter>Source Files\base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -195,15 +195,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="slab_allocator.cpp">
-      <Filter>Source Files\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp">
-      <Filter>Source Files\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp">
-      <Filter>Source Files\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp">
       <Filter>Source Files\base</Filter>
     </ClCompile>
     <ClCompile Include="update_history_visitor.h">
@@ -250,6 +241,15 @@
     </ClCompile>
     <ClCompile Include="unit_tests\test_time_containers.cpp">
       <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp">
+      <Filter>Source Files\vr base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp">
+      <Filter>Source Files\vr base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp">
+      <Filter>Source Files\vr base</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

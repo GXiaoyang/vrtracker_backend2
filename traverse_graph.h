@@ -96,7 +96,6 @@ static void visit_hidden_mesh(visitor_fn &visitor,
 
 
 		visitor.visit_node(ss->hidden_mesh_triangle_count, hidden_mesh_triangle_count);
-		
 		Result<gsl::span<const vr::HmdVector2_t>, NoReturnCode> r(gsl::make_span(vertex_data, vertex_data_count));
 		visitor.visit_node(ss->hidden_mesh_vertices, r);
 	}
@@ -124,29 +123,18 @@ static void visit_eye_state(visitor_fn &visitor,
 
 	if (visitor.visit_source_interfaces())
 	{
-#if 0
 		DistortionCoordinates_t *coords;
 		int count;
 
-
-		
-
-		// this is a todo - here the results are not in a result and are relying on the old
-		// array and count mechanism.
-		//todo:
-		// build a result object that can convert down to the final allocator vector type
-		// test it.
-
 		bool rc = wrap.ComputeDistortion(eEye, c.GetDistortionSampleWidth(), c.GetDistortionSampleHeight(), &coords, &count);
-		visitor.visit_node(ss->distortion, coords, rc, count);
+
+		Result<gsl::span<vr::DistortionCoordinates_t>, bool> r(gsl::make_span(coords, count),rc);
+		visitor.visit_node(ss->distortion, r);
 		wrap.FreeDistortion(coords);
-#endif
 	}
 	else
 	{
-#if 0
 		visitor.visit_node(ss->distortion);
-#endif
 	}
 
 	if (ss->hidden_meshes.size() < 3)

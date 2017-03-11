@@ -1,3 +1,7 @@
+// allocates pages of memory.
+// includes an allocator
+// does not implement free
+
 // rangesplay.cpp : Defines the entry point for the console application.
 //
 
@@ -83,8 +87,6 @@ public:
 	typedef const T&   const_reference;
 
 	slab* m_slab;
-
-
 
 	// stl likes to make these evil ones for some reason
 	slab_allocator()

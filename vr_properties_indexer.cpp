@@ -1,3 +1,4 @@
+#include "platform.h"
 #include "vr_properties_indexer.h"
 
 void PropertiesIndexer::Init(
@@ -98,7 +99,7 @@ void PropertiesIndexer::ReadFromStream(EncodeStream &s)
 		read_int_vector_from_stream(s, custom_values[setting_type]);
 
 		enum2index[setting_type].reserve(enum2index[setting_type].size() + custom_values[setting_type].size());
-		for (int i = 0; i < custom_values[setting_type].size(); i++)
+		for (int i = 0; i < size_as_int(custom_values[setting_type].size()); i++)
 		{
 			int index = enum2index[setting_type].size();
 			enum2index[setting_type].insert({ (int)custom_values[setting_type][i], index });

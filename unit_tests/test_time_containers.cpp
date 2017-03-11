@@ -33,8 +33,7 @@ void test_ops_on_container()
 	assert(v.size() == 1024 + 2);
 }
 
-template <typename T, typename A = std::allocator<T>>
-using segmented_list_1024 = segmented_list<T, 1024, A>;
+
 
 void TEST_TIME_CONTAINERS()
 {

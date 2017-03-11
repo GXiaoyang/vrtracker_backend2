@@ -37,10 +37,15 @@ I first_item_greater_than_or_equal_to(I begin, I end, time_index_t val, _Pr pr)
 {
 	I it = upper_bound(begin, end, val, pr);
 
+	// upper_bound returns the first item greater than val.
+	// so since we want greater than or equal to, check the previous
+	// value to see if it's equal to.
 	if (it != begin) {
-		time_index_t found = (it - 1)->get_time_index();
+		I prev(it);
+		prev--;
+		time_index_t found = prev->get_time_index();
 		if (found == val)
-			it--;
+			it = prev;
 	}
 	return it;
 }

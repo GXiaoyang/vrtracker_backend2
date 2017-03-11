@@ -2,7 +2,6 @@
 // * unit test for segmented_list
 //
 
-
 #include "segmented_list.h"
 #include <assert.h>
 
@@ -17,6 +16,7 @@
 #include <thread>
 
 // fixed size allocator with memory filled with a known value
+// used by the threading test to detect for uninitialized memory read
 template <class T>
 struct SimpleAllocator {
 	typedef T value_type;

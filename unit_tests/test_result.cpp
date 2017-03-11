@@ -2,6 +2,7 @@
 // * unit test for result
 //
 
+#include "tmp_vector.h"
 #include "segmented_list.h"
 #include "result.h"
 #include <assert.h>

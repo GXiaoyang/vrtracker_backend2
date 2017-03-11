@@ -6,10 +6,16 @@
 #include <assert.h>
 
 
+template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>> struct segmented_list;
+
+template <typename T, typename A = std::allocator<T>>
+using segmented_list_1024 = segmented_list<T, 1024, A>;
+
+
 template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A = std::allocator<T>>
 struct segmented_list_iterator;
 
-template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>>
+template <typename T, uint32_t SegmentSize, typename A>
 struct segmented_list
 {
 public:

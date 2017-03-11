@@ -6,7 +6,6 @@
 #include <deque>
 
 #define INIT(var_name)			var_name(make_url_for_child( #var_name ), alloc )
-//#define INIT(var_name)			var_name(URL(), alloc )
 
 namespace vr_result
 {
@@ -15,13 +14,11 @@ namespace vr_result
 	template <bool is_iterator, class A>
 	struct vr_schema : schema<is_iterator>
 	{
-	
-
 		// define a scalar node
 		template <typename ResultType> 
-		using NODE = node<ResultType, std::deque, is_iterator, A>;
+		using NODE = node<ResultType, std::list, is_iterator, A>;
+		//using NODE = node<ResultType, segmented_list_1024, is_iterator, A>;
 
-		//using NODE = node<ResultType, std::vector, is_iterator, A>;
 
 
 		// two kinds of children.  
@@ -624,7 +621,6 @@ namespace vr_result
 		extendeddisplay_schema	extendeddisplay_node;
 		trackedcamera_schema	trackedcamera_node;
 		resources_schema        resources_node;
-
 	};
 	
 	using vr_state = vr_schema<false, VRAllocator>;
