@@ -61,6 +61,25 @@ public:
 		return !(*this == rhs);
 	}
 	
+	T& front()
+	{
+		return begin()[0];
+	}
+
+	const T&front() const
+	{
+		return begin()[0];
+	}
+
+	const T&back() const
+	{
+		return begin()[m_size - 1];		// TODO: faster way by looking at end
+	}
+
+	T&back()
+	{
+		return begin()[m_size - 1];		// TODO: faster way by looking at end
+	}
 
 	iterator begin() 
 	{
@@ -71,9 +90,6 @@ public:
 	{
 		return{ m_segment_container.begin(), 0, 0 };
 	}
-
-	
-
 
 	const_iterator cbegin() const { return{ m_segment_container.begin(), 0, 0 }; }
 	const_iterator cend()	const { return end(); }
@@ -108,25 +124,6 @@ public:
 	const_iterator end() const
 	{
 		return find_end<const_iterator>(begin());
-#if 0
-		// figuring out the end without locking the writer isn't that easy
-		// if i can grab the end use it. otherwise fall back to linear search
-		std::atomic<int> size_before;
-		size_before.store(m_size);
-		auto the_end = m_segment_container.end();
-		if (size_before == m_size) // <-- if this is true, then the_end I got is a good one
-		{
-			the_end--;
-			const_iterator it2{ the_end, size_before / SegmentSize, size_before };
-			return it2;
-		}
-		else
-		{
-			const_iterator it(begin());
-			it.change_index(m_size);
-			return it;
-		}
-#endif
 	}
 
 	iterator end() 
@@ -406,6 +403,18 @@ struct segmented_list_iterator : std::iterator<std::random_access_iterator_tag, 
 	{
 		change_index(_listwide_index - 1);
 		return *this;
+	}
+
+	T * operator->()
+	{
+		T* base_addr = *_segment;
+		return base_addr + _listwide_index % SegmentSize;
+	}
+
+	const T * operator->() const
+	{
+		T* base_addr = *_segment;
+		return base_addr + _listwide_index % SegmentSize;
 	}
 
 	T & operator *()

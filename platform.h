@@ -14,6 +14,8 @@ namespace plat
 	}
 }
 
+typedef uint64_t time_stamp_t;
+typedef int time_index_t;
 
 template <typename T>
 constexpr int size_as_int(const T &size_in) {

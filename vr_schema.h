@@ -5,7 +5,7 @@
 #include "segmented_list.h"
 #include <deque>
 
-#define INIT(var_name)			var_name(make_name( #var_name ), alloc )
+#define INIT(var_name)			var_name(make_url_for_child( #var_name ), alloc )
 //#define INIT(var_name)			var_name(URL(), alloc )
 
 namespace vr_result

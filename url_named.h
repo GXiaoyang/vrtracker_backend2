@@ -35,12 +35,16 @@ private:
 
 struct url_named
 {
+	url_named()
+	{}
+
 	url_named(const URL &url)
 		: m_url(url)
 	{}
 	std::string get_name() const { return m_url.get_name(); };
 	std::string get_path() const { return m_url.get_full_path(); };
 	const URL &get_url() const { return m_url; }
+	void set_url(const URL&url) { m_url = url; }
 
 private:
 	URL m_url;
@@ -55,5 +59,5 @@ struct named_vector : url_named, std::vector<T, Allocator>
 		url_named(name),
 		std::vector<T, Allocator>(std::forward<Args>(args)...)
 	{}
-	URL make_name(const char *child) { return get_url().make_child(child); }
+	URL make_url_for_child(const char *child) { return get_url().make_child(child); }
 };

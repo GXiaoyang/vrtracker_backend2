@@ -436,8 +436,8 @@ static void visit_system_node(
 	{
 		if (ss->eyes.size() < 2)
 		{
-			ss->eyes.emplace_back(ss->eyes.make_name("left"), allocator);
-			ss->eyes.emplace_back(ss->eyes.make_name("right"), allocator);
+			ss->eyes.emplace_back(ss->eyes.make_url_for_child("left"), allocator);
+			ss->eyes.emplace_back(ss->eyes.make_url_for_child("right"), allocator);
 			ss->structure_version++;
 		}
 		START_VECTOR(eyes);
@@ -457,7 +457,7 @@ static void visit_system_node(
 		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 		{
 			std::string name(std::to_string(ss->controllers.size()));
-			ss->controllers.emplace_back(ss->make_name(name.c_str()), allocator);
+			ss->controllers.emplace_back(ss->make_url_for_child(name.c_str()), allocator);
 			ss->structure_version++;
 		}
 		START_VECTOR(controllers);
@@ -515,7 +515,7 @@ static void visit_system_node(
 	while (ss->spatial_sorts.size() < vr::k_unMaxTrackedDeviceCount + 1)
 	{
 		std::string name(std::to_string(ss->spatial_sorts.size()));
-		ss->spatial_sorts.emplace_back(ss->make_name(name.c_str()), allocator);
+		ss->spatial_sorts.emplace_back(ss->make_url_for_child(name.c_str()), allocator);
 	}
 
 	START_VECTOR(spatial_sorts);
@@ -567,7 +567,7 @@ void structure_check(int *structure_version,
 		for (int index = 0; index < num_props; index++)
 		{
 			const char *prop_name = indexer->GetName(prop_type, index);
-			vec.emplace_back(vec.make_name(prop_name), allocator);
+			vec.emplace_back(vec.make_url_for_child(prop_name), allocator);
 		}
 		*structure_version += 1;
 	}

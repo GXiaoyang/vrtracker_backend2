@@ -1,11 +1,11 @@
 #pragma once
-
+#include "platform.h"
 //
 // Utility functions to deal with ranges
 //
 
-template <typename I, typename T>
-I last_item_less_than_or_equal_to(I begin, I end, const T& val)
+template <typename I, typename ValType>
+I last_item_less_than_or_equal_to(I begin, I end, ValType val)
 {
 	I it = upper_bound(begin, end, val);
 
@@ -18,8 +18,8 @@ I last_item_less_than_or_equal_to(I begin, I end, const T& val)
 	return it;
 }
 
-template <typename I, typename T, class _Pr>
-I last_item_less_than_or_equal_to(I begin, I end, const T& val, _Pr pr)
+template <typename I, class _Pr>
+I last_item_less_than_or_equal_to(I begin, I end, time_index_t val, _Pr pr)
 {
 	I it = upper_bound(begin, end, val, pr);
 
@@ -32,32 +32,32 @@ I last_item_less_than_or_equal_to(I begin, I end, const T& val, _Pr pr)
 	return it;
 }
 
-template <typename I, typename T, class _Pr>
-I first_item_greater_than_or_equal_to(I begin, I end, T val, _Pr pr)
+template <typename I, class _Pr>
+I first_item_greater_than_or_equal_to(I begin, I end, time_index_t val, _Pr pr)
 {
 	I it = upper_bound(begin, end, val, pr);
 
 	if (it != begin) {
-		T found = *(it - 1);
+		time_index_t found = (it - 1)->get_time_index();
 		if (found == val)
 			it--;
 	}
 	return it;
 }
 
-template <typename R, typename T, class _Pr>
-R range_intersect(const R &r, const T& min_val, const T&max_val, _Pr pr)  // [min_val and max_val) are not inclusive
+template <typename R, class _Pr>
+R range_intersect(const R &r, time_index_t min_val, time_index_t max_val, _Pr pr)  // [min_val and max_val) are not inclusive
 {
 	if (r.empty() || min_val >= max_val)		// check 1: is the range empty
 		return R(r.end(), r.end());
-	if (min_val > r.back())
+	if (min_val > r.back().get_time_index())
 		return R(r.end(), r.end()); // check 2: minimum is outside the values of the range
-	if (max_val < r.front())
+	if (max_val < r.front().get_time_index())
 		return R(r.end(), r.end()); // check 3: maximum is outside the values of the range
 
 	auto first = first_item_greater_than_or_equal_to(r.begin(), r.end(), min_val, pr);
 	assert(first != r.end());	// can't happen because of checks 2 and 3
-	if (*first >= max_val)
+	if ((*first).get_time_index() >= max_val)
 		return R(r.end(), r.end());
 
 	auto second = upper_bound(first, r.end(), max_val, pr);

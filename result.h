@@ -135,7 +135,8 @@ struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 		assign(*this, rhs);
 		return *this;
 	}
-	
+
+
 	ElementType val;
 };
 

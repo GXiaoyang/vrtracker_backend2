@@ -5,9 +5,6 @@
 #include "range_algorithm.h"
 #include "result.h"
 
-typedef uint64_t time_stamp_t;
-typedef int time_index_t;
-
 template <typename T>
 struct time_indexed
 {
@@ -19,6 +16,16 @@ struct time_indexed
 		value(std::forward<Args>(args)...)
 	{}
 
+	bool operator == (const time_indexed &rhs) const
+	{
+		return (time_index == rhs.time_index) && (value == rhs.value);
+	}
+
+	bool operator != (const time_indexed &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	const T& get_value() const { return value; }
 	time_index_t get_time_index() const { return time_index; }
 
@@ -27,6 +34,7 @@ private:
 	T value;
 };
 
+#if 0
 template <typename T>
 bool operator<(const time_indexed<T> &a, const time_indexed<T> &b)
 {
@@ -52,16 +60,20 @@ bool operator==(const time_indexed<T> &a, const time_indexed<T> &b)
 	return a.time_index == b.time_index; // TODO this was put here to get ranges to work, but I think it's not a good idea to define
 	// this operator without considerint the entire object
 }
+#endif
 
 template <	typename T,
 	template <typename, typename> class Container,
-	typename A = std::allocator<T>>
+	typename A = std::allocator<time_indexed<T>>>
 	struct time_indexed_vector : url_named
 {
 	typedef T									value_type;
 	typedef time_indexed<T>						time_indexed_type;
 	typedef Container<time_indexed_type, A>		container_type_t;
 	typedef typename container_type_t::iterator iterator;
+
+	time_indexed_vector()
+	{}
 
 	template<typename... Args>
 	time_indexed_vector(const URL &url, Args&&... args)
@@ -73,17 +85,12 @@ template <	typename T,
 	bool empty() const { return container.empty(); }
 	const T& operator()() const { return container.back().get_value(); }
 	const time_indexed<T>& latest() const { return container.back(); }
-	const time_indexed<T>& earliest() const { return container.back(); }
+	const time_indexed<T>& earliest() const { return container.front(); }
 
 	// [start and end)  (IE ARE NOT inclusive of end)
 	std::range<iterator> get_range(time_index_t a, time_index_t b)
 	{
-		time_indexed_type dummy_a(a);
-		
-		time_indexed_type dummy_b;
-		dummy_b.time_index = b;
-
-		return range_intersect(get_range(), dummy_a, dummy_b,
+		return range_intersect(get_range(), a, b,
 			[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 	}
 
