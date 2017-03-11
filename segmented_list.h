@@ -83,8 +83,32 @@ public:
 		return begin()[i];
 	}
 
+	template <typename iterator_type>
+	iterator_type find_end(iterator_type begin) const
+	{
+		// figuring out the end without locking the writer isn't that easy
+		// if i can grab the end use it. otherwise fall back to linear search
+		std::atomic<int> size_before;
+		size_before.store(m_size);
+		auto the_end = m_segment_container.end();
+		if (size_before == m_size) // <-- if this is true, then the_end I got is a good one
+		{
+			the_end--;
+			iterator_type it2{ the_end, size_before / SegmentSize, size_before };
+			return it2;
+		}
+		else
+		{
+			iterator_type it(begin);
+			it.change_index(m_size);
+			return it;
+		}
+	}
+
 	const_iterator end() const
 	{
+		return find_end<const_iterator>(begin());
+#if 0
 		// figuring out the end without locking the writer isn't that easy
 		// if i can grab the end use it. otherwise fall back to linear search
 		std::atomic<int> size_before;
@@ -102,27 +126,12 @@ public:
 			it.change_index(m_size);
 			return it;
 		}
+#endif
 	}
 
 	iterator end() 
 	{
-		// figuring out the end without locking the writer isn't that easy
-		// if i can grab the end use it. otherwise fall back to linear search
-		std::atomic<int> size_before;
-		size_before.store(m_size);
-		auto the_end = m_segment_container.end();
-		if (size_before == m_size) // <-- if this is true, then the_end I got is a good one
-		{
-			the_end--;
-			iterator it2{ the_end, size_before/SegmentSize, size_before  };
-			return it2;
-		}
-		else
-		{
-			iterator it(begin());
-			it.change_index(m_size);
-			return it;
-		}
+		return find_end<iterator>(begin());
 	}
 
 	segmented_list()

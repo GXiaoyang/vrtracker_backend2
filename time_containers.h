@@ -22,6 +22,7 @@ struct time_indexed
 	const T& get_value() const { return value; }
 	time_index_t get_time_index() const { return time_index; }
 
+private:
 	time_index_t time_index;
 	T value;
 };
@@ -77,8 +78,7 @@ template <	typename T,
 	// [start and end)  (IE ARE NOT inclusive of end)
 	std::range<iterator> get_range(time_index_t a, time_index_t b)
 	{
-		time_indexed_type dummy_a;
-		dummy_a.time_index = a;
+		time_indexed_type dummy_a(a);
 		
 		time_indexed_type dummy_b;
 		dummy_b.time_index = b;

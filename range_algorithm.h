@@ -48,7 +48,7 @@ I first_item_greater_than_or_equal_to(I begin, I end, T val, _Pr pr)
 template <typename R, typename T, class _Pr>
 R range_intersect(const R &r, const T& min_val, const T&max_val, _Pr pr)  // [min_val and max_val) are not inclusive
 {
-	if (r.empty() || min_val >= max_val)		// check 1
+	if (r.empty() || min_val >= max_val)		// check 1: is the range empty
 		return R(r.end(), r.end());
 	if (min_val > r.back())
 		return R(r.end(), r.end()); // check 2: minimum is outside the values of the range

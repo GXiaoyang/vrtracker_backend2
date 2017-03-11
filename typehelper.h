@@ -11,6 +11,18 @@ public:
 		typedef T type;
 };
 
+template<typename T>
+struct has_element_type
+{
+private:
+	template<typename C> static constexpr std::true_type test(typename C::element_type);
+	template<typename C> static constexpr std::false_type  test(...);
+public:
+	static constexpr bool value = decltype(test<T>(0))::value; \
+		typedef T type;
+};
+
+
 
 #define TYPE_SUPPORTS(ClassName, Expr)                         \
   template<typename U>                                         \

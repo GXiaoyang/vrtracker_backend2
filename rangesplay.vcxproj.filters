@@ -245,5 +245,11 @@
     <ClCompile Include="unit_tests\test_segmented_list.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
+    <ClCompile Include="unit_tests\test_result.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_time_containers.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

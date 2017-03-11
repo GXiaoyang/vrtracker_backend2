@@ -1,5 +1,5 @@
 #pragma once 
-
+#include <assert.h>
 #include <mutex>
 #include <vector>
 
@@ -10,6 +10,14 @@ struct tmp_vector_pool
 
 	tmp_vector_pool()
 	{}
+
+	~tmp_vector_pool()
+	{
+		for (auto ptr : string_pool)
+		{
+			free(ptr);
+		}
+	}
 
 	char *AllocOne()
 	{
@@ -62,6 +70,13 @@ private:
 
 
 public:
+	tmp_vector()
+		:	m_pool(nullptr),
+			m_count(0),
+			m_s(0)
+	{
+	}
+
 	tmp_vector(tmp_vector_pool<FixedSizeBytes> *pool, const FinalAllocatorType &final_allocator)
 		:
 		m_pool(pool),
@@ -72,11 +87,23 @@ public:
 	}
 	~tmp_vector()
 	{
-		m_pool->FreeOne((char *)m_s);
+		if (m_s)
+		{
+			m_pool->FreeOne((char *)m_s);
+		}
 	}
 
-	tmp_vector() = delete;
-	tmp_vector(tmp_vector &) = delete;
+	tmp_vector(tmp_vector &&rhs)
+		:
+		m_s(rhs.m_s),
+		m_pool(rhs.m_pool),
+		m_count(rhs.m_count),
+		m_final_allocator(rhs.m_final_allocator)
+	{
+		rhs.m_s = nullptr;
+	}
+
+	tmp_vector(const tmp_vector &rhs) = delete;// dangerous - do I want to have copies of tempoaries
 	tmp_vector& operator=(const tmp_vector&) = delete;
 
 	T * data() { return m_s; }

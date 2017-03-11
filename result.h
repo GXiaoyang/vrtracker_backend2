@@ -3,9 +3,6 @@
 // * hold the element value and the return code in a single structure
 // * knows how to memcpy vector type results between two different containers
 //
-// TODO: this was written before I wrote the cast->vector operator in the TMP
-//       vector and probably could be simplified now to only allow LHS and RHS to be
-//       identical
 //
 #pragma once
 
@@ -16,24 +13,18 @@
 // IsValueContainer()
 //
 // Is the result type a valid, supported value container.
-// really I just want to say can I memcmpy and memcmp it. but I can't.  so the
-// best is a couple of reasonable checks.  
-//
-// * does it have a size() operator
-// * does it have a [] operator
-// * does it have a value_type member
-//
+// Really I just want to say can I memcmpy and memcmp it. but I can't.  so instead 
+// I check for a data() method for containers and ispod for non-containers
 
 // uses macros in typehelper.h
 namespace detail
 {
-	TYPE_SUPPORTS(SupportsSize, T().size())
-	TYPE_SUPPORTS(SupportsIndexOperator, T().operator[](0))
+	TYPE_SUPPORTS(SupportsData, T().data())
 }
 template<typename T>
 bool constexpr IsValueContainer()
 {
-	return detail::SupportsSize<T>::value && detail::SupportsIndexOperator<T>::value && has_value_type<T>::value;
+	return detail::SupportsData<T>::value;
 }
 
 struct NoReturnCode {};
@@ -45,38 +36,43 @@ struct ValidReturnCode
 	static const ReturnCode return_code;
 };
 
+template <typename ElementType> 
+struct ResultBase
+{
+	static const bool value_is_pod = std::is_pod<ElementType>::value;
+	static const bool value_is_container = IsValueContainer<ElementType>();
+	static_assert(value_is_pod || value_is_container, "Result only supports pods and contiguous containers as values");
+};
 
 // Result
 //
 // A Result has a value for the result and may also have a Return Code
 template <typename ElementType, typename ReturnCode>
-struct Result 
+struct Result : ResultBase<ElementType>
 {
-	static const bool value_is_container = IsValueContainer<ElementType>();
 	static const bool has_return_code = true;
+	bool is_present() const { return (ValidReturnCode<ReturnCode>::return_code == return_code); }
 
 	Result()
 	{}
-#if 0
-	template <size_t FixedSizeBytes, typename FinalAllocatorType>
-	Result(tmp_vector_pool<FixedSizeBytes> *pool, const FinalAllocatorType &final_allocator)
-		: val(pool, final_allocator)
-	{
-
-	}
-#endif
 
 	Result(ElementType e, ReturnCode r)
 		: return_code(r),
 		val(e)
-	{
+	{}
 
-	}
+	Result(const ElementType &&rhs)
+		:	return_code(rhs.return_code),
+			val(std::move(rhs))
+	{}
 
 	// perf 12,11,15
-	template <typename ResultType2>
-	Result(const ResultType2 &rhs)          // e.g. rhs is a std::vector and *this is a segmented list
+	template <typename E, typename R>
+	explicit Result(Result<E, R> &rhs)
 	{
+		static_assert(
+			(value_is_pod && std::is_pod<E>::value) || (value_is_container && IsValueContainer<E>()),
+			"source and target are not similar enough");
 		assign(*this, rhs);
 	}
 
@@ -85,16 +81,15 @@ struct Result
 		assign(*this, rhs);
 		return *this;
 	}
-//#if 0	// See TODO note above.  leaving it commented out here until I get wrappers working
+
 	template <typename ResultType2>
 	Result& operator = (const Result<ResultType2, ReturnCode> &rhs)
 	{
+		static_assert(value_is_pod && std::is_pod<ResultType2>::value);
 		assign(*this, rhs);
 		return *this;
 	}
-//#endif
-
-	bool is_present() const { return (ValidReturnCode<ReturnCode>::return_code == return_code); }
+	
 	ReturnCode return_code;
 	ElementType val;
 };
@@ -104,37 +99,43 @@ struct Result
 // A specialization for Result that do not have ReturnCodes
 
 template <typename ElementType>
-struct Result<ElementType, NoReturnCode>
+struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 {
+	static const bool has_return_code = false;
+	bool is_present() const { return true; }
+
 	Result()
 	{}
-
-#if 0	
-	template <typename PoolType, typename FinalAllocatorType>
-	Result(PoolType *pool, const FinalAllocatorType &final_allocator)
-		: val(pool, final_allocator)
-	{
-
-	}
-#endif
 
 	Result(const ElementType &rhs)
 		: val(rhs)
 	{}
 
-//#if 0
+	Result(ElementType &&rhs)
+		: val(std::move(rhs))
+	{}
+
 	template <typename E, typename R>
-	explicit Result(Result<E,R> &rhs)
+	explicit Result(Result<E, R> &rhs)
 	{
+		static_assert(
+			(value_is_pod && std::is_pod<E>::value) || (value_is_container && IsValueContainer<E>()),
+			"source and target are not similar enough");
+
 		assign(*this, rhs);
-		//val = rhs.val;
 	}
-//#endif
 
-	static const bool value_is_container = IsValueContainer<ElementType>();
-	static const bool has_return_code = false;
+	template <typename E, typename R>
+	Result& operator =(const Result<E, R> &rhs)
+	{
+		static_assert(
+			(value_is_pod && std::is_pod<E>::value) || (value_is_container && IsValueContainer<E>()),
+			"source and target are not similar enough");
 
-	bool is_present() const { return true; }
+		assign(*this, rhs);
+		return *this;
+	}
+	
 	ElementType val;
 };
 

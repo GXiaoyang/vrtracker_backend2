@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;C:\Users\sean\Downloads\tbb2017_20160916oss\include\tbb</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;C:\Users\sean\Downloads\tbb2017_20160916oss\include\tbb</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
@@ -213,7 +213,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="unit_tests\test_result.cpp" />
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />
+    <ClCompile Include="unit_tests\test_time_containers.cpp" />
     <ClCompile Include="UPDATE.cpp" />
     <ClCompile Include="update_history_visitor.h" />
     <ClCompile Include="vr_applications_indexer.cpp" />
