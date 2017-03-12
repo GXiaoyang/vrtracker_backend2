@@ -21,7 +21,7 @@ struct slab
 	int		page_size;
 	int64_t current_page_pos;
 
-	slab(int page_size_in)
+	slab(int page_size_in = 1024 * 1024)
 		: page_size(page_size_in)
 	{
 		slab_num_slabs++;
@@ -79,7 +79,7 @@ struct slab_allocator_base
 	static slab* m_temp_slab;
 };
 
-template <class T>
+template <class T=char>
 struct slab_allocator : slab_allocator_base {
 public:
 	typedef T		   value_type;

@@ -29,10 +29,11 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 	ResourcesWrapper		resources_wrapper(interfaces.resi);
 
 	vr_state *s = &outer_state->m_state;
-	VRAllocator &allocator = outer_state->m_allocator;
+	//VRAllocator &allocator = outer_state->m_allocator;
+	PlaceHolderAllocator p = 0;
 
 	visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper,
-			outer_state->additional_resource_keys, allocator);
+			outer_state->additional_resource_keys, p);
 #if 0
 	//if (interfaces.appi)
 	{
@@ -110,7 +111,7 @@ void UPDATE_USE_CASE()
 
 	auto &system = tracker.m_state.system_node;
 	auto &controllers = tracker.m_state.system_node.controllers;
-	controllers.emplace_back(URL(), allocator);
+	controllers.emplace_back(URL());
 
 	update_history_visitor visitor(1);
 

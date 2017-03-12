@@ -5,7 +5,10 @@
 
 const size_t VRTMPSize = vr::k_unMaxPropertyStringSize;
 using VRFinalAllocatorType = slab_allocator<char>;
-using VRAllocator = slab_allocator<char>;
+
+template <typename T>
+using VRAllocatorTemplate = slab_allocator<T>;
+
 
 #include "result.h"
 template <>

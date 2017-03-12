@@ -214,6 +214,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="unit_tests\test_result.cpp" />
+    <ClCompile Include="unit_tests\test_schema_common.cpp" />
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />
     <ClCompile Include="unit_tests\test_time_containers.cpp" />
     <ClCompile Include="UPDATE.cpp" />

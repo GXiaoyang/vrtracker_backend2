@@ -1,5 +1,7 @@
 #pragma once
 #include "url_named.h"
+#include "result.h"
+#include "time_containers.h"
 
 template <bool is_iterator>
 struct schema : public url_named
@@ -20,21 +22,23 @@ struct schema<true>
 //
 // Iterator node
 //
-template <typename ResultType, template <typename, typename> class ContainerType, bool IsIterator, class Allocator>
-struct node : public time_indexed_vector<ResultType, ContainerType, Allocator>::iterator
+template <typename ResultType, template <typename, typename> class ContainerType, bool IsIterator, 
+	template <typename> typename Allocator>
+struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocator>::iterator
 {
-	node(const URL &name, const Allocator &a) {}
+	time_node(const URL &name = URL()) {}
 	URL make_url_for_child(const char *child) { return URL(); }
 };
 
 //
 // State node
 //
-template <typename ResultType, template <typename, typename> class ContainerType, class Allocator>
-struct node<ResultType, ContainerType, false, Allocator> : public time_indexed_vector<ResultType, ContainerType, Allocator>
+template <typename ResultType, template <typename, typename> class ContainerType, 
+	template <typename>  typename Allocator>
+struct time_node<ResultType, ContainerType, false, Allocator> : public time_indexed_vector<ResultType, ContainerType, Allocator>
 {
-	node(const URL &name, const Allocator &a)
-		: time_indexed_vector<ResultType, ContainerType, Allocator>(name, a)
+	time_node(const URL &name = URL())
+		: time_indexed_vector<ResultType, ContainerType, Allocator>(name)
 	{}
 
 	URL make_url_for_child(const char *child) { return URL(); }

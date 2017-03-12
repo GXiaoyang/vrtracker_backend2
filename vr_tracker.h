@@ -33,6 +33,8 @@ struct vr_tracker
 	tracker_save_summary save_info;
 	vr_keys additional_resource_keys;
 
+	vr_result::vr_schema<false, std::allocator> s2;
+
 	vr_result::vr_state m_state;
 	// cursors are responsible for detecting changes in m_state on their own
 	// should TreeNodeIF do the same?
@@ -58,7 +60,8 @@ struct vr_tracker
 		m_frame_number(0),
 		blocking_update_calls(0),
 		non_blocking_update_calls(0),
-		m_state(URL("vr", "/vr"), m_allocator),
+		s2(URL("vr", "/vr")),
+		m_state(URL("vr", "/vr")),
 		m_events(m_allocator),
 		m_time_stamps(slab_allocator<time_stamp_t>())
 	{

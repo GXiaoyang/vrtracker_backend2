@@ -9,8 +9,12 @@ extern void UPDATE_USE_CASE();
 extern void TEST_SEGMENTED_LIST();
 extern void TEST_RESULT();
 extern void TEST_TIME_CONTAINERS();
+extern void TEST_SCHEMA_COMMON();
+
 void unit_tests()
 {
+	TEST_SCHEMA_COMMON();
+
 	TEST_TIME_CONTAINERS();
 	TEST_RESULT();
 	TEST_SEGMENTED_LIST();

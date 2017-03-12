@@ -137,20 +137,14 @@ public:
 		return find_end<iterator>(begin());
 	}
 
-	segmented_list()
-		: m_size(0)
-	{
-		add_segment();
-	}
-
-	explicit segmented_list(const A& alloc)
+	explicit segmented_list(A alloc = A())
 		:	m_segment_container(alloc),
 			m_size(0)
 	{
 		add_segment();
 	}
   
-	explicit segmented_list(size_type count, const A& alloc = std::allocator<T>())
+	explicit segmented_list(size_type count, A alloc = A())
 		: m_segment_container(alloc)
 	{
 		size_type num_required_segments = count / SegmentSize + 1;
@@ -170,7 +164,7 @@ public:
 	}
 
 	template< class InputIt >
-	segmented_list(InputIt first, InputIt last, const A& alloc = std::allocator<T>())
+	segmented_list(InputIt first, InputIt last, const A& alloc = A())
 		: m_segment_container(alloc),
 			m_size(0)
 	{

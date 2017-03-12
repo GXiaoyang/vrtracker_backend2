@@ -36,12 +36,12 @@ private:
 
 template <	typename T,
 	template <typename, typename> class Container,
-	typename A = std::allocator<time_indexed<T>>>
+	template <typename> typename A>
 	struct time_indexed_vector : url_named
 {
 	typedef T									value_type;
 	typedef time_indexed<T>						time_indexed_type;
-	typedef Container<time_indexed_type, A>		container_type_t;
+	typedef Container<time_indexed_type, A<time_indexed_type>>	container_type_t;
 	typedef typename container_type_t::iterator iterator;
 
 	time_indexed_vector()

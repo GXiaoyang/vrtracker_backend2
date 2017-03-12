@@ -4,7 +4,7 @@
 template <template <typename, typename> class Container>
 void test_ops_on_container()
 {
-	time_indexed_vector<Result<int, bool>, Container> v;
+	time_indexed_vector<Result<int, bool>, Container, std::allocator> v;
 	v.emplace_back(3, 10, true);
 	assert(v.latest().get_time_index() == 3);
 	assert(v().val == 10);

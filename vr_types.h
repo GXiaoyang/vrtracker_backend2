@@ -124,7 +124,6 @@ namespace vr_result
 
 	template <typename ReturnCode = NoReturnCode>
 	using Uint64 = Result<uint64_t, ReturnCode>;
-	
 
 	// these are useful for the gui usecase which doesn't really need the detail
 	template <typename ReturnCode = NoReturnCode>
@@ -211,30 +210,35 @@ namespace vr_result
 	template <typename ReturnCode = NoReturnCode>
 	using DeviceIndex = Result<vr::TrackedDeviceIndex_t, ReturnCode>;
 
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using String = Result<std::vector<char, Allocator>, ReturnCode>;
+	template <	typename T, 
+				typename ReturnCode = NoReturnCode>
+	using ResultVector = Result<std::vector<T, VRAllocatorTemplate<T>>, ReturnCode>;
 
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using Int32String = Result<std::vector<uint32_t, Allocator>, ReturnCode>;
 
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using HmdColorString = Result<std::vector<vr::HmdColor_t, Allocator>, ReturnCode>;
+	template <typename ReturnCode = NoReturnCode>
+	using String = ResultVector<char, ReturnCode>;
+
+	template <typename ReturnCode = NoReturnCode>
+	using Int32String = ResultVector<uint32_t, ReturnCode>;
+
+	template <typename ReturnCode = NoReturnCode>
+	using HmdColorString = ResultVector<vr::HmdColor_t, ReturnCode>;
 
 	using TMPHMDColorVectorOnly = vr_tmp_vector<vr::HmdColor_t>;
 	template <typename ReturnCode = NoReturnCode>
 	using TMPHMDColorString = Result<TMPHMDColorVectorOnly, ReturnCode>;
 
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using Uint8String = Result<std::vector<vr::uint8_t, Allocator>, ReturnCode>;
+	template <typename ReturnCode = NoReturnCode>
+	using Uint8String = ResultVector<vr::uint8_t, ReturnCode>;
 	
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using Uint16String = Result<std::vector<vr::uint16_t, Allocator>, ReturnCode>;
+	template <typename ReturnCode = NoReturnCode>
+	using Uint16String = ResultVector<vr::uint16_t, ReturnCode>;
 	
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using RenderModelVertexString = Result<std::vector<vr::RenderModel_Vertex_t, Allocator>, ReturnCode>;
+	template <typename ReturnCode = NoReturnCode>
+	using RenderModelVertexString = ResultVector<vr::RenderModel_Vertex_t, ReturnCode>;
 
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using HmdQuadString = Result<std::vector<vr::HmdQuad_t, Allocator>, ReturnCode>;
+	template <typename ReturnCode = NoReturnCode>
+	using HmdQuadString = ResultVector<vr::HmdQuad_t, ReturnCode>;
 
 #define DEFINE_TMP_STRING(output_type, input_type) \
 using output_type ## VectorOnly = vr_tmp_vector<input_type>;\
@@ -245,16 +249,13 @@ using output_type = Result<output_type ## VectorOnly, ReturnCode>;
 	DEFINE_TMP_STRING(TMPUint8String, uint8_t);
 	DEFINE_TMP_STRING(TMPCompositorFrameTimingString, vr::Compositor_FrameTiming);
 
-
-
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using CompositorFrameTimingString = Result<std::vector<vr::Compositor_FrameTiming,Allocator>, ReturnCode>;
+	template <typename ReturnCode = NoReturnCode>
+	using CompositorFrameTimingString = ResultVector<vr::Compositor_FrameTiming, ReturnCode>;
 
 	template <typename ReturnCode = NoReturnCode>
 	using  TMPStringProperty = Result <vr_tmp_vector<char>, ReturnCode>;
 
-	template <typename Allocator>
-	using  DeviceIndexes	= Result <std::vector<vr::TrackedDeviceIndex_t,Allocator>, NoReturnCode>;
+	using  DeviceIndexes	= ResultVector<vr::TrackedDeviceIndex_t, NoReturnCode>;
 
 	using DeviceIndexesVectorOnly = vr_tmp_vector<vr::TrackedDeviceIndex_t>;
 	using TMPDeviceIndexes = Result<DeviceIndexesVectorOnly, NoReturnCode>;
@@ -263,14 +264,13 @@ using output_type = Result<output_type ## VectorOnly, ReturnCode>;
 	template <typename ReturnCode = NoReturnCode>
 	using TMPString = Result<TMPStringVectorOnly, ReturnCode>;
 
-	template <typename Allocator>
-	using  HmdVector2s = Result <std::vector<vr::HmdVector2_t, Allocator>, NoReturnCode>;
+	using  HmdVector2s = ResultVector <vr::HmdVector2_t, NoReturnCode>;
 
 	template <typename ReturnCode = NoReturnCode>
 	using DistortionCoord = Result <vr::DistortionCoordinates_t, ReturnCode>;
 
-	template <typename Allocator, typename ReturnCode = NoReturnCode>
-	using DistortionCoordinates = Result <std::vector<vr::DistortionCoordinates_t, Allocator>, ReturnCode>;
+	template <typename ReturnCode = NoReturnCode>
+	using DistortionCoordinates = ResultVector<vr::DistortionCoordinates_t, ReturnCode>;
 
 	template <typename ReturnCode = NoReturnCode>
 	using ApplicationTransitionState = Result<vr::EVRApplicationTransitionState, ReturnCode>;

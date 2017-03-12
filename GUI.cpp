@@ -15,11 +15,12 @@ void GUI_USE_CASE()
 
 	slab s(1024 * 1024);
 	slab_allocator<char> allocator;
+	slab_allocator<char>::m_temp_slab = &s;
 	vr_tracker<slab_allocator<char>> tracker(&s);
 
 	auto &system = tracker.m_state.system_node;
 	auto &controllers = tracker.m_state.system_node.controllers;
-	controllers.emplace_back(URL(), allocator);
+	controllers.emplace_back(URL());
 
 	//
 	// test starts here

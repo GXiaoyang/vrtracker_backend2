@@ -5,47 +5,50 @@
 #include "segmented_list.h"
 #include <deque>
 
-#define INIT(var_name)			var_name(make_url_for_child( #var_name ), alloc )
+#define INIT(var_name)			var_name(make_url_for_child( #var_name ))
+#define ALLOC_DECL
 
 namespace vr_result
 {
 	using namespace vr;
 
-	template <bool is_iterator, class A>
+	// AllocatorTemplate chooses which allocator will be passed to the time_nodes and the 
+	// named vector.
+	//
+	// For individual nodes that are strings or vectors, the allocator is chosen by
+	// the ResultVector template in vr_types.h
+	//
+	template <bool is_iterator, template <typename> typename AllocatorTemplate>
 	struct vr_schema : schema<is_iterator>
 	{
-		// define a scalar node
-		template <typename ResultType> 
-		using NODE = node<ResultType, std::list, is_iterator, A>;
-		//using NODE = node<ResultType, segmented_list_1024, is_iterator, A>;
-
-
+		template <typename ResultType>
+		using TIMENODE = time_node<ResultType, segmented_list_1024, is_iterator, AllocatorTemplate>;
 
 		// two kinds of children.  
 		//	child is a vector of schemas
 		template <typename ResultType>
-		using VECTOR_OF_SCHEMAS = named_vector<ResultType, A>;
+		using VECTOR_OF_SCHEMAS = named_vector<ResultType, AllocatorTemplate<char>>;
 			
 		// child is a vector of nodes
 		template <typename ResultType>
-		using VECTOR_OF_NODES = named_vector<NODE<ResultType>, A>;
+		using VECTOR_OF_TIMENODES = named_vector<TIMENODE<ResultType>, AllocatorTemplate<char>>;
 
 		struct hidden_mesh_schema : schema<is_iterator>
 		{
-			hidden_mesh_schema(const URL &name, const A &alloc)
+			hidden_mesh_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(hidden_mesh_triangle_count),
 				INIT(hidden_mesh_vertices)
 			{}
 
-			NODE<Uint32<>>			hidden_mesh_triangle_count;
-			NODE<HmdVector2s<A>>	hidden_mesh_vertices;
+			TIMENODE<Uint32<>>			hidden_mesh_triangle_count;
+			TIMENODE<HmdVector2s>		hidden_mesh_vertices;
 		};
 
 
 		struct eye_schema : schema<is_iterator>
 		{
-			eye_schema(const URL &name, const A &alloc)
+			eye_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(projection),
 				INIT(projection_raw),
@@ -54,29 +57,29 @@ namespace vr_result
 				INIT(hidden_meshes)
 			{}
 
-			NODE<HmdMatrix44<>>							projection;
-			NODE<HmdVector4<>>							projection_raw;
-			NODE<DistortionCoordinates<A,bool>>			distortion;
-			NODE<HmdMatrix34<>>							eye2head;
+			TIMENODE<HmdMatrix44<>>					projection;
+			TIMENODE<HmdVector4<>>					projection_raw;
+			TIMENODE<DistortionCoordinates<bool>>	distortion;
+			TIMENODE<HmdMatrix34<>>					eye2head;
 			VECTOR_OF_SCHEMAS<hidden_mesh_schema>	hidden_meshes;
 		};
 
 
 		struct component_on_controller_schema : schema<is_iterator>
 		{
-			component_on_controller_schema(const URL &name, const A &alloc)
+			component_on_controller_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(transforms),
 				INIT(transforms_scroll_wheel)
 			{}
 
-			NODE<RenderModelComponentState<bool>> transforms;
-			NODE<RenderModelComponentState<bool>> transforms_scroll_wheel;
+			TIMENODE<RenderModelComponentState<bool>> transforms;
+			TIMENODE<RenderModelComponentState<bool>> transforms_scroll_wheel;
 		};
 
 		struct system_controller_schema : schema<is_iterator>
 		{
-			system_controller_schema(const URL &name, const A &alloc)
+			system_controller_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(raw_tracking_pose),
 				INIT(seated_tracking_pose),
@@ -97,32 +100,32 @@ namespace vr_result
 				INIT(uint64_props),
 				INIT(components)
 			{}
-			NODE<DevicePose<>>		raw_tracking_pose;
-			NODE<DevicePose<>>		seated_tracking_pose;
-			NODE<DevicePose<>>		standing_tracking_pose;
-			NODE<ActivityLevel<>>	activity_level;
-			NODE<ControllerRole<>>	controller_role;
-			NODE<DeviceClass<>>	device_class;
-			NODE<Bool<>>           connected;
+			TIMENODE<DevicePose<>>		raw_tracking_pose;
+			TIMENODE<DevicePose<>>		seated_tracking_pose;
+			TIMENODE<DevicePose<>>		standing_tracking_pose;
+			TIMENODE<ActivityLevel<>>	activity_level;
+			TIMENODE<ControllerRole<>>	controller_role;
+			TIMENODE<DeviceClass<>>	device_class;
+			TIMENODE<Bool<>>           connected;
 
-			NODE<ControllerState<bool>>	controller_state;
-			NODE<DevicePose<bool>>		synced_seated_pose;
-			NODE<DevicePose<bool>>		synced_standing_pose;
-			NODE<DevicePose<bool>>		synced_raw_pose;
+			TIMENODE<ControllerState<bool>>	controller_state;
+			TIMENODE<DevicePose<bool>>		synced_seated_pose;
+			TIMENODE<DevicePose<bool>>		synced_standing_pose;
+			TIMENODE<DevicePose<bool>>		synced_raw_pose;
 
-			VECTOR_OF_NODES<String<A, ETrackedPropertyError>> string_props;
-			VECTOR_OF_NODES<Bool<ETrackedPropertyError>>		bool_props;
-			VECTOR_OF_NODES<Float<ETrackedPropertyError>>		float_props;
-			VECTOR_OF_NODES<HmdMatrix34<ETrackedPropertyError>>	mat34_props;
-			VECTOR_OF_NODES<Int32<ETrackedPropertyError>>		int32_props;
-			VECTOR_OF_NODES<Uint64<ETrackedPropertyError>>	uint64_props;
+			VECTOR_OF_TIMENODES<String<ETrackedPropertyError>>		string_props;
+			VECTOR_OF_TIMENODES<Bool<ETrackedPropertyError>>		bool_props;
+			VECTOR_OF_TIMENODES<Float<ETrackedPropertyError>>		float_props;
+			VECTOR_OF_TIMENODES<HmdMatrix34<ETrackedPropertyError>>	mat34_props;
+			VECTOR_OF_TIMENODES<Int32<ETrackedPropertyError>>		int32_props;
+			VECTOR_OF_TIMENODES<Uint64<ETrackedPropertyError>>	uint64_props;
 
 			VECTOR_OF_SCHEMAS<component_on_controller_schema> components;
 		};
 		
 		struct spatial_sort_schema : schema<is_iterator>
 		{
-			spatial_sort_schema(const URL &name, const A &alloc)
+			spatial_sort_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(hmds_sorted),
 				INIT(controllers_sorted),
@@ -130,15 +133,15 @@ namespace vr_result
 				INIT(reference_sorted)
 			{}
 
-			NODE<DeviceIndexes<A>> hmds_sorted;
-			NODE<DeviceIndexes<A>> controllers_sorted;
-			NODE<DeviceIndexes<A>> trackers_sorted;
-			NODE<DeviceIndexes<A>> reference_sorted;
+			TIMENODE<DeviceIndexes> hmds_sorted;
+			TIMENODE<DeviceIndexes> controllers_sorted;
+			TIMENODE<DeviceIndexes> trackers_sorted;
+			TIMENODE<DeviceIndexes> reference_sorted;
 		};
 
 		struct system_schema : schema<is_iterator>
 		{
-			system_schema(const URL &name, const A &alloc)
+			system_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(recommended_target_size),
 				INIT(seconds_since_last_vsync),
@@ -160,19 +163,19 @@ namespace vr_result
 				INIT(spatial_sorts)
 			{}
 
-			NODE<Uint32Size<>> recommended_target_size;
-			NODE<Float<bool>> seconds_since_last_vsync;
-			NODE<Uint64< bool>> frame_counter_since_last_vsync;
-			NODE<Bool<>> is_display_on_desktop;
-			NODE<HmdMatrix34<>> seated2standing;
-			NODE<HmdMatrix34<>> raw2standing;
-			NODE<Uint32<>> num_hmd;
-			NODE<Uint32<>> num_controller;
-			NODE<Uint32<>> num_tracking;
-			NODE<Uint32<>> num_reference;
-			NODE<Bool<>> input_focus_captured_by_other;
-			NODE<Int32<>> d3d9_adapter_index;
-			NODE<Int32<>> dxgi_output_info;
+			TIMENODE<Uint32Size<>> recommended_target_size;
+			TIMENODE<Float<bool>> seconds_since_last_vsync;
+			TIMENODE<Uint64< bool>> frame_counter_since_last_vsync;
+			TIMENODE<Bool<>> is_display_on_desktop;
+			TIMENODE<HmdMatrix34<>> seated2standing;
+			TIMENODE<HmdMatrix34<>> raw2standing;
+			TIMENODE<Uint32<>> num_hmd;
+			TIMENODE<Uint32<>> num_controller;
+			TIMENODE<Uint32<>> num_tracking;
+			TIMENODE<Uint32<>> num_reference;
+			TIMENODE<Bool<>> input_focus_captured_by_other;
+			TIMENODE<Int32<>> d3d9_adapter_index;
+			TIMENODE<Int32<>> dxgi_output_info;
 			int structure_version;
 
 			VECTOR_OF_SCHEMAS<eye_schema>				eyes;
@@ -182,7 +185,7 @@ namespace vr_result
 
 		struct application_schema : schema<is_iterator>
 		{
-			application_schema(const URL &name, const A &alloc)
+			application_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(application_key),
 				INIT(is_installed),
@@ -195,35 +198,35 @@ namespace vr_result
 				INIT(bool_props)
 			{}
 
-			NODE<String<A>>		application_key;
-			NODE<Bool<>>			is_installed;
-			NODE<Bool<>>			auto_launch;
-			NODE<String<A, bool>>	supported_mime_types;
-			NODE<Uint32<>>			process_id;
-			NODE<String<A>>		application_launch_arguments;
+			TIMENODE<String<>>		application_key;
+			TIMENODE<Bool<>>		is_installed;
+			TIMENODE<Bool<>>		auto_launch;
+			TIMENODE<String<bool>>	supported_mime_types;
+			TIMENODE<Uint32<>>		process_id;
+			TIMENODE<String<>>		application_launch_arguments;
 
-			VECTOR_OF_NODES<String<A, EVRApplicationError>>	string_props;
-			VECTOR_OF_NODES<Uint64<EVRApplicationError>>		uint64_props;
-			VECTOR_OF_NODES<Bool<EVRApplicationError>>		bool_props;
+			VECTOR_OF_TIMENODES<String<EVRApplicationError>>	string_props;
+			VECTOR_OF_TIMENODES<Uint64<EVRApplicationError>>		uint64_props;
+			VECTOR_OF_TIMENODES<Bool<EVRApplicationError>>		bool_props;
 		};
 
 		struct mime_type_schema : schema<is_iterator>
 		{
-			mime_type_schema(const URL &name, const A &alloc)
+			mime_type_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(mime_type),
 				INIT(default_application),
 				INIT(applications_that_support_mime_type)
 			{}
 
-			NODE<String<A>>			mime_type;
-			NODE<String<A, bool>>		default_application;
-			NODE<String<A>>			applications_that_support_mime_type;
+			TIMENODE<String<>>		mime_type;
+			TIMENODE<String<bool>>	default_application;
+			TIMENODE<String<>>		applications_that_support_mime_type;
 		};
 
 		struct applications_schema : schema<is_iterator>
 		{
-			applications_schema(const URL &name, const A &alloc)
+			applications_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(starting_application),
 				INIT(transition_state),
@@ -235,11 +238,11 @@ namespace vr_result
 				structure_version(0)
 			{}
 
-			NODE<String<A, EVRApplicationError>>	starting_application;
-			NODE<ApplicationTransitionState<>>		transition_state;
-			NODE<Bool<>>							is_quit_user_prompt;
-			NODE<Uint32<>>							current_scene_process_id;
-			NODE<Int32String<A>>					active_application_indexes;
+			TIMENODE<String<EVRApplicationError>>	starting_application;
+			TIMENODE<ApplicationTransitionState<>>		transition_state;
+			TIMENODE<Bool<>>							is_quit_user_prompt;
+			TIMENODE<Uint32<>>							current_scene_process_id;
+			TIMENODE<Int32String<>>					active_application_indexes;
 
 			VECTOR_OF_SCHEMAS<mime_type_schema>		mime_types;
 			VECTOR_OF_SCHEMAS<application_schema>		applications;
@@ -248,7 +251,7 @@ namespace vr_result
 
 		struct section_schema : schema<is_iterator>
 		{
-			section_schema(const URL &name, const A &alloc)
+			section_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(bool_settings),
 				INIT(string_settings),
@@ -256,15 +259,15 @@ namespace vr_result
 				INIT(int32_settings)
 			{}
 
-			VECTOR_OF_NODES<Bool<EVRSettingsError>>		bool_settings;
-			VECTOR_OF_NODES<String<A,EVRSettingsError>>	string_settigns;
-			VECTOR_OF_NODES<Float<EVRSettingsError>>		float_settings;
-			VECTOR_OF_NODES<Int32<EVRSettingsError>>		int32_settings;
+			VECTOR_OF_TIMENODES<Bool<EVRSettingsError>>		bool_settings;
+			VECTOR_OF_TIMENODES<String<EVRSettingsError>>	string_settigns;
+			VECTOR_OF_TIMENODES<Float<EVRSettingsError>>		float_settings;
+			VECTOR_OF_TIMENODES<Int32<EVRSettingsError>>		int32_settings;
 		};
 
 		struct settings_schema : schema<is_iterator>
 		{
-			settings_schema(const URL &name, const A &alloc)
+			settings_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(sections),
 				structure_version(0)
@@ -276,7 +279,7 @@ namespace vr_result
 
 		struct chaperone_schema : schema<is_iterator>
 		{
-			chaperone_schema(const URL &name, const A &alloc)
+			chaperone_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(calibration_state),
 				INIT(play_area_size),
@@ -285,17 +288,17 @@ namespace vr_result
 				INIT(bounds_colors),
 				INIT(camera_color)
 			{}
-			NODE<ChaperoneCalibrationState<>>	calibration_state;
-			NODE<HmdVector2<bool>>				play_area_size;
-			NODE<HmdQuad<bool>>					play_area_rect;
-			NODE<Bool<>>						bounds_visible;
-			NODE<HmdColorString<A>>				bounds_colors;
-			NODE<HmdColor<>>					camera_color;
+			TIMENODE<ChaperoneCalibrationState<>>	calibration_state;
+			TIMENODE<HmdVector2<bool>>				play_area_size;
+			TIMENODE<HmdQuad<bool>>					play_area_rect;
+			TIMENODE<Bool<>>						bounds_visible;
+			TIMENODE<HmdColorString<>>				bounds_colors;
+			TIMENODE<HmdColor<>>					camera_color;
 		};
 
 		struct chaperonesetup_schema : schema<is_iterator>
 		{
-			chaperonesetup_schema(const URL &name, const A &alloc)
+			chaperonesetup_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(working_play_area_size),
 				INIT(working_play_area_rect),
@@ -308,33 +311,33 @@ namespace vr_result
 				INIT(live_physical_bounds_info)
 			{}
 
-			NODE<HmdVector2<bool>>	working_play_area_size;
-			NODE<HmdQuad<bool>>		working_play_area_rect;
-			NODE<HmdQuad<bool>>     working_collision_bounds_info;
-			NODE<HmdQuad<bool>>     live_collision_bounds_info;
-			NODE<HmdMatrix34<bool>>	working_seated2rawtracking;
-			NODE<HmdMatrix34<bool>>	working_standing2rawtracking;
+			TIMENODE<HmdVector2<bool>>	working_play_area_size;
+			TIMENODE<HmdQuad<bool>>		working_play_area_rect;
+			TIMENODE<HmdQuad<bool>>     working_collision_bounds_info;
+			TIMENODE<HmdQuad<bool>>     live_collision_bounds_info;
+			TIMENODE<HmdMatrix34<bool>>	working_seated2rawtracking;
+			TIMENODE<HmdMatrix34<bool>>	working_standing2rawtracking;
 			
-			NODE<Uint8String<A, bool>>	live_collision_bounds_tags_info;
-			NODE<HmdMatrix34<bool>>		live_seated2rawtracking;
-			NODE<HmdQuadString<A,bool>> live_physical_bounds_info;
+			TIMENODE<Uint8String<bool>>	live_collision_bounds_tags_info;
+			TIMENODE<HmdMatrix34<bool>>		live_seated2rawtracking;
+			TIMENODE<HmdQuadString<bool>> live_physical_bounds_info;
 		};
 
 		struct compositor_controller_schema : schema<is_iterator>
 		{
-			compositor_controller_schema(const URL &name, const A &alloc)
+			compositor_controller_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(last_render_pose),
 				INIT(last_game_pose)
 			{}
 
-			NODE<DevicePose<EVRCompositorError>> last_render_pose;
-			NODE<DevicePose<EVRCompositorError>> last_game_pose;
+			TIMENODE<DevicePose<EVRCompositorError>> last_render_pose;
+			TIMENODE<DevicePose<EVRCompositorError>> last_game_pose;
 		};
 
 		struct compositor_schema : schema<is_iterator>
 		{
-			compositor_schema(const URL &name, const A &alloc)
+			compositor_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(tracking_space),
 				INIT(frame_timing),
@@ -354,28 +357,28 @@ namespace vr_result
 				INIT(controllers)
 			{}
 			
-			NODE<TrackingUniverseOrigin<>> tracking_space;
-			NODE<CompositorFrameTiming<bool>> frame_timing;
-			NODE<CompositorFrameTimingString<A>> frame_timings;
-			NODE<Float<>> frame_time_remaining;
-			NODE<CompositorCumulativeStats<>> cumulative_stats;
-			NODE<HmdColor<>> foreground_fade_color;
-			NODE<HmdColor<>> background_fade_color;
-			NODE<Float<>> grid_alpha;
-			NODE<Bool<>> is_fullscreen;
-			NODE<Uint32<>> current_scene_focus_process;
-			NODE<Uint32<>> last_frame_renderer;
-			NODE<Bool<>> can_render_scene;
-			NODE<Bool<>> is_mirror_visible;
-			NODE<Bool<>> should_app_render_with_low_resource;
-			NODE<String<A>> instance_extensions_required;
+			TIMENODE<TrackingUniverseOrigin<>> tracking_space;
+			TIMENODE<CompositorFrameTiming<bool>> frame_timing;
+			TIMENODE<CompositorFrameTimingString<>> frame_timings;
+			TIMENODE<Float<>> frame_time_remaining;
+			TIMENODE<CompositorCumulativeStats<>> cumulative_stats;
+			TIMENODE<HmdColor<>> foreground_fade_color;
+			TIMENODE<HmdColor<>> background_fade_color;
+			TIMENODE<Float<>> grid_alpha;
+			TIMENODE<Bool<>> is_fullscreen;
+			TIMENODE<Uint32<>> current_scene_focus_process;
+			TIMENODE<Uint32<>> last_frame_renderer;
+			TIMENODE<Bool<>> can_render_scene;
+			TIMENODE<Bool<>> is_mirror_visible;
+			TIMENODE<Bool<>> should_app_render_with_low_resource;
+			TIMENODE<String<>> instance_extensions_required;
 
 			VECTOR_OF_SCHEMAS<compositor_controller_schema> controllers;
 		};
 
 		struct per_overlay_state : schema<is_iterator>
 		{
-			per_overlay_state(const URL &name, const A &alloc)
+			per_overlay_state(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(overlay_key),
 				INIT(overlay_handle),
@@ -408,44 +411,44 @@ namespace vr_result
 				INIT(events)
 			{}
 
-			NODE<String<A>> overlay_key;
-			NODE<OverlayHandle<EVROverlayError>> overlay_handle;   // i'm assuming keys are unique, not handles - handles can be reused
-			NODE<String<A, EVROverlayError>> overlay_name;
+			TIMENODE<String<>> overlay_key;
+			TIMENODE<OverlayHandle<EVROverlayError>> overlay_handle;   // i'm assuming keys are unique, not handles - handles can be reused
+			TIMENODE<String<EVROverlayError>> overlay_name;
 
-			NODE<Uint32<EVROverlayError>> overlay_image_width;
-			NODE<Uint32<EVROverlayError>> overlay_image_height;
-			NODE<Uint8String<A, EVROverlayError>> overlay_image_data;
+			TIMENODE<Uint32<EVROverlayError>> overlay_image_width;
+			TIMENODE<Uint32<EVROverlayError>> overlay_image_height;
+			TIMENODE<Uint8String<EVROverlayError>> overlay_image_data;
 
-			NODE<Uint32<>> overlay_rendering_pid;
-			NODE<Uint32<EVROverlayError>> overlay_flags;
-			NODE<RGBColor<EVROverlayError>> overlay_color;
-			NODE<Float<EVROverlayError>> overlay_alpha;
-			NODE<Float<EVROverlayError>> overlay_texel_aspect;
-			NODE<Uint32<EVROverlayError>> overlay_sort_order;
-			NODE<Float<EVROverlayError>> overlay_width_in_meters;
-			NODE<FloatRange<EVROverlayError>> overlay_auto_curve_range_in_meters;
-			NODE<ColorSpace<EVROverlayError>> overlay_texture_color_space;
-			NODE<TextureBounds<EVROverlayError>> overlay_texture_bounds;
-			NODE<OverlayTransformType<EVROverlayError>> overlay_transform_type;
-			NODE<AbsoluteTransform<EVROverlayError>> overlay_transform_absolute;
-			NODE<TrackedDeviceRelativeTransform<EVROverlayError>> overlay_transform_device_relative;
-			NODE<DeviceIndex<EVROverlayError>> overlay_transform_component_relative_device_index;
-			NODE<String<A, EVROverlayError>> overlay_transform_component_relative_name;
+			TIMENODE<Uint32<>> overlay_rendering_pid;
+			TIMENODE<Uint32<EVROverlayError>> overlay_flags;
+			TIMENODE<RGBColor<EVROverlayError>> overlay_color;
+			TIMENODE<Float<EVROverlayError>> overlay_alpha;
+			TIMENODE<Float<EVROverlayError>> overlay_texel_aspect;
+			TIMENODE<Uint32<EVROverlayError>> overlay_sort_order;
+			TIMENODE<Float<EVROverlayError>> overlay_width_in_meters;
+			TIMENODE<FloatRange<EVROverlayError>> overlay_auto_curve_range_in_meters;
+			TIMENODE<ColorSpace<EVROverlayError>> overlay_texture_color_space;
+			TIMENODE<TextureBounds<EVROverlayError>> overlay_texture_bounds;
+			TIMENODE<OverlayTransformType<EVROverlayError>> overlay_transform_type;
+			TIMENODE<AbsoluteTransform<EVROverlayError>> overlay_transform_absolute;
+			TIMENODE<TrackedDeviceRelativeTransform<EVROverlayError>> overlay_transform_device_relative;
+			TIMENODE<DeviceIndex<EVROverlayError>> overlay_transform_component_relative_device_index;
+			TIMENODE<String<EVROverlayError>> overlay_transform_component_relative_name;
 
-			NODE<OverlayInputMethod<EVROverlayError>> overlay_input_method;
-			NODE<HmdVector2<EVROverlayError>> overlay_mouse_scale;
-			NODE<Bool<>> overlay_is_hover_target;
-			NODE<Bool<>> overlay_is_visible;
-			NODE<Bool<>> overlay_is_active_dashboard;
-			NODE<Uint32Size<EVROverlayError>> overlay_texture_size;
-			NODE<Uint32<EVROverlayError>> overlay_dashboard_scene_process;
-			//NODE<VREvent<>> events;	// experiment
+			TIMENODE<OverlayInputMethod<EVROverlayError>> overlay_input_method;
+			TIMENODE<HmdVector2<EVROverlayError>> overlay_mouse_scale;
+			TIMENODE<Bool<>> overlay_is_hover_target;
+			TIMENODE<Bool<>> overlay_is_visible;
+			TIMENODE<Bool<>> overlay_is_active_dashboard;
+			TIMENODE<Uint32Size<EVROverlayError>> overlay_texture_size;
+			TIMENODE<Uint32<EVROverlayError>> overlay_dashboard_scene_process;
+			//TIMENODE<VREvent<>> events;	// experiment
 
 		};
 
 		struct overlay_schema : schema<is_iterator>
 		{
-			overlay_schema(const URL &name, const A &alloc)
+			overlay_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(gamepad_focus_overlay),
 				INIT(primary_dashboard_device),
@@ -455,32 +458,32 @@ namespace vr_result
 				INIT(overlays)
 			{}
 
-			NODE<OverlayHandle<>> gamepad_focus_overlay;
-			NODE<DeviceIndex<>> primary_dashboard_device;
-			NODE<Bool<>> is_dashboard_visible;
-			NODE<Int32String<A>> active_overlay_indexes;
-			NODE<String<A>> keyboard_text;
+			TIMENODE<OverlayHandle<>> gamepad_focus_overlay;
+			TIMENODE<DeviceIndex<>> primary_dashboard_device;
+			TIMENODE<Bool<>> is_dashboard_visible;
+			TIMENODE<Int32String<>> active_overlay_indexes;
+			TIMENODE<String<>> keyboard_text;
 			
 			VECTOR_OF_SCHEMAS<per_overlay_state> overlays;
 		};
 
 		struct rendermodel_component_schema
 		{
-			rendermodel_component_schema(const URL &name, const A &alloc)
+			rendermodel_component_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(component_name),
 				INIT(button_mask),
 				INIT(render_model_name)
 			{}
 
-			NODE<String<A>> component_name;
-			NODE<Uint64<>> button_mask;
-			NODE<String<A, bool>> render_model_name;
+			TIMENODE<String<>> component_name;
+			TIMENODE<Uint64<>> button_mask;
+			TIMENODE<String<bool>> render_model_name;
 		};
 
 		struct rendermodel_schema : schema<is_iterator>
 		{
-			rendermodel_schema(const URL &name, const A &alloc)
+			rendermodel_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(render_model_name),
 				INIT(thumbnail_url),
@@ -492,22 +495,22 @@ namespace vr_result
 				INIT(texture_map_data),
 				INIT(components)
 			{}
-			NODE<String<A>> render_model_name;
-			NODE<String<A, EVRRenderModelError>> thumbnail_url;
-			NODE<String<A, EVRRenderModelError>> original_path;
-			NODE<RenderModelVertexString<A, EVRRenderModelError>> vertex_data;
-			NODE<Uint16String<A,EVRRenderModelError>> index_data;
+			TIMENODE<String<>> render_model_name;
+			TIMENODE<String<EVRRenderModelError>> thumbnail_url;
+			TIMENODE<String<EVRRenderModelError>> original_path;
+			TIMENODE<RenderModelVertexString<EVRRenderModelError>> vertex_data;
+			TIMENODE<Uint16String<EVRRenderModelError>> index_data;
 
-			NODE<Uint16<EVRRenderModelError>> texture_width;
-			NODE<Uint16<EVRRenderModelError>> texture_height;
-			NODE<Uint8String<A,EVRRenderModelError>> texture_map_data;
+			TIMENODE<Uint16<EVRRenderModelError>> texture_width;
+			TIMENODE<Uint16<EVRRenderModelError>> texture_height;
+			TIMENODE<Uint8String<EVRRenderModelError>> texture_map_data;
 
 			VECTOR_OF_SCHEMAS<rendermodel_component_schema> components;
 		};
 
 		struct rendermodels_schema : schema<is_iterator>
 		{
-			rendermodels_schema(const URL &name, const A &alloc)
+			rendermodels_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(models),
 				structure_version(-1)
@@ -519,7 +522,7 @@ namespace vr_result
 
 		struct cameraframetype_schema : schema<is_iterator>
 		{
-			cameraframetype_schema(const URL &name, const A &alloc)
+			cameraframetype_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(frame_size),
 				INIT(intrinsics),
@@ -527,27 +530,27 @@ namespace vr_result
 				INIT(video_texture_size)
 			{}
 
-			NODE<CameraFrameSize<EVRTrackedCameraError>> frame_size;
-			NODE<CameraFrameIntrinsics<EVRTrackedCameraError>> intrinsics;
-			NODE<HmdMatrix44<EVRTrackedCameraError>> projection;
-			NODE<VideoStreamTextureSize<EVRTrackedCameraError>> video_texture_size;
+			TIMENODE<CameraFrameSize<EVRTrackedCameraError>> frame_size;
+			TIMENODE<CameraFrameIntrinsics<EVRTrackedCameraError>> intrinsics;
+			TIMENODE<HmdMatrix44<EVRTrackedCameraError>> projection;
+			TIMENODE<VideoStreamTextureSize<EVRTrackedCameraError>> video_texture_size;
 		};
 
 		struct controller_camera_schema : schema<is_iterator>
 		{
-			controller_camera_schema(const URL &name, const A &alloc)
+			controller_camera_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(has_camera),
 				INIT(cameraframetypes)
 			{}
 
-			NODE<Bool<EVRTrackedCameraError>> has_camera;
+			TIMENODE<Bool<EVRTrackedCameraError>> has_camera;
 			VECTOR_OF_SCHEMAS<cameraframetype_schema> cameraframetypes;
 		};
 
 		struct trackedcamera_schema : schema<is_iterator>
 		{
-			trackedcamera_schema(const URL &name, const A &alloc)
+			trackedcamera_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(controllers)
 			{}
@@ -557,21 +560,21 @@ namespace vr_result
 
 		struct extendeddisplay_schema : schema<is_iterator>
 		{
-			extendeddisplay_schema(const URL &name, const A &alloc)
+			extendeddisplay_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(window_bounds),
 				INIT(left_output_viewport),
 				INIT(right_output_viewport)
 			{}
 
-			NODE<WindowBounds<>> window_bounds;
-			NODE<ViewPort<>> left_output_viewport;
-			NODE<ViewPort<>> right_output_viewport;
+			TIMENODE<WindowBounds<>> window_bounds;
+			TIMENODE<ViewPort<>> left_output_viewport;
+			TIMENODE<ViewPort<>> right_output_viewport;
 		};
 
 		struct resource_schema : schema<is_iterator>
 		{
-			resource_schema(const URL &name, const A &alloc) : schema<is_iterator>
+			resource_schema(const URL &name ALLOC_DECL) : schema<is_iterator>
 				: schema<is_iterator>(name),
 				INIT(resource_name),
 				INIT(resource_directory),
@@ -579,15 +582,15 @@ namespace vr_result
 				INIT(resource_data)
 			{}
 
-			NODE<String<A>> resource_name;
-			NODE<String<A>> resource_directory;
-			NODE<String<A>> resource_full_path;
-			NODE<Uint8String<A>> resource_data;
+			TIMENODE<String<>> resource_name;
+			TIMENODE<String<>> resource_directory;
+			TIMENODE<String<>> resource_full_path;
+			TIMENODE<Uint8String<>> resource_data;
 		};
 
 		struct resources_schema : schema<is_iterator>
 		{
-			resources_schema(const URL &name, const A &alloc)
+			resources_schema(const URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(resources)
 			{}
@@ -595,7 +598,7 @@ namespace vr_result
 			VECTOR_OF_SCHEMAS<resource_schema> resources;
 		};
 
-		vr_schema(const URL &name, const A & alloc)
+		vr_schema(const URL &name/*, const A & alloc*/)
 			: schema<is_iterator>(name),
 			INIT(system_node),
 			INIT(applications_node),
@@ -623,5 +626,5 @@ namespace vr_result
 		resources_schema        resources_node;
 	};
 	
-	using vr_state = vr_schema<false, VRAllocator>;
+	using vr_state = vr_schema<false, VRAllocatorTemplate>;
 }
