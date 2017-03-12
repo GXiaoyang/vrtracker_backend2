@@ -1049,15 +1049,17 @@ static void visit_permodelcomponent(
 	RenderModelWrapper wrap,
 	const char *pchRenderModelName, uint32_t component_index)
 {
-	visitor.start_group_node("component", component_index);
+	visitor.start_group_node(ss->get_url(), component_index);
 
 	if (visitor.visit_source_interfaces())
 	{
-		vector_result<char> component_model_name
-			= wrap.GetComponentModelName(pchRenderModelName, component_index);
-		visitor.visit_node(ss->component_name, component_model_name.val.data(), component_model_name.count);
+		TMPString<> component_model_name;
+		wrap.GetComponentModelName(pchRenderModelName, component_index, &component_model_name);
+		visitor.visit_node(ss->component_name, component_model_name);
 		LEAF_SCALAR(button_mask, wrap.GetComponentButtonMask(pchRenderModelName, component_model_name.val.data()));
-		LEAF_VECTOR1(render_model_name, wrap.GetComponentRenderModelName(pchRenderModelName, component_model_name.val.data()));
+		TMPString<bool> tmp;
+		LEAF_VECTOR1(render_model_name, 
+				wrap.GetComponentRenderModelName(pchRenderModelName, component_model_name.val.data(), &tmp));
 	}
 	else
 	{
@@ -1066,7 +1068,7 @@ static void visit_permodelcomponent(
 		visitor.visit_node(ss->render_model_name);
 	}
 
-	visitor.end_group_node("component", component_index);
+	visitor.end_group_node(ss->get_url(), component_index);
 }
 
 template <typename visitor_fn>
@@ -1077,14 +1079,16 @@ static void visit_rendermodel(visitor_fn &visitor,
 	uint32_t unRenderModelIndex, PlaceHolderAllocator &allocator)
 {
 
-	visitor.start_group_node("model", unRenderModelIndex);
+	visitor.start_group_node(ss->get_url(), unRenderModelIndex);
 	if (visitor.visit_source_interfaces())
 	{
-		vector_result<char> render_model_name_result(wrap.string_pool);
-		render_model_name_result = wrap.GetRenderModelName(unRenderModelIndex);
-		visitor.visit_node(ss->render_model_name, render_model_name_result.val.data(), render_model_name_result.count);
-		LEAF_VECTOR1(thumbnail_url, wrap.GetRenderModelThumbnailURL(render_model_name_result.val.data()));
-		LEAF_VECTOR1(original_path, wrap.GetRenderModelOriginalPath(render_model_name_result.val.data()));
+		TMPString<> name;
+		wrap.GetRenderModelName(unRenderModelIndex, &name);
+
+		visitor.visit_node(ss->render_model_name, name);
+		TMPString<EVRRenderModelError> tmp;
+		visitor.visit_node(ss->thumbnail_url, wrap.GetRenderModelThumbnailURL(name.val.data(), &tmp));
+		visitor.visit_node(ss->original_path, wrap.GetRenderModelOriginalPath(name.val.data(), &tmp));
 	}
 	else
 	{
@@ -1094,7 +1098,8 @@ static void visit_rendermodel(visitor_fn &visitor,
 	}
 
 	// every body wants the render model name
-	const char *render_model_name = &ss->render_model_name.latest().at(0);
+	// todo: index the rendermodels
+	const char *render_model_name = ss->render_model_name.latest().get_value().val.data();
 
 	RenderModel_t *pRenderModel = nullptr;
 	RenderModel_TextureMap_t *pTexture = nullptr;
@@ -1124,14 +1129,11 @@ static void visit_rendermodel(visitor_fn &visitor,
 				unHeight = pTexture->unHeight;
 				rubTextureMapData = pTexture->rubTextureMapData;
 			}
-			visitor.visit_node(ss->vertex_data, rVertexData, rc, unVertexCount);
-			visitor.visit_node(ss->index_data, rIndexData, rc, unTriangleCount * 3);
-			visitor.visit_node(ss->texture_map_data, rubTextureMapData, rc, unWidth * unHeight * 4);
-
-			uint16_t, EVRRenderModelError> height(unHeight, rc);
-			uint16_t, EVRRenderModelError> width(unWidth, rc);
-			visitor.visit_node(ss->texture_height, height);
-			visitor.visit_node(ss->texture_width, width);
+			visitor.visit_node(ss->vertex_data, make_result(gsl::make_span(rVertexData, unVertexCount), rc));
+			visitor.visit_node(ss->index_data, make_result(gsl::make_span(rIndexData, unTriangleCount*3), rc));
+			visitor.visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, unWidth * unHeight * 4), rc));
+			visitor.visit_node(ss->texture_height, make_result(unHeight, rc));
+			visitor.visit_node(ss->texture_width, make_result(unWidth, rc));
 
 			// Note: TextureID_t::diffuseTextureId is not stored because the whole texture is stored.
 
@@ -1156,21 +1158,23 @@ static void visit_rendermodel(visitor_fn &visitor,
 	{
 		component_count = (int)wrap.GetComponentCount(render_model_name);
 		ss->components.reserve(component_count);
-		while ((int)ss->components.size() < component_count)
+		while (size_as_int(ss->components.size()) < component_count)
 		{
-			ss->components.emplace_back(allocator);
+			TMPString<> component_model_name;
+			wrap.GetComponentModelName(render_model_name, ss->components.size(), &component_model_name);
+			ss->components.emplace_back(ss->components.make_url_for_child(component_model_name.val.data()));
 			*structure_version += 1;
 		}
 	}
 	// consider the decoder - he needs to know how many componets are going to
 	// be sent to him
 	START_VECTOR(components);
-	for (int i = 0; i < (int)ss->components.size(); i++)
+	for (int i = 0; i < size_as_int(ss->components.size()); i++)
 	{
 		visit_permodelcomponent(visitor, &ss->components[i], wrap, render_model_name, i);
 	}
 	END_VECTOR(components);
-	visitor.end_group_node("model", unRenderModelIndex);
+	visitor.end_group_node(ss->get_url(), unRenderModelIndex);
 }
 
 
@@ -1319,18 +1323,22 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 }
 
 template <typename visitor_fn>
-static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_schema *ss, RenderModelWrapper rmw, PlaceHolderAllocator &allocator)
+static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_schema *ss, 
+	RenderModelWrapper wrap, PlaceHolderAllocator &allocator)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
 	if (visitor.visit_source_interfaces())
 	{
-		Uint32<> current_rendermodels = rmw.GetRenderModelCount();
+		Uint32<> current_rendermodels = wrap.GetRenderModelCount();
 		int num_render_models = current_rendermodels.val;
 		ss->models.reserve(num_render_models);
-		while ((int)ss->models.size() < num_render_models)
+		while (size_as_int(ss->models.size()) < num_render_models)
 		{
-			ss->models.emplace_back(allocator);
+			TMPString<> name;
+			wrap.GetRenderModelName(ss->models.size(), &name);
+
+			ss->models.emplace_back(ss->models.make_url_for_child(name.val.data()));
 			ss->structure_version += 1;
 		}
 	}
@@ -1338,7 +1346,7 @@ static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_
 	START_VECTOR(models);
 	for (int i = 0; i < (int)ss->models.size(); i++)
 	{
-		visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, rmw, i, allocator);
+		visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, wrap, i, allocator);
 	}
 	END_VECTOR(models);
 	visitor.end_group_node(ss->get_url(), -1);
@@ -1378,10 +1386,10 @@ static void visit_cameraframetype_schema(visitor_fn &visitor,
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
-	CameraFrameSize_t, EVRTrackedCameraError> f;
-	CameraFrameIntrinsics_t, EVRTrackedCameraError> intrinsics;
-	HmdMatrix44_t, EVRTrackedCameraError> projection;
-	VideoStreamTextureSize_t, EVRTrackedCameraError> video_texture_size;
+	CameraFrameSize<EVRTrackedCameraError> f;
+	CameraFrameIntrinsics<EVRTrackedCameraError> intrinsics;
+	HmdMatrix44<EVRTrackedCameraError> projection;
+	VideoStreamTextureSize<EVRTrackedCameraError> video_texture_size;
 
 	LEAF_SCALAR(frame_size, tcw.GetCameraFrameSize(device_index, frame_type, &f));
 	LEAF_SCALAR(intrinsics, tcw.GetCameraIntrinsics(device_index, frame_type, &intrinsics));
@@ -1404,7 +1412,8 @@ static void visit_per_controller_state(visitor_fn &visitor,
 		ss->cameraframetypes.reserve(EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES);
 		for (int i = 0; i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
 		{
-			ss->cameraframetypes.emplace_back(allocator);
+			const char *child_name = FrameTypeToGroupName(EVRTrackedCameraFrameType(i));
+			ss->cameraframetypes.emplace_back(ss->cameraframetypes.make_url_for_child(child_name));
 		}
 	}
 	START_VECTOR(cameraframetypes);
@@ -1422,21 +1431,22 @@ static void visit_trackedcamera_state(visitor_fn &visitor,
 	vr_keys &resource_keys,
 	PlaceHolderAllocator &allocator)
 {
-	visitor.start_group_node("camera", -1);
+	visitor.start_group_node(ss->get_url(), -1);
 	ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
 	while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 	{
-		ss->controllers.emplace_back(allocator);
+		const char *child_name = std::to_string(ss->controllers.size()).c_str();
+		ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name));
 	}
 
 	START_VECTOR(controllers);
-	for (int i = 0; i < (int)ss->controllers.size(); i++)
+	for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
 	{
 		visit_per_controller_state(visitor, &ss->controllers[i], tcw, i, resource_keys, allocator);
 	}
 	END_VECTOR(controllers);
 
-	visitor.end_group_node("camera", -1);
+	visitor.end_group_node(ss->get_url(), -1);
 }
 
 template <typename visitor_fn>
@@ -1445,27 +1455,27 @@ static void visit_per_resource(visitor_fn &visitor,
 	int i, vr_keys &resource_keys,
 	PlaceHolderAllocator &allocator)
 {
-	visitor.start_group_node("resource", i);
+	visitor.start_group_node(ss->get_url(), i);
 	if (visitor.visit_source_interfaces())
 	{
 		int fname_size;
 		const char *fname = resource_keys.GetResourcesIndexer().get_filename_for_index(i, &fname_size);
 		int dname_size;
 		const char *dname = resource_keys.GetResourcesIndexer().get_directoryname_for_index(i, &dname_size);
-		visitor.visit_node(ss->resources[i].resource_name, fname, fname_size);
-		visitor.visit_node(ss->resources[i].resource_directory, dname, dname_size);
+		visitor.visit_node(ss->resources[i].resource_name, make_result(gsl::make_span(fname, fname_size)));
+		visitor.visit_node(ss->resources[i].resource_directory, make_result(gsl::make_span(dname, dname_size)));
 
-		vector_result<char> full_path(wrap.string_pool);
+		TMPString<> full_path;
 		wrap.GetFullPath(
 			fname,
 			dname,
 			&full_path);
 
-		visitor.visit_node(ss->resources[i].resource_full_path, full_path.val.data(), full_path.count);
+		visitor.visit_node(ss->resources[i].resource_full_path, full_path);
 
 		uint8_t *data;
 		uint32_t size = wrap.GetImageData(full_path.val.data(), &data);
-		visitor.visit_node(ss->resources[i].resource_data, data, size);
+		visitor.visit_node(ss->resources[i].resource_data, make_result(gsl::make_span(data, size)));
 		wrap.FreeImageData(data);
 	}
 	else
@@ -1475,7 +1485,7 @@ static void visit_per_resource(visitor_fn &visitor,
 		visitor.visit_node(ss->resources[i].resource_full_path);
 		visitor.visit_node(ss->resources[i].resource_data);
 	}
-	visitor.end_group_node("resource", i);
+	visitor.end_group_node(ss->get_url(), i);
 }
 
 
@@ -1485,14 +1495,15 @@ static void visit_resources_state(visitor_fn &visitor,
 	vr_keys &resource_keys,
 	PlaceHolderAllocator &allocator)
 {
-	visitor.start_group_node("resources", -1);
+	visitor.start_group_node(ss->get_url(), -1);
 
 	if ((int)ss->resources.size() < resource_keys.GetResourcesIndexer().get_num_resources())
 	{
 		ss->resources.reserve(resource_keys.GetResourcesIndexer().get_num_resources());
 		while ((int)ss->resources.size() < resource_keys.GetResourcesIndexer().get_num_resources())
 		{
-			ss->resources.emplace_back(allocator);
+			const char *child_name = std::to_string(ss->resources.size()).c_str();
+			ss->resources.emplace_back(ss->resources.make_url_for_child(child_name));
 		}
 	}
 
@@ -1503,7 +1514,7 @@ static void visit_resources_state(visitor_fn &visitor,
 	}
 	END_VECTOR(resources);
 
-	visitor.end_group_node("resources", -1);
+	visitor.end_group_node(ss->get_url(), -1);
 }
 
 

@@ -466,7 +466,7 @@ namespace vr_result
 			VECTOR_OF_SCHEMAS<per_overlay_state> overlays;
 		};
 
-		struct rendermodel_component_schema
+		struct rendermodel_component_schema : schema<is_iterator>
 		{
 			rendermodel_component_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
@@ -573,7 +573,7 @@ namespace vr_result
 
 		struct resource_schema : schema<is_iterator>
 		{
-			resource_schema(const base::URL &name ALLOC_DECL) : schema<is_iterator>
+			resource_schema(const base::URL &name ALLOC_DECL) 
 				: schema<is_iterator>(name),
 				INIT(resource_name),
 				INIT(resource_directory),

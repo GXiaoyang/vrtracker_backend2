@@ -50,28 +50,14 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 
 	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, outer_state->additional_resource_keys, p);
 	
-	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, allocator);
+	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, p);
 
-#if 0
-	//if (interfaces.exdi)
-	{
-		twrap t("extendeddisplay_node");
-		visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
-	}
+	visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
 
-	//if (interfaces.taci)
-	{
-		twrap t("trackedcamera_node");
-		visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper,
-			outer_state->additional_resource_keys, allocator);
-	}
+	visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper,
+			outer_state->additional_resource_keys, p);
 
-	//if (interfaces.resi)
-	{
-		twrap t("resources_node");
-		visit_resources_state(visitor, &s->resources_node, resources_wrapper, outer_state->additional_resource_keys, allocator);
-	}
-#endif
+	visit_resources_state(visitor, &s->resources_node, resources_wrapper, outer_state->additional_resource_keys, p);
 }
 
 
