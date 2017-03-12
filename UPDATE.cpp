@@ -34,13 +34,11 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 
 	visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper,
 			outer_state->additional_resource_keys, p);
-#if 0
-	//if (interfaces.appi)
-	{
-		twrap t("applications_node");
-		visit_applications_node(visitor, &s->applications_node, application_wrapper, outer_state->additional_resource_keys, allocator);
-	}
 
+	visit_applications_node(visitor, &s->applications_node, application_wrapper, 
+		outer_state->additional_resource_keys, p);
+	
+#if 0
 	//if (interfaces.seti)
 	{
 		twrap t("settings_node");
@@ -105,50 +103,30 @@ void UPDATE_USE_CASE()
 	using namespace vr_result;
 	using std::range;
 
+	// 
+	// Initialize base
+	//
 	slab s(1024 * 1024);
+	slab_allocator<char>::m_temp_slab = &s;
+	tmp_vector_pool<VRTMPSize> tmp_pool;
+	vr_tmp_vector_base::m_global_pool = &tmp_pool;
+
+
+
+
+
 	slab_allocator<char> allocator;
 	vr_tracker<slab_allocator<char>> tracker(&s);
 
 	auto &system = tracker.m_state.system_node;
 	auto &controllers = tracker.m_state.system_node.controllers;
-	controllers.emplace_back(URL());
+
 
 	update_history_visitor visitor(1);
 
 	openvr_broker::open_vr_interfaces interfaces;
+	char *error;
+	openvr_broker::acquire_interfaces("raw", &interfaces, &error);
 	traverse_history_graph_sequential(visitor, &tracker, interfaces);
-
-
-	if (system.seconds_since_last_vsync.empty())
-	{
-		printf("bla");
-	}
-	visitor.start_group_node(system.get_url(), 0);
-
-	// I need an easy way to create temporary result vectors that know to allocate from the internal heap
-	// and to convert into the correct destination allocator
-
-	slab_allocator<char> final_allocator;
-
-	//TMPDeviceIndexes tmp(tracker.tmp_pool(), tracker.final_allocator());
-	TMPDeviceIndexes tmp;
-
-	//TMPDeviceIndexes<A>
-	//TMPDeviceIndexes
-	//	tmp(slab_allocator<tmp_vector<vr::TrackedDeviceIndex_t, slab_allocator<TrackedDeviceIndex_t>, 32768>>());
-
-	SystemWrapper sys_wrap(nullptr);
-	sys_wrap.GetSortedTrackedDeviceIndicesOfClass(vr::TrackedDeviceClass_HMD, 0, &tmp);
-
-
-	visitor.end_group_node(system.get_url(), 0);
-
-
-
-	printf("%d", system.controllers[0].activity_level.latest().get_value().val);
-	printf("%d", system.controllers[0].bool_props[0].latest().get_value().val);
-
-
-
 }
 

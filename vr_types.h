@@ -248,6 +248,7 @@ using output_type = Result<output_type ## VectorOnly, ReturnCode>;
 	DEFINE_TMP_STRING(TMPHmdQuadString, vr::HmdQuad_t);
 	DEFINE_TMP_STRING(TMPUint8String, uint8_t);
 	DEFINE_TMP_STRING(TMPCompositorFrameTimingString, vr::Compositor_FrameTiming);
+	DEFINE_TMP_STRING(TMPInt32String, uint32_t);
 
 	template <typename ReturnCode = NoReturnCode>
 	using CompositorFrameTimingString = ResultVector<vr::Compositor_FrameTiming, ReturnCode>;

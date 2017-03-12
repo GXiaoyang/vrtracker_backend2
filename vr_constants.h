@@ -18,6 +18,13 @@ struct ValidReturnCode<vr::ETrackedPropertyError>
 };
 
 template <>
+struct ValidReturnCode<vr::EVRApplicationError>
+{
+	static const vr::EVRApplicationError return_code = vr::VRApplicationError_None;
+};
+
+
+template <>
 struct ValidReturnCode<bool>
 {
 	static const bool return_code = true;

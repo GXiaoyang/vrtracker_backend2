@@ -15,21 +15,21 @@ struct update_history_visitor
 	inline bool visit_source_interfaces() { return true; }
 	inline bool reload_render_models() { return false; }
 
-	inline void start_group_node(const URL &url_name, int group_id_index)
+	inline void start_group_node(const base::URL &url_name, int group_id_index)
 	{}
 
-	inline void end_group_node(const URL &group_id_name, int group_id_index)
+	inline void end_group_node(const base::URL &group_id_name, int group_id_index)
 	{}
 
 	// this should give the history half and the openvr half
 	// because if openvr resizes something, then the history visitor should have a chance to resize
 	// as well
 	template <typename T>
-	inline void start_vector(const URL &vector_name, T &vec)
+	inline void start_vector(const base::URL &vector_name, T &vec)
 	{}
 
 	template <typename T>
-	inline void end_vector(const URL &vector_name, T &vec)
+	inline void end_vector(const base::URL &vector_name, T &vec)
 	{}
 
 	template <typename HistoryVectorType, typename ResultType>

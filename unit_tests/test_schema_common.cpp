@@ -24,7 +24,7 @@ struct test_schema : public schema<is_iterator>
 
 	struct sub_schema : schema<is_iterator>
 	{
-		sub_schema(const URL &name)
+		sub_schema(const base::URL &name)
 			: schema<is_iterator>(name)
 
 			{}
@@ -38,7 +38,7 @@ struct test_schema : public schema<is_iterator>
 
 	};
 
-	test_schema(const URL &name = URL())  
+	test_schema(const base::URL &name = base::URL())  
 		: schema<is_iterator>(name),
 		one(name.make_child("one"))
 		{}

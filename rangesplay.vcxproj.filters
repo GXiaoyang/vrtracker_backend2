@@ -254,5 +254,8 @@
     <ClCompile Include="unit_tests\test_schema_common.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
+    <ClCompile Include="openvr_broker.cpp">
+      <Filter>Source Files\vr base</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

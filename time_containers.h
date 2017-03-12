@@ -37,18 +37,18 @@ private:
 template <	typename T,
 	template <typename, typename> class Container,
 	template <typename> typename A>
-	struct time_indexed_vector : url_named
+	struct time_indexed_vector : base::url_named
 {
 	typedef T									value_type;
 	typedef time_indexed<T>						time_indexed_type;
 	typedef Container<time_indexed_type, A<time_indexed_type>>	container_type_t;
 	typedef typename container_type_t::iterator iterator;
 
-	time_indexed_vector()
-	{}
+//	time_indexed_vector()
+//	{}
 
 	template<typename... Args>
-	time_indexed_vector(const URL &url, Args&&... args)
+	time_indexed_vector(const base::URL &url = base::URL(), Args&&... args)
 		:
 		url_named(url),
 		container(std::forward<Args>(args)...)

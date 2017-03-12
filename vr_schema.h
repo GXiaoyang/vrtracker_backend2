@@ -27,15 +27,15 @@ namespace vr_result
 		// two kinds of children.  
 		//	child is a vector of schemas
 		template <typename ResultType>
-		using VECTOR_OF_SCHEMAS = named_vector<ResultType, AllocatorTemplate<char>>;
+		using VECTOR_OF_SCHEMAS = base::named_vector<ResultType, AllocatorTemplate<char>>;
 			
 		// child is a vector of nodes
 		template <typename ResultType>
-		using VECTOR_OF_TIMENODES = named_vector<TIMENODE<ResultType>, AllocatorTemplate<char>>;
+		using VECTOR_OF_TIMENODES = base::named_vector<TIMENODE<ResultType>, AllocatorTemplate<char>>;
 
 		struct hidden_mesh_schema : schema<is_iterator>
 		{
-			hidden_mesh_schema(const URL &name ALLOC_DECL)
+			hidden_mesh_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(hidden_mesh_triangle_count),
 				INIT(hidden_mesh_vertices)
@@ -48,7 +48,7 @@ namespace vr_result
 
 		struct eye_schema : schema<is_iterator>
 		{
-			eye_schema(const URL &name ALLOC_DECL)
+			eye_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(projection),
 				INIT(projection_raw),
@@ -67,7 +67,7 @@ namespace vr_result
 
 		struct component_on_controller_schema : schema<is_iterator>
 		{
-			component_on_controller_schema(const URL &name ALLOC_DECL)
+			component_on_controller_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(transforms),
 				INIT(transforms_scroll_wheel)
@@ -79,7 +79,7 @@ namespace vr_result
 
 		struct system_controller_schema : schema<is_iterator>
 		{
-			system_controller_schema(const URL &name ALLOC_DECL)
+			system_controller_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(raw_tracking_pose),
 				INIT(seated_tracking_pose),
@@ -125,7 +125,7 @@ namespace vr_result
 		
 		struct spatial_sort_schema : schema<is_iterator>
 		{
-			spatial_sort_schema(const URL &name ALLOC_DECL)
+			spatial_sort_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(hmds_sorted),
 				INIT(controllers_sorted),
@@ -141,7 +141,7 @@ namespace vr_result
 
 		struct system_schema : schema<is_iterator>
 		{
-			system_schema(const URL &name ALLOC_DECL)
+			system_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(recommended_target_size),
 				INIT(seconds_since_last_vsync),
@@ -185,7 +185,7 @@ namespace vr_result
 
 		struct application_schema : schema<is_iterator>
 		{
-			application_schema(const URL &name ALLOC_DECL)
+			application_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(application_key),
 				INIT(is_installed),
@@ -212,7 +212,7 @@ namespace vr_result
 
 		struct mime_type_schema : schema<is_iterator>
 		{
-			mime_type_schema(const URL &name ALLOC_DECL)
+			mime_type_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(mime_type),
 				INIT(default_application),
@@ -226,7 +226,7 @@ namespace vr_result
 
 		struct applications_schema : schema<is_iterator>
 		{
-			applications_schema(const URL &name ALLOC_DECL)
+			applications_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(starting_application),
 				INIT(transition_state),
@@ -251,7 +251,7 @@ namespace vr_result
 
 		struct section_schema : schema<is_iterator>
 		{
-			section_schema(const URL &name ALLOC_DECL)
+			section_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(bool_settings),
 				INIT(string_settings),
@@ -261,13 +261,13 @@ namespace vr_result
 
 			VECTOR_OF_TIMENODES<Bool<EVRSettingsError>>		bool_settings;
 			VECTOR_OF_TIMENODES<String<EVRSettingsError>>	string_settigns;
-			VECTOR_OF_TIMENODES<Float<EVRSettingsError>>		float_settings;
-			VECTOR_OF_TIMENODES<Int32<EVRSettingsError>>		int32_settings;
+			VECTOR_OF_TIMENODES<Float<EVRSettingsError>>	float_settings;
+			VECTOR_OF_TIMENODES<Int32<EVRSettingsError>>	int32_settings;
 		};
 
 		struct settings_schema : schema<is_iterator>
 		{
-			settings_schema(const URL &name ALLOC_DECL)
+			settings_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(sections),
 				structure_version(0)
@@ -279,7 +279,7 @@ namespace vr_result
 
 		struct chaperone_schema : schema<is_iterator>
 		{
-			chaperone_schema(const URL &name ALLOC_DECL)
+			chaperone_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(calibration_state),
 				INIT(play_area_size),
@@ -298,7 +298,7 @@ namespace vr_result
 
 		struct chaperonesetup_schema : schema<is_iterator>
 		{
-			chaperonesetup_schema(const URL &name ALLOC_DECL)
+			chaperonesetup_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(working_play_area_size),
 				INIT(working_play_area_rect),
@@ -325,7 +325,7 @@ namespace vr_result
 
 		struct compositor_controller_schema : schema<is_iterator>
 		{
-			compositor_controller_schema(const URL &name ALLOC_DECL)
+			compositor_controller_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(last_render_pose),
 				INIT(last_game_pose)
@@ -337,7 +337,7 @@ namespace vr_result
 
 		struct compositor_schema : schema<is_iterator>
 		{
-			compositor_schema(const URL &name ALLOC_DECL)
+			compositor_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(tracking_space),
 				INIT(frame_timing),
@@ -378,7 +378,7 @@ namespace vr_result
 
 		struct per_overlay_state : schema<is_iterator>
 		{
-			per_overlay_state(const URL &name ALLOC_DECL)
+			per_overlay_state(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(overlay_key),
 				INIT(overlay_handle),
@@ -448,7 +448,7 @@ namespace vr_result
 
 		struct overlay_schema : schema<is_iterator>
 		{
-			overlay_schema(const URL &name ALLOC_DECL)
+			overlay_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(gamepad_focus_overlay),
 				INIT(primary_dashboard_device),
@@ -469,7 +469,7 @@ namespace vr_result
 
 		struct rendermodel_component_schema
 		{
-			rendermodel_component_schema(const URL &name ALLOC_DECL)
+			rendermodel_component_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(component_name),
 				INIT(button_mask),
@@ -483,7 +483,7 @@ namespace vr_result
 
 		struct rendermodel_schema : schema<is_iterator>
 		{
-			rendermodel_schema(const URL &name ALLOC_DECL)
+			rendermodel_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(render_model_name),
 				INIT(thumbnail_url),
@@ -510,7 +510,7 @@ namespace vr_result
 
 		struct rendermodels_schema : schema<is_iterator>
 		{
-			rendermodels_schema(const URL &name ALLOC_DECL)
+			rendermodels_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(models),
 				structure_version(-1)
@@ -522,7 +522,7 @@ namespace vr_result
 
 		struct cameraframetype_schema : schema<is_iterator>
 		{
-			cameraframetype_schema(const URL &name ALLOC_DECL)
+			cameraframetype_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(frame_size),
 				INIT(intrinsics),
@@ -538,7 +538,7 @@ namespace vr_result
 
 		struct controller_camera_schema : schema<is_iterator>
 		{
-			controller_camera_schema(const URL &name ALLOC_DECL)
+			controller_camera_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(has_camera),
 				INIT(cameraframetypes)
@@ -550,7 +550,7 @@ namespace vr_result
 
 		struct trackedcamera_schema : schema<is_iterator>
 		{
-			trackedcamera_schema(const URL &name ALLOC_DECL)
+			trackedcamera_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(controllers)
 			{}
@@ -560,7 +560,7 @@ namespace vr_result
 
 		struct extendeddisplay_schema : schema<is_iterator>
 		{
-			extendeddisplay_schema(const URL &name ALLOC_DECL)
+			extendeddisplay_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(window_bounds),
 				INIT(left_output_viewport),
@@ -574,7 +574,7 @@ namespace vr_result
 
 		struct resource_schema : schema<is_iterator>
 		{
-			resource_schema(const URL &name ALLOC_DECL) : schema<is_iterator>
+			resource_schema(const base::URL &name ALLOC_DECL) : schema<is_iterator>
 				: schema<is_iterator>(name),
 				INIT(resource_name),
 				INIT(resource_directory),
@@ -590,7 +590,7 @@ namespace vr_result
 
 		struct resources_schema : schema<is_iterator>
 		{
-			resources_schema(const URL &name ALLOC_DECL)
+			resources_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(resources)
 			{}
@@ -598,7 +598,7 @@ namespace vr_result
 			VECTOR_OF_SCHEMAS<resource_schema> resources;
 		};
 
-		vr_schema(const URL &name/*, const A & alloc*/)
+		vr_schema(const base::URL &name/*, const A & alloc*/)
 			: schema<is_iterator>(name),
 			INIT(system_node),
 			INIT(applications_node),

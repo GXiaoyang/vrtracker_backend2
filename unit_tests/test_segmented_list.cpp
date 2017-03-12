@@ -84,7 +84,7 @@ void writer(int fast, int max_values, int expected_value, int termination_value,
 		}
 		else
 		{
-			std::this_thread::sleep_for(5ms);
+			std::this_thread::sleep_for(50us);
 		}
 
 	}
@@ -98,7 +98,7 @@ void writer(int fast, int max_values, int expected_value, int termination_value,
 template <size_t SegmentSize>
 void read_ordering_test_int()
 {
-	static const int NUM_WRITES = 1'024;
+	static const int NUM_WRITES = 102;
 	static const int expected_value = 7;
 	static const int termination_value = 8;
 
@@ -682,34 +682,25 @@ static void basic_behaviour_test()
 	printf("compare segmented list vs vector constructor\n");
 	initializer_test_iter_constructor<1>();
 	initializer_test_iter_constructor<2>();
-	initializer_test_iter_constructor<3>();
-	initializer_test_iter_constructor<4>();
 	initializer_test_iter_constructor<5>();
 
 	printf("compare segmented list vs vector initializer where the element_type is string\n");
 	initializer_test_string<1>();
 	initializer_test_string<2>();
-	initializer_test_string<3>();
-	initializer_test_string<4>();
 	initializer_test_string<5>();
 
 	printf("compare segmented list vs vector initializer where the element_type is int\n");
 	initializer_test<1>();
 	initializer_test<2>();
-	initializer_test<3>();
-	initializer_test<4>();
 	initializer_test<5>();
 
 	printf("binary search test of segmented list vs vector\n");
 	binary_search_test<int, 1>();
 	binary_search_test<int, 2>();
-	binary_search_test<int, 3>();
-	binary_search_test<int, 4>();
 	binary_search_test<int, 1022>();
 	binary_search_test<int, 1023>();
 	binary_search_test<int, 1024>();
 	binary_search_test<int, 1025>();
-	binary_search_test<int, 2048>();
 
 	// sort test of segmented list vs vector
 	printf("sort test of segmented list vs vector\n");
@@ -727,13 +718,9 @@ static void basic_behaviour_test()
 	printf("catchall test of segmented list vs vector\n");
 	compare_against_ref<int, 1>();
 	compare_against_ref<int, 2>();
-	compare_against_ref<int, 3>();
-	compare_against_ref<int, 4>();
-	compare_against_ref<int, 1022>();
 	compare_against_ref<int, 1023>();
 	compare_against_ref<int, 1024>();
 	compare_against_ref<int, 1025>();
-	compare_against_ref<int, 2048>();
 
 	printf("random access test of segmented list vs vector\n");
 	test_random_access_iterators<int, 1>();
@@ -744,7 +731,6 @@ static void basic_behaviour_test()
 	test_random_access_iterators<int, 1023>();
 	test_random_access_iterators<int, 1024>();
 	test_random_access_iterators<int, 1025>();
-	test_random_access_iterators<int, 2048>();
 
 	printf("emplace back tests\n");
 	segmented_list<int, 1> l1;
@@ -773,47 +759,6 @@ static void basic_behaviour_test()
 	//160 bytes in debug
 	// 8 bytes in release
 	printf("sizeof iterator %d", sizeof(s));
-
-	for (; s != l.end(); s++)
-	{
-		int i = *s;
-		printf("%d", i);
-	}
-
-	s = l.begin();
-	for (; s != l.end(); ++s)
-	{
-		int i = *s;
-		printf("%d", i);
-	}
-
-	printf("\nphew\n");
-
-	l.emplace_back(666);
-	s = l.begin();
-	for (; s != l.end(); s++)
-	{
-		int i = *s;
-		printf("%d", i);
-	}
-
-	printf("\nmew\n");
-
-
-	segmented_list<int, 3> tiny;
-	for (int i = 0; i < 10; i++)
-	{
-		tiny.emplace_back(i);
-	}
-	auto titer = tiny.end();
-	titer--;
-	do
-	{
-		printf("%d", *titer);
-		titer--;
-	} while (titer != tiny.begin());
-	printf("%d", *titer);
-
 }
 
 static void segmented_list_allocators()
@@ -828,10 +773,6 @@ static void segmented_list_allocators()
 
 	// construct a segmented list with a default allocator
 	segmented_list<int, 1024> segmented_list2(1024);
-
-	// construct a segmented list wtih a strange allocator
-	std::vector<int> vec1;
-	vec1.push_back(11);
 
 	for (int i = 0; i < 2024; i++)
 	{

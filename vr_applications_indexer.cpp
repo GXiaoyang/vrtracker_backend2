@@ -28,21 +28,23 @@ void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
 
 // tmp_vector_pool<FixedSizeBytes> *pool, const FinalAllocatorType &final_allocator
 
-void ApplicationsIndexer::update(std::vector<int> *active_indexes, vr_result::ApplicationsWrapper &ow)
+// Go through each application in application count
+// * if I don't have an index for this app, make one.
+// * return in active_indexes, the list of indexes that were found
+void ApplicationsIndexer::update(vr_result::TMPInt32String<> *result, vr_result::ApplicationsWrapper &ow)
 {
 	auto count = ow.GetApplicationCount();
-	active_indexes->reserve(count.val);
+	assert(count.val < result->val.max_size());
+	vr_result::TMPString<vr::EVRApplicationError> key;
 	for (int i = 0; i < (int)count.val; i++)
 	{
-		vr_tmp_vector<vr_result::TMPString<vr::EVRApplicationError>> result;
-#if 0
-		result = make_temporary<
-		vr_result::TMPString<vr::EVRApplicationError> result;
-		ow.GetApplicationKeyByIndex(i, &result); // todo: why am I allocating and copying here
-		std::string key(result.val.data());	// todo get rid of stupid string - yet again
-		int index = get_index_for_key(key);	// implicitly automatically populates keys
-		active_indexes->push_back(index);
-#endif
+		ow.GetApplicationKeyByIndex(i, &key); 
+		if (key.is_present())
+		{
+			std::string key(key.val.data());	// todo get rid of stupid string - yet again
+			int index = get_index_for_key(key);	// implicitly automatically populates keys
+			result->val.push_back(index);
+		}
 	}
 }
 

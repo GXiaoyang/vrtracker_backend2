@@ -15,7 +15,9 @@ public:
 
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
-	void update(std::vector<int> *active_indexes, vr_result::ApplicationsWrapper &ow);
+
+	// read the wrapper assign indexes and return them in result
+	void update(vr_result::TMPInt32String<> *result, vr_result::ApplicationsWrapper &ow);
 	
 	// number of applications ever seen
 	int get_num_applications() { return (int)app_keys.size(); }

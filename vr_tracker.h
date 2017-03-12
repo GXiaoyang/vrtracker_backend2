@@ -60,8 +60,8 @@ struct vr_tracker
 		m_frame_number(0),
 		blocking_update_calls(0),
 		non_blocking_update_calls(0),
-		s2(URL("vr", "/vr")),
-		m_state(URL("vr", "/vr")),
+		s2(base::URL("vr", "/vr")),
+		m_state(base::URL("vr", "/vr")),
 		m_events(m_allocator),
 		m_time_stamps(slab_allocator<time_stamp_t>())
 	{

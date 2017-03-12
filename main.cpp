@@ -14,11 +14,9 @@ extern void TEST_SCHEMA_COMMON();
 void unit_tests()
 {
 	TEST_SCHEMA_COMMON();
-
 	TEST_TIME_CONTAINERS();
 	TEST_RESULT();
 	TEST_SEGMENTED_LIST();
-	
 }
 
 int main()

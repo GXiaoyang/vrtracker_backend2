@@ -20,7 +20,9 @@ void GUI_USE_CASE()
 
 	auto &system = tracker.m_state.system_node;
 	auto &controllers = tracker.m_state.system_node.controllers;
-	controllers.emplace_back(URL());
+	controllers.emplace_back(base::URL());
+
+	controllers[0].raw_tracking_pose.emplace_back(1, DevicePose<>());
 
 	//
 	// test starts here

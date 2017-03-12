@@ -126,6 +126,11 @@ public:
 	T & operator[] (int pos) { return m_s[pos]; }
 	const T & operator[] (int pos) const { return m_s[pos]; }
 
+	void push_back(const T&ref)
+	{
+		m_s[m_count++] = ref;
+	}
+
 #if 0
 	template <typename A> 
 	explicit operator std::vector<T,A>() const {
