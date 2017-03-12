@@ -38,43 +38,21 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 	visit_applications_node(visitor, &s->applications_node, application_wrapper, 
 		outer_state->additional_resource_keys, p);
 	
+	visit_settings_node(visitor, &s->settings_node, settings_wrapper, 
+			outer_state->additional_resource_keys, p);
+
+	visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, outer_state->additional_resource_keys);
+
+	visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
+
+
+	visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, outer_state->additional_resource_keys, p);
+
+	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, outer_state->additional_resource_keys, p);
+	
+	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, allocator);
+
 #if 0
-	//if (interfaces.seti)
-	{
-		twrap t("settings_node");
-		visit_settings_node(visitor, &s->settings_node, settings_wrapper, outer_state->additional_resource_keys, allocator);
-	}
-
-	//if (interfaces.chapi)
-	{
-		twrap t("chaperone_node");
-		visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, outer_state->additional_resource_keys);
-	}
-
-	//if (interfaces.chapsi)
-	{
-		twrap t("chaperone_setup_node");
-		visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
-	}
-
-	//if (interfaces.compi)
-	{
-		twrap t("compositor_node");
-		visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, outer_state->additional_resource_keys, allocator);
-	}
-
-	//if (interfaces.ovi)
-	{
-		twrap t("overlay_node");
-		visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, outer_state->additional_resource_keys, allocator);
-	}
-
-	//if (interfaces.remi)
-	{
-		twrap t("rendermodels_node");
-		visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, allocator);
-	}
-
 	//if (interfaces.exdi)
 	{
 		twrap t("extendeddisplay_node");

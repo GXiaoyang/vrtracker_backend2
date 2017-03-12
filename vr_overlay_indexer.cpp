@@ -35,7 +35,7 @@ void OverlayIndexer::ReadFromStream(EncodeStream &s)
 }
 
 // walks through known overlays and updates index set
-void OverlayIndexer::update(std::vector<int> *active_indexes, vr_result::OverlayWrapper &ow)
+void OverlayIndexer::update(vr_result::TMPInt32String<> *result, vr_result::OverlayWrapper &ow)
 {
 	for (int i = 0; i < (int)overlay_keys.size(); i++)
 	{
@@ -46,7 +46,7 @@ void OverlayIndexer::update(std::vector<int> *active_indexes, vr_result::Overlay
 			// this overlay is active.
 			// lookup it's index
 			int index = get_overlay_index_for_key(overlay_keys[i]);
-			active_indexes->push_back(index);
+			result->val.push_back(index);
 			overlay_handle2index.insert({ handle, index });	// cache it's handle
 		}
 	}

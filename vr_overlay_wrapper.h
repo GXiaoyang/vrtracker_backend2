@@ -19,9 +19,10 @@ namespace vr_result
 		SCALAR_WRAP(IVROverlay, ovi, IsDashboardVisible);
 		SCALAR_WRAP(IVROverlay, ovi, GetGamepadFocusOverlay);
 
-		inline void GetKeyboardText(TMPString<> *result)
+		inline TMPString<> &GetKeyboardText(TMPString<> *result)
 		{
 			query_vector_rccount(result, ovi, &IVROverlay::GetKeyboardText);
+			return *result;
 		}
 
 		inline TMPString<EVROverlayError> & GetOverlayKey(VROverlayHandle_t h, TMPString<EVROverlayError> *s)

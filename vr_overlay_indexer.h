@@ -15,7 +15,8 @@ public:
 	void Init(const char **initial_overlay_names, int num_names);
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
-	void update(std::vector<int> *active_indexes, vr_result::OverlayWrapper &ow);
+
+	void update(vr_result::TMPInt32String<> *result, vr_result::OverlayWrapper &ow);
 
 	int get_index_for_key(const char *key)
 	{
@@ -39,9 +40,9 @@ public:
 		return ret;
 	}
 
-	const std::string &get_overlay_key_for_index(const uint32_t overlay_index)
+	const char *get_overlay_key_for_index(const uint32_t overlay_index)
 	{
-		return overlay_keys[overlay_index];
+		return overlay_keys[overlay_index].c_str();
 	}
 
 	int get_num_overlays() const

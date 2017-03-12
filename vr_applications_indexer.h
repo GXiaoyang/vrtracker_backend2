@@ -30,10 +30,13 @@ public:
 	// appa,appc
 	// 
 	// the appb disappeared - the key is gone from OpenVR - so the AppHelper will hold it
-	const char *get_key_for_index(uint32_t app_index, int *count)
+	const char *get_key_for_index(uint32_t app_index, int *count = nullptr)
 	{
 		auto &ref = app_keys[app_index];
-		*count = (int)ref.size() + 1;
+		if (count)
+		{
+			*count = (int)ref.size() + 1;
+		}
 		return ref.c_str();
 	}
 

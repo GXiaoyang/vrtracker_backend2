@@ -135,7 +135,6 @@ struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 		return *this;
 	}
 
-
 	ElementType val;
 };
 

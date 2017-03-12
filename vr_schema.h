@@ -260,7 +260,7 @@ namespace vr_result
 			{}
 
 			VECTOR_OF_TIMENODES<Bool<EVRSettingsError>>		bool_settings;
-			VECTOR_OF_TIMENODES<String<EVRSettingsError>>	string_settigns;
+			VECTOR_OF_TIMENODES<String<EVRSettingsError>>	string_settings;
 			VECTOR_OF_TIMENODES<Float<EVRSettingsError>>	float_settings;
 			VECTOR_OF_TIMENODES<Int32<EVRSettingsError>>	int32_settings;
 		};
@@ -313,8 +313,8 @@ namespace vr_result
 
 			TIMENODE<HmdVector2<bool>>	working_play_area_size;
 			TIMENODE<HmdQuad<bool>>		working_play_area_rect;
-			TIMENODE<HmdQuad<bool>>     working_collision_bounds_info;
-			TIMENODE<HmdQuad<bool>>     live_collision_bounds_info;
+			TIMENODE<HmdQuadString<bool>>     working_collision_bounds_info;
+			TIMENODE<HmdQuadString<bool>>     live_collision_bounds_info;
 			TIMENODE<HmdMatrix34<bool>>	working_seated2rawtracking;
 			TIMENODE<HmdMatrix34<bool>>	working_standing2rawtracking;
 			
@@ -380,7 +380,6 @@ namespace vr_result
 		{
 			per_overlay_state(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
-				INIT(overlay_key),
 				INIT(overlay_handle),
 				INIT(overlay_name),
 				INIT(overlay_image_width),
@@ -407,11 +406,11 @@ namespace vr_result
 				INIT(overlay_is_visible),
 				INIT(overlay_is_active_dashboard),
 				INIT(overlay_texture_size),
-				INIT(overlay_dashboard_scene_process),
-				INIT(events)
+				INIT(overlay_dashboard_scene_process)
+				//,
+				//INIT(events)
 			{}
 
-			TIMENODE<String<>> overlay_key;
 			TIMENODE<OverlayHandle<EVROverlayError>> overlay_handle;   // i'm assuming keys are unique, not handles - handles can be reused
 			TIMENODE<String<EVROverlayError>> overlay_name;
 

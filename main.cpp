@@ -21,7 +21,8 @@ void unit_tests()
 
 int main()
 {
+	UPDATE_USE_CASE();
 	unit_tests();
 	GUI_USE_CASE();
-	UPDATE_USE_CASE();
+	
 }
