@@ -16,7 +16,7 @@ public:
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
 
-	void update(vr_result::TMPInt32String<> *result, vr_result::OverlayWrapper &ow);
+	vr_result::TMPInt32String<> &update(vr_result::TMPInt32String<> *result, vr_result::OverlayWrapper &ow);
 
 	int get_index_for_key(const char *key)
 	{

@@ -35,7 +35,7 @@ void OverlayIndexer::ReadFromStream(EncodeStream &s)
 }
 
 // walks through known overlays and updates index set
-void OverlayIndexer::update(vr_result::TMPInt32String<> *result, vr_result::OverlayWrapper &ow)
+vr_result::TMPInt32String<> &OverlayIndexer::update(vr_result::TMPInt32String<> *result, vr_result::OverlayWrapper &ow)
 {
 	for (int i = 0; i < (int)overlay_keys.size(); i++)
 	{
@@ -50,6 +50,7 @@ void OverlayIndexer::update(vr_result::TMPInt32String<> *result, vr_result::Over
 			overlay_handle2index.insert({ handle, index });	// cache it's handle
 		}
 	}
+	return *result;
 }
 
 	

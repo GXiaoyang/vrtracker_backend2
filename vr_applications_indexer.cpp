@@ -31,7 +31,7 @@ void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
 // Go through each application in application count
 // * if I don't have an index for this app, make one.
 // * return in active_indexes, the list of indexes that were found
-void ApplicationsIndexer::update(vr_result::TMPInt32String<> *result, vr_result::ApplicationsWrapper &ow)
+vr_result::TMPInt32String<> &ApplicationsIndexer::update(vr_result::TMPInt32String<> *result, vr_result::ApplicationsWrapper &ow)
 {
 	auto count = ow.GetApplicationCount();
 	assert(count.val < result->val.max_size());
@@ -46,5 +46,6 @@ void ApplicationsIndexer::update(vr_result::TMPInt32String<> *result, vr_result:
 			result->val.push_back(index);
 		}
 	}
+	return *result;
 }
 

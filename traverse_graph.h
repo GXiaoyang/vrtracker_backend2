@@ -14,8 +14,8 @@
 #include "vr_extended_display_wrapper.h"
 #include "vr_tracked_camera_wrapper.h"
 #include "vr_resources_wrapper.h"
-
 #include "vr_keys.h"
+#include "openvr_string.h"
 
 typedef int PlaceHolderAllocator;
 
@@ -29,46 +29,14 @@ visitor.start_vector(ss->vector_name.get_url(), ss->vector_name)
 visitor.end_vector(ss->vector_name.get_url(), ss->vector_name)
 
 
-#define LEAF_SCALAR(member_name, wrapper_call)\
+#define VISIT(member_name, wrapper_call)\
 if (visitor.visit_source_interfaces())\
 {\
-	decltype(wrapper_call) member_name_temporaryX(wrapper_call); \
-	visitor.visit_node(ss->member_name, member_name_temporaryX);\
+	visitor.visit_node(ss->member_name, wrapper_call);\
 }\
 else\
 {\
 	visitor.visit_node(ss->member_name);\
-}
-
-
-// leaf 0 because there is no presence/error code type
-#define LEAF_VECTOR0(member_name, wrapper_call)\
-if (visitor.visit_source_interfaces())\
-{\
-	decltype(wrapper_call) member_name(wrapper_call); \
-	visitor.visit_node(ss->member_name, member_name);\
-}\
-else\
-{\
-	visitor.visit_node(ss->member_name);\
-}
-
-// for when there IS a presence type
-// LEAF_VECTOR1(supported_mime_types, appw.GetApplicationSupportedMimeTypes(app_key));
-// the first case creates member_name from invoking the wrapper.
-//
-// the second case is broken - to keep the same visit_node() call it creates
-// a fake object - even though that side should never be read (since visit_source_interfaces() is false)
-//
-#define LEAF_VECTOR1(member_name, wrapper_call)\
-if (visitor.visit_source_interfaces())\
-{\
-	decltype(wrapper_call) member_name(wrapper_call); \
-	visitor.visit_node(ss->member_name, member_name);\
-}\
-else\
-{\
-	visitor.visit_node(ss->member_name); \
 }
 
 template <typename visitor_fn>
@@ -96,7 +64,6 @@ static void visit_hidden_mesh(visitor_fn &visitor,
 			vertex_data_count = mesh.unTriangleCount * 3;
 		}
 
-
 		visitor.visit_node(ss->hidden_mesh_triangle_count, hidden_mesh_triangle_count);
 		visitor.visit_node(ss->hidden_mesh_vertices, make_result(gsl::make_span(vertex_data, vertex_data_count)));
 	}
@@ -117,18 +84,15 @@ static void visit_eye_state(visitor_fn &visitor,
 	PlaceHolderAllocator &allocator)
 {
 	visitor.start_group_node(ss->get_url(), eEye);
-
-	LEAF_SCALAR(projection, wrap.GetProjectionMatrix(eEye, c.GetNearZ(), c.GetFarZ()));
-	LEAF_SCALAR(eye2head, wrap.GetEyeToHeadTransform(eEye));
-	LEAF_SCALAR(projection_raw, wrap.GetProjectionRaw(eEye));
+	VISIT(projection, wrap.GetProjectionMatrix(eEye, c.GetNearZ(), c.GetFarZ()));
+	VISIT(eye2head, wrap.GetEyeToHeadTransform(eEye));
+	VISIT(projection_raw, wrap.GetProjectionRaw(eEye));
 
 	if (visitor.visit_source_interfaces())
 	{
 		DistortionCoordinates_t *coords;
 		int count;
-
 		bool rc = wrap.ComputeDistortion(eEye, c.GetDistortionSampleWidth(), c.GetDistortionSampleHeight(), &coords, &count);
-
 		visitor.visit_node(ss->distortion, make_result(gsl::make_span(coords, count), rc));
 		wrap.FreeDistortion(coords);
 	}
@@ -137,20 +101,23 @@ static void visit_eye_state(visitor_fn &visitor,
 		visitor.visit_node(ss->distortion);
 	}
 
-	if (ss->hidden_meshes.size() < 3)
+	if (visitor.expand_structure())
 	{
-		ss->hidden_meshes.emplace_back( base::URL());
-		ss->hidden_meshes.emplace_back( base::URL());
-		ss->hidden_meshes.emplace_back( base::URL());
-		system_ss->structure_version++;
+		ss->hidden_meshes.reserve(3);
+		while (ss->hidden_meshes.size() < 3)
+		{
+			const char *mesh_name = openvr_string::EHiddenAreaMeshTypeToString(EHiddenAreaMeshType(ss->hidden_meshes.size()));
+			ss->hidden_meshes.emplace_back(ss->hidden_meshes.make_url_for_child(mesh_name));
+			system_ss->structure_version++;
+		}
 	}
+
 	START_VECTOR(hidden_meshes);
 	for (int i = 0; i < 3; i++)
 	{
 		visit_hidden_mesh(visitor, &ss->hidden_meshes[i], eEye, EHiddenAreaMeshType(i), sysi, wrap);
 	}
 	END_VECTOR(hidden_meshes);
-
 	visitor.end_group_node(ss->get_url(), eEye);
 }
 
@@ -192,16 +159,9 @@ static void visit_component_on_controller_schema(
 			transforms_scroll_wheel.return_code = false;
 		}
 	}
-	if (visitor.visit_source_interfaces())
-	{
-		visitor.visit_node(ss->transforms, transforms);
-		visitor.visit_node(ss->transforms_scroll_wheel, transforms_scroll_wheel);
-	}
-	else
-	{
-		visitor.visit_node(ss->transforms);
-		visitor.visit_node(ss->transforms_scroll_wheel);
-	}
+	VISIT(transforms, transforms);
+	VISIT(transforms_scroll_wheel, transforms_scroll_wheel);
+
 	visitor.end_group_node(ss->get_url(), component_index);
 }
 
@@ -218,16 +178,20 @@ void visit_vec(visitor_fn &visitor,
 {
 	int num_props = indexer->GetNumPropertiesOfType(prop_type);
 	visitor.start_vector(vec.get_url(), vec);
-	for (int index = 0; index < num_props; index++)
+
+	if (visitor.visit_source_interfaces())
 	{
 		ResultType result;
-		if (visitor.visit_source_interfaces())
+		for (int index = 0; index < num_props; index++)
 		{
 			vr::ETrackedDeviceProperty prop = (vr::ETrackedDeviceProperty)indexer->GetEnumVal(prop_type, index);
 			wrap.GetTrackedDeviceProperty(unDeviceIndex, prop, &result);
 			visitor.visit_node(vec[index], result);
 		}
-		else
+	}
+	else
+	{
+		for (int index = 0; index < num_props; index++)
 		{
 			visitor.visit_node(vec[index]);
 		}
@@ -244,11 +208,8 @@ void visit_string_vec(visitor_fn &visitor,
 	PropertiesIndexer::PropertySettingType prop_type,
 	const char* vector_name)
 {
-
 	visitor.start_vector(vec.get_url(), vec);
-
 	int num_props = indexer->GetNumPropertiesOfType(prop_type);
-
 	if (visitor.visit_source_interfaces())
 	{
 		TMPString<ETrackedPropertyError> result;
@@ -266,7 +227,6 @@ void visit_string_vec(visitor_fn &visitor,
 			visitor.visit_node(vec[index]);
 		}
 	}
-
 	visitor.end_vector(vec.get_url(), vec);
 }
 
@@ -281,10 +241,10 @@ static void visit_controller_state(visitor_fn &visitor,
 	PlaceHolderAllocator &allocator)
 {
 	{
-		LEAF_SCALAR(activity_level, wrap.GetTrackedDeviceActivityLevel(controller_index));
-		LEAF_SCALAR(controller_role, wrap.GetControllerRoleForTrackedDeviceIndex(controller_index));
-		LEAF_SCALAR(device_class, wrap.GetTrackedDeviceClass(controller_index));
-		LEAF_SCALAR(connected, wrap.IsTrackedDeviceConnected(controller_index));
+		VISIT(activity_level, wrap.GetTrackedDeviceActivityLevel(controller_index));
+		VISIT(controller_role, wrap.GetControllerRoleForTrackedDeviceIndex(controller_index));
+		VISIT(device_class, wrap.GetTrackedDeviceClass(controller_index));
+		VISIT(connected, wrap.IsTrackedDeviceConnected(controller_index));
 	}
 
 	// used in two places:
@@ -316,26 +276,23 @@ static void visit_controller_state(visitor_fn &visitor,
 			visitor.visit_node(ss->controller_state);
 		}
 	}
-
+	if (visitor.expand_structure())
 	{
 		structure_check(&system_ss->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING, allocator);
-		visit_string_vec(visitor, controller_index, ss->string_props, wrap, indexer, PropertiesIndexer::PROP_STRING, "string props");
-
 		structure_check(&system_ss->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL, allocator);
-		visit_vec(visitor, controller_index, ss->bool_props, wrap, indexer, PropertiesIndexer::PROP_BOOL, "bool props");
-
 		structure_check(&system_ss->structure_version, ss->float_props, indexer, PropertiesIndexer::PROP_FLOAT, allocator);
-		visit_vec(visitor, controller_index, ss->float_props, wrap, indexer, PropertiesIndexer::PROP_FLOAT, "float props");
-
 		structure_check(&system_ss->structure_version, ss->mat34_props, indexer, PropertiesIndexer::PROP_MAT34, allocator);
-		visit_vec(visitor, controller_index, ss->mat34_props, wrap, indexer, PropertiesIndexer::PROP_MAT34, "mat34 props");
-
 		structure_check(&system_ss->structure_version, ss->int32_props, indexer, PropertiesIndexer::PROP_INT32, allocator);
-		visit_vec(visitor, controller_index, ss->int32_props, wrap, indexer, PropertiesIndexer::PROP_INT32, "int32 props");
-
 		structure_check(&system_ss->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64, allocator);
-		visit_vec(visitor, controller_index, ss->uint64_props, wrap, indexer, PropertiesIndexer::PROP_UINT64, "uint64 props");
 	}
+	
+	visit_string_vec(visitor, controller_index, ss->string_props, wrap, indexer, PropertiesIndexer::PROP_STRING, "string props");
+	visit_vec(visitor, controller_index, ss->bool_props, wrap, indexer, PropertiesIndexer::PROP_BOOL, "bool props");
+	visit_vec(visitor, controller_index, ss->float_props, wrap, indexer, PropertiesIndexer::PROP_FLOAT, "float props");
+	visit_vec(visitor, controller_index, ss->mat34_props, wrap, indexer, PropertiesIndexer::PROP_MAT34, "mat34 props");
+	visit_vec(visitor, controller_index, ss->int32_props, wrap, indexer, PropertiesIndexer::PROP_INT32, "int32 props");
+	visit_vec(visitor, controller_index, ss->uint64_props, wrap, indexer, PropertiesIndexer::PROP_UINT64, "uint64 props");
+	
 	// update the component states on this controller
 	// based on: component name
 	//           render model name
@@ -344,36 +301,34 @@ static void visit_controller_state(visitor_fn &visitor,
 	// render model name comes from a property.  to avoid coupling to visit_string_properties, 
 	// just look it up again
 
+	TMPString<ETrackedPropertyError> render_model;
+	wrap.GetStringTrackedDeviceProperty(controller_index, vr::Prop_RenderModelName_String, &render_model);
+
+	if (visitor.expand_structure())
 	{
-		TMPString<ETrackedPropertyError> render_model;
-		int component_count = 0;
-		if (visitor.visit_source_interfaces())
+		if (render_model.is_present())
 		{
-			wrap.GetStringTrackedDeviceProperty(controller_index, vr::Prop_RenderModelName_String, &render_model);
-			if (render_model.is_present())
+			int component_count = rmw.GetComponentCount(render_model.val.data());
+			ss->components.reserve(component_count);
+			while (size_as_int(ss->components.size()) < component_count)
 			{
-				component_count = rmw.GetComponentCount(render_model.val.data());
-				ss->components.reserve(component_count);
-				while ((int)ss->components.size() <component_count)
-				{
-					ss->components.emplace_back( base::URL());
-					system_ss->structure_version++;
-				}
+				TMPString<> component_name;
+				int component_index = ss->components.size();
+				rmw.GetComponentModelName(render_model.val.data(), component_index, &component_name);
+				ss->components.emplace_back(ss->components.make_url_for_child(component_name.val.data()));
+				system_ss->structure_version++;
 			}
 		}
-		else
-		{
-			component_count = (int)ss->components.size();
-		}
-
-		START_VECTOR(components);
-		for (int i = 0; i < (int)ss->components.size(); i++)
-		{
-			visit_component_on_controller_schema(visitor, &ss->components[i], rmw, render_model.val.data(), controller_state, i);
-		}
-		END_VECTOR(components);
 	}
+
+	START_VECTOR(components);
+	for (int i = 0; i < (int)ss->components.size(); i++)
+	{
+		visit_component_on_controller_schema(visitor, &ss->components[i], rmw, render_model.val.data(), controller_state, i);
+	}
+	END_VECTOR(components);
 }
+
 
 template <typename visitor_fn>
 static void visit_system_node(
@@ -386,25 +341,24 @@ static void visit_system_node(
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
-		LEAF_SCALAR(recommended_target_size, sysw.GetRecommendedRenderTargetSize());
-		LEAF_SCALAR(is_display_on_desktop, sysw.GetIsDisplayOnDesktop());
-		LEAF_SCALAR(seated2standing, sysw.GetSeatedZeroPoseToStandingAbsoluteTrackingPose());
-		LEAF_SCALAR(raw2standing, sysw.GetRawZeroPoseToStandingAbsoluteTrackingPose());
+		VISIT(recommended_target_size, sysw.GetRecommendedRenderTargetSize());
+		VISIT(is_display_on_desktop, sysw.GetIsDisplayOnDesktop());
+		VISIT(seated2standing, sysw.GetSeatedZeroPoseToStandingAbsoluteTrackingPose());
+		VISIT(raw2standing, sysw.GetRawZeroPoseToStandingAbsoluteTrackingPose());
 
-		LEAF_SCALAR(num_hmd, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_HMD));
-		LEAF_SCALAR(num_controller, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_Controller));
-		LEAF_SCALAR(num_tracking, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_GenericTracker));
-		LEAF_SCALAR(num_reference, sysw.CountDevicesOfClass(TrackedDeviceClass_TrackingReference));
+		VISIT(num_hmd, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_HMD));
+		VISIT(num_controller, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_Controller));
+		VISIT(num_tracking, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_GenericTracker));
+		VISIT(num_reference, sysw.CountDevicesOfClass(TrackedDeviceClass_TrackingReference));
 
-		LEAF_SCALAR(input_focus_captured_by_other, sysw.IsInputFocusCapturedByAnotherProcess());
+		VISIT(input_focus_captured_by_other, sysw.IsInputFocusCapturedByAnotherProcess());
 
 
 		if (visitor.visit_source_interfaces())
 		{
 			Float<bool>		seconds_since_last_vsync;
 			Uint64<bool>	frame_counter_since_last_vsync;
-			sysw.GetTimeSinceLastVsync(&seconds_since_last_vsync,
-				&frame_counter_since_last_vsync);
+			sysw.GetTimeSinceLastVsync(&seconds_since_last_vsync, &frame_counter_since_last_vsync);
 			visitor.visit_node(ss->seconds_since_last_vsync, seconds_since_last_vsync);
 			visitor.visit_node(ss->frame_counter_since_last_vsync, frame_counter_since_last_vsync);
 		}
@@ -414,13 +368,14 @@ static void visit_system_node(
 			visitor.visit_node(ss->frame_counter_since_last_vsync);
 		}
 
-		LEAF_SCALAR(d3d9_adapter_index, sysw.GetD3D9AdapterIndex());
-		LEAF_SCALAR(dxgi_output_info, sysw.GetDXGIOutputInfo());
+		VISIT(d3d9_adapter_index, sysw.GetD3D9AdapterIndex());
+		VISIT(dxgi_output_info, sysw.GetDXGIOutputInfo());
 	}
 
 	//
 	// eyes
 	//
+	if (visitor.expand_structure())
 	{
 		if (ss->eyes.size() < 2)
 		{
@@ -440,6 +395,7 @@ static void visit_system_node(
 	//
 	// controllers
 	//
+	if (visitor.expand_structure())
 	{
 		ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
 		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
@@ -448,60 +404,52 @@ static void visit_system_node(
 			ss->controllers.emplace_back(ss->controllers.make_url_for_child(name.c_str()));
 			ss->structure_version++;
 		}
-		START_VECTOR(controllers);
-		{
-			TrackedDevicePose_t raw_pose_array[vr::k_unMaxTrackedDeviceCount];
-			TrackedDevicePose_t standing_pose_array[vr::k_unMaxTrackedDeviceCount];
-			TrackedDevicePose_t seated_pose_array[vr::k_unMaxTrackedDeviceCount];
-
-			if (visitor.visit_source_interfaces())
-			{
-				memset(raw_pose_array, 0, sizeof(raw_pose_array));	// 2/6/2017 - on error this stuff should be zero
-				memset(standing_pose_array, 0, sizeof(standing_pose_array));
-				memset(seated_pose_array, 0, sizeof(seated_pose_array));
-				sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseRawAndUncalibrated,
-					resource_keys.GetPredictedSecondsToPhoton(), raw_pose_array, vr::k_unMaxTrackedDeviceCount);
-
-				sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseStanding,
-					resource_keys.GetPredictedSecondsToPhoton(), standing_pose_array, vr::k_unMaxTrackedDeviceCount);
-
-				sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseSeated,
-					resource_keys.GetPredictedSecondsToPhoton(), seated_pose_array, vr::k_unMaxTrackedDeviceCount);
-			}
-
-			PropertiesIndexer *indexer = &resource_keys.GetDevicePropertiesIndexer();
-
-			for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
-			{
-				visitor.start_group_node(ss->controllers.get_url(), i);
-
-				if (visitor.visit_source_interfaces())
-				{
-					visitor.visit_node(ss->controllers[i].raw_tracking_pose, make_result(raw_pose_array[i]));
-					visitor.visit_node(ss->controllers[i].standing_tracking_pose, make_result(standing_pose_array[i]));
-					visitor.visit_node(ss->controllers[i].seated_tracking_pose, make_result(seated_pose_array[i]));
-				}
-				else
-				{
-					visitor.visit_node(ss->controllers[i].raw_tracking_pose);
-					visitor.visit_node(ss->controllers[i].standing_tracking_pose);
-					visitor.visit_node(ss->controllers[i].seated_tracking_pose);
-				}
-				visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer, allocator);
-				visitor.end_group_node(ss->controllers.get_url(), i);
-			}
-		}
-		END_VECTOR(controllers);
 	}
+
+	START_VECTOR(controllers);
+	TrackedDevicePose_t raw_pose_array[vr::k_unMaxTrackedDeviceCount];
+	TrackedDevicePose_t standing_pose_array[vr::k_unMaxTrackedDeviceCount];
+	TrackedDevicePose_t seated_pose_array[vr::k_unMaxTrackedDeviceCount];
+
+	if (visitor.visit_source_interfaces())
+	{
+		memset(raw_pose_array, 0, sizeof(raw_pose_array));	// 2/6/2017 - on error this stuff should be zero
+		memset(standing_pose_array, 0, sizeof(standing_pose_array));
+		memset(seated_pose_array, 0, sizeof(seated_pose_array));
+		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseRawAndUncalibrated,
+			resource_keys.GetPredictedSecondsToPhoton(), raw_pose_array, vr::k_unMaxTrackedDeviceCount);
+
+		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseStanding,
+			resource_keys.GetPredictedSecondsToPhoton(), standing_pose_array, vr::k_unMaxTrackedDeviceCount);
+
+		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseSeated,
+			resource_keys.GetPredictedSecondsToPhoton(), seated_pose_array, vr::k_unMaxTrackedDeviceCount);
+	}
+
+	PropertiesIndexer *indexer = &resource_keys.GetDevicePropertiesIndexer();
+
+	for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
+	{
+		visitor.start_group_node(ss->controllers.get_url(), i);
+		VISIT(controllers[i].raw_tracking_pose, make_result(raw_pose_array[i]));
+		VISIT(controllers[i].standing_tracking_pose, make_result(standing_pose_array[i]));
+		VISIT(controllers[i].seated_tracking_pose, make_result(seated_pose_array[i]));
+		visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer, allocator);
+		visitor.end_group_node(ss->controllers.get_url(), i);
+	}
+	END_VECTOR(controllers);
 
 	//
 	// spatial sorts
 	//
-	ss->spatial_sorts.reserve(vr::k_unMaxTrackedDeviceCount + 1);
-	while (ss->spatial_sorts.size() < vr::k_unMaxTrackedDeviceCount + 1)
+	if (visitor.expand_structure())
 	{
-		std::string name(std::to_string(ss->spatial_sorts.size()));
-		ss->spatial_sorts.emplace_back(ss->make_url_for_child(name.c_str()));
+		ss->spatial_sorts.reserve(vr::k_unMaxTrackedDeviceCount + 1);
+		while (ss->spatial_sorts.size() < vr::k_unMaxTrackedDeviceCount + 1)
+		{
+			std::string name(std::to_string(ss->spatial_sorts.size()));
+			ss->spatial_sorts.emplace_back(ss->make_url_for_child(name.c_str()));
+		}
 	}
 
 	START_VECTOR(spatial_sorts);
@@ -563,7 +511,6 @@ void structure_check(int *structure_version,
 	}
 }
 
-
 template <typename visitor_fn, typename ResultType>
 void visit_vec(visitor_fn &visitor,
 	vr_state::VECTOR_OF_TIMENODES<ResultType> &vec,
@@ -575,21 +522,25 @@ void visit_vec(visitor_fn &visitor,
 {
 	int num_props = indexer->GetNumPropertiesOfType(prop_type);
 	visitor.start_vector(vec.get_url(), vec);
-	for (int index = 0; index < num_props; index++)
+
+	if (visitor.visit_source_interfaces())
 	{
 		ResultType result;
-		//type_name, EVRApplicationError> result;
-		if (visitor.visit_source_interfaces())
+		for (int index = 0; index < num_props; index++)
 		{
 			vr::EVRApplicationProperty prop = (vr::EVRApplicationProperty)indexer->GetEnumVal(prop_type, index);
 			wrap.GetProperty(app_key, prop, &result);
 			visitor.visit_node(vec[index], result);
 		}
-		else
+	}
+	else
+	{
+		for (int index = 0; index < num_props; index++)
 		{
 			visitor.visit_node(vec[index]);
 		}
 	}
+	
 	visitor.end_vector(vec.get_url(), vec);
 }
 
@@ -637,36 +588,36 @@ void visit_application_state(visitor_fn &visitor, vr_state::applications_schema 
 	vr_state::application_schema *ss = &applications->applications[app_index];
 	visitor.start_group_node(ss->get_url(), -1);
 
+	VISIT(application_key, make_result(gsl::make_span(app_key, app_key_string_size)));
 
 	if (visitor.visit_source_interfaces())
 	{
-		visitor.visit_node(ss->application_key, make_result(gsl::make_span(app_key, app_key_string_size)));
 		Uint32<> process_id_tmp = wrap.GetApplicationProcessId(app_key);
-		LEAF_SCALAR(process_id, process_id_tmp);
+		VISIT(process_id, process_id_tmp);
 		TMPString<> tmp;
-		LEAF_VECTOR0(application_launch_arguments, wrap.GetApplicationLaunchArguments(process_id_tmp.val, &tmp));
+		VISIT(application_launch_arguments, wrap.GetApplicationLaunchArguments(process_id_tmp.val, &tmp));
 	}
 	else
 	{
-		visitor.visit_node(ss->application_key);
 		visitor.visit_node(ss->process_id);
 		visitor.visit_node(ss->application_launch_arguments);
 	}
 
-	LEAF_SCALAR(is_installed, wrap.IsApplicationInstalled(app_key));
-	LEAF_SCALAR(auto_launch, wrap.GetApplicationAutoLaunch(app_key));
-	TMPString<bool> tmp;
-	LEAF_VECTOR1(supported_mime_types, wrap.GetApplicationSupportedMimeTypes(app_key, &tmp));
+	VISIT(is_installed, wrap.IsApplicationInstalled(app_key));
+	VISIT(auto_launch, wrap.GetApplicationAutoLaunch(app_key));
+	VISIT(supported_mime_types, wrap.GetApplicationSupportedMimeTypes(app_key, &(TMPString<bool>())));
 
 	ApplicationsPropertiesIndexer *indexer = &resource_keys.GetApplicationsPropertiesIndexer();
 
-	structure_check(&applications->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING, allocator);
+	if (visitor.expand_structure())
+	{
+		structure_check(&applications->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING, allocator);
+		structure_check(&applications->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL, allocator);
+		structure_check(&applications->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64, allocator);
+	}
+
 	visit_string_vec(visitor, ss->string_props, wrap, app_key, indexer, PropertiesIndexer::PROP_STRING, "string_props");
-
-	structure_check(&applications->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL, allocator);
 	visit_vec(visitor, ss->bool_props, wrap, app_key, indexer, PropertiesIndexer::PROP_BOOL, "bool_props");
-
-	structure_check(&applications->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64, allocator);
 	visit_vec(visitor, ss->uint64_props, wrap, app_key, indexer, PropertiesIndexer::PROP_UINT64, "uint64_props");
 
 	visitor.end_group_node(ss->get_url(), -1);
@@ -687,10 +638,8 @@ void visit_mime_type_schema(visitor_fn &visitor, vr_state::mime_type_schema *ss,
 		visitor.visit_node(ss->mime_type);
 	}
 
-	TMPString<bool> tmp;
-	LEAF_VECTOR1(default_application, wrap.GetDefaultApplicationForMimeType(mime_type, &tmp));
-	TMPString<> tmp2;
-	LEAF_VECTOR0(applications_that_support_mime_type, wrap.GetApplicationsThatSupportMimeType(mime_type, &tmp2));
+	VISIT(default_application, wrap.GetDefaultApplicationForMimeType(mime_type, &(TMPString<bool>())));
+	VISIT(applications_that_support_mime_type, wrap.GetApplicationsThatSupportMimeType(mime_type, &(TMPString<>())));
 }
 
 
@@ -700,53 +649,48 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 	vr_keys &resource_keys, PlaceHolderAllocator &allocator)
 {
 	visitor.start_group_node(ss->get_url(), -1);
+	VISIT(active_application_indexes, resource_keys.GetApplicationsIndexer().update(&(TMPInt32String<>()), wrap));
 
-	if (visitor.visit_source_interfaces())
+	if (visitor.expand_structure())
 	{
-		TMPInt32String<> active_indexes;
-		resource_keys.GetApplicationsIndexer().update(&active_indexes, wrap);
-		visitor.visit_node(ss->active_application_indexes, active_indexes);
-	}
-	else
-	{
-		visitor.visit_node(ss->active_application_indexes);
-	}
-
-	if (resource_keys.GetApplicationsIndexer().get_num_applications() > (int)ss->applications.size())
-	{
-		ss->applications.reserve(resource_keys.GetApplicationsIndexer().get_num_applications());
-		while ((int)ss->applications.size() < resource_keys.GetApplicationsIndexer().get_num_applications())
+		if (resource_keys.GetApplicationsIndexer().get_num_applications() > (int)ss->applications.size())
 		{
-			const char *application_name = resource_keys.GetApplicationsIndexer().get_key_for_index(ss->applications.size());
-			ss->applications.emplace_back(ss->applications.make_url_for_child(application_name));
+			ss->applications.reserve(resource_keys.GetApplicationsIndexer().get_num_applications());
+			while ((int)ss->applications.size() < resource_keys.GetApplicationsIndexer().get_num_applications())
+			{
+				const char *application_name = resource_keys.GetApplicationsIndexer().get_key_for_index(ss->applications.size());
+				ss->applications.emplace_back(ss->applications.make_url_for_child(application_name));
+			}
+			ss->structure_version++;
 		}
-		ss->structure_version++;
 	}
 
-	TMPString<vr::EVRApplicationError> tmp;
-	LEAF_VECTOR1(starting_application, wrap.GetStartingApplication(&tmp));
-	LEAF_SCALAR(transition_state, wrap.GetTransitionState());
-	LEAF_SCALAR(is_quit_user_prompt, wrap.IsQuitUserPromptRequested());
-	LEAF_SCALAR(current_scene_process_id, wrap.GetCurrentSceneProcessId());
+	VISIT(starting_application, wrap.GetStartingApplication(&(TMPString<vr::EVRApplicationError>())));
+	VISIT(transition_state, wrap.GetTransitionState());
+	VISIT(is_quit_user_prompt, wrap.IsQuitUserPromptRequested());
+	VISIT(current_scene_process_id, wrap.GetCurrentSceneProcessId());
 
-	int num_mime_types = resource_keys.GetMimeTypesIndexer().GetNumMimeTypes();
-	ss->mime_types.reserve(num_mime_types);
-	while (size_as_int(ss->mime_types.size()) < num_mime_types)
+	if (visitor.expand_structure())
 	{
-		const char *mime_type = resource_keys.GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
-		ss->mime_types.emplace_back(ss->make_url_for_child(mime_type));
-		ss->structure_version++;
+		int num_mime_types = resource_keys.GetMimeTypesIndexer().GetNumMimeTypes();
+		ss->mime_types.reserve(num_mime_types);
+		while (size_as_int(ss->mime_types.size()) < num_mime_types)
+		{
+			const char *mime_type = resource_keys.GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
+			ss->mime_types.emplace_back(ss->make_url_for_child(mime_type));
+			ss->structure_version++;
+		}
 	}
 
 	START_VECTOR(mime_types);
-	for (int i = 0; i < num_mime_types; i++)
+	for (int i = 0; i < size_as_int(ss->mime_types.size()); i++)
 	{
 		visit_mime_type_schema(visitor, &ss->mime_types[i], wrap, i, resource_keys);
 	}
 	END_VECTOR(mime_types);
 
 	START_VECTOR(applications);
-	for (int i = 0; i < (int)ss->applications.size(); i++)
+	for (int i = 0; i < size_as_int(ss->applications.size()); i++)
 	{
 		visit_application_state(visitor, ss, wrap, i, resource_keys, allocator);
 	}
@@ -754,7 +698,6 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 
 	visitor.end_group_node(ss->get_url(), -1);
 }
-
 
 template <typename VecType>
 void structure_check(
@@ -851,16 +794,17 @@ static void visit_section(
 {
 	SettingsIndexer * indexer = &resource_keys.GetSettingsIndexer();
 
-	structure_check(structure_version, s->bool_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_BOOL, allocator);
+	if (visitor.expand_structure())
+	{
+		structure_check(structure_version, s->bool_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_BOOL, allocator);
+		structure_check(structure_version, s->string_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_STRING, allocator);
+		structure_check(structure_version, s->float_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_FLOAT, allocator);
+		structure_check(structure_version, s->int32_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_INT32, allocator);
+	}
+	
 	visit_subtable2<visitor_fn, bool>(visitor, s->bool_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_BOOL, resource_keys);
-
-	structure_check(structure_version, s->string_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_STRING, allocator);
 	visit_string_subtable2(visitor, s->string_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_STRING, resource_keys);
-
-	structure_check(structure_version, s->float_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_FLOAT, allocator);
 	visit_subtable2(visitor, s->float_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_FLOAT, resource_keys);
-
-	structure_check(structure_version, s->int32_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_INT32, allocator);
 	visit_subtable2(visitor, s->int32_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_INT32, resource_keys);
 }
 
@@ -875,19 +819,22 @@ static void visit_settings_node(
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
-	int required_size = resource_keys.GetSettingsIndexer().GetNumSections();
-	if (size_as_int(ss->sections.size()) < required_size)
+	if (visitor.expand_structure())
 	{
-		ss->sections.reserve(vr::k_unMaxTrackedDeviceCount);
-		while (size_as_int(ss->sections.size()) < required_size)
+		int required_size = resource_keys.GetSettingsIndexer().GetNumSections();
+		if (size_as_int(ss->sections.size()) < required_size)
 		{
-			int section = ss->sections.size();
-			ss->sections.emplace_back(ss->make_url_for_child(resource_keys.GetSettingsIndexer().GetSectionName(section)));
+			ss->sections.reserve(vr::k_unMaxTrackedDeviceCount);
+			while (size_as_int(ss->sections.size()) < required_size)
+			{
+				int section = ss->sections.size();
+				ss->sections.emplace_back(ss->make_url_for_child(resource_keys.GetSettingsIndexer().GetSectionName(section)));
+			}
 		}
 	}
 
 	START_VECTOR(sections);
-	for (int index = 0; index < required_size; index++)
+	for (int index = 0; index < size_as_int(ss->sections.size()); index++)
 	{
 		visit_section(visitor, resource_keys.GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
 			&ss->structure_version, wrap, resource_keys, allocator);
@@ -906,10 +853,10 @@ static void visit_chaperone_node(
 	const vr_keys &resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), -1);
-	LEAF_SCALAR(calibration_state, wrap.GetCalibrationState());
-	LEAF_SCALAR(bounds_visible, wrap.AreBoundsVisible());
-	LEAF_SCALAR(play_area_rect, wrap.GetPlayAreaRect());
-	LEAF_SCALAR(play_area_size, wrap.GetPlayAreaSize());
+	VISIT(calibration_state, wrap.GetCalibrationState());
+	VISIT(bounds_visible, wrap.AreBoundsVisible());
+	VISIT(play_area_rect, wrap.GetPlayAreaRect());
+	VISIT(play_area_size, wrap.GetPlayAreaSize());
 
 	if (visitor.visit_source_interfaces())
 	{
@@ -937,22 +884,15 @@ template <typename visitor_fn>
 static void visit_chaperone_setup_node(visitor_fn &visitor, vr_state::chaperonesetup_schema *ss, ChaperoneSetupWrapper wrap)
 {
 	visitor.start_group_node(ss->get_url(), -1);
-	LEAF_SCALAR(working_play_area_size, wrap.GetWorkingPlayAreaSize());
-	LEAF_SCALAR(working_play_area_rect, wrap.GetWorkingPlayAreaRect());
-
-	TMPHmdQuadString<bool> r;
-	LEAF_VECTOR1(working_collision_bounds_info, wrap.GetWorkingCollisionBoundsInfo(&r));
-	LEAF_VECTOR1(live_collision_bounds_info, wrap.GetLiveCollisionBoundsInfo(&r));
-
-	LEAF_SCALAR(working_seated2rawtracking, wrap.GetWorkingSeatedZeroPoseToRawTrackingPose());
-	LEAF_SCALAR(working_standing2rawtracking, wrap.GetWorkingStandingZeroPoseToRawTrackingPose());
-
-	TMPUint8String<bool> r2;
-	LEAF_VECTOR1(live_collision_bounds_tags_info, wrap.GetLiveCollisionBoundsTagsInfo(&r2));
-	LEAF_SCALAR(live_seated2rawtracking, wrap.GetLiveSeatedZeroPoseToRawTrackingPose());
-
-	LEAF_VECTOR1(live_physical_bounds_info, wrap.GetLivePhysicalBoundsInfo(&r));
-
+	VISIT(working_play_area_size, wrap.GetWorkingPlayAreaSize());
+	VISIT(working_play_area_rect, wrap.GetWorkingPlayAreaRect());
+	VISIT(working_collision_bounds_info, wrap.GetWorkingCollisionBoundsInfo(&(TMPHmdQuadString<bool>())));
+	VISIT(live_collision_bounds_info, wrap.GetLiveCollisionBoundsInfo(&(TMPHmdQuadString<bool>())));
+	VISIT(working_seated2rawtracking, wrap.GetWorkingSeatedZeroPoseToRawTrackingPose());
+	VISIT(working_standing2rawtracking, wrap.GetWorkingStandingZeroPoseToRawTrackingPose());
+	VISIT(live_collision_bounds_tags_info, wrap.GetLiveCollisionBoundsTagsInfo(&(TMPUint8String<bool>())));
+	VISIT(live_seated2rawtracking, wrap.GetLiveSeatedZeroPoseToRawTrackingPose());
+	VISIT(live_physical_bounds_info, wrap.GetLivePhysicalBoundsInfo(&(TMPHmdQuadString<bool>())));
 	visitor.end_group_node(ss->get_url(), -1);
 }
 
@@ -986,59 +926,42 @@ static void visit_compositor_state(visitor_fn &visitor,
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
-		LEAF_SCALAR(tracking_space, wrap.GetTrackingSpace());
-		LEAF_SCALAR(frame_timing, wrap.GetFrameTiming(config.GetFrameTimingFramesAgo()));
-		LEAF_SCALAR(frame_time_remaining, wrap.GetFrameTimeRemaining());
-		LEAF_SCALAR(cumulative_stats, wrap.GetCumulativeStats());
-		LEAF_SCALAR(foreground_fade_color, wrap.GetForegroundFadeColor());
-		LEAF_SCALAR(background_fade_color, wrap.GetBackgroundFadeColor());
-		LEAF_SCALAR(grid_alpha, wrap.GetCurrentGridAlpha());
-		LEAF_SCALAR(is_fullscreen, wrap.IsFullscreen());
-		LEAF_SCALAR(current_scene_focus_process, wrap.GetCurrentSceneFocusProcess());
-		LEAF_SCALAR(last_frame_renderer, wrap.GetLastFrameRenderer());
-		LEAF_SCALAR(can_render_scene, wrap.CanRenderScene());
-		LEAF_SCALAR(is_mirror_visible, wrap.IsMirrorWindowVisible());
-		LEAF_SCALAR(should_app_render_with_low_resource, wrap.ShouldAppRenderWithLowResources());
+		VISIT(tracking_space, wrap.GetTrackingSpace());
+		VISIT(frame_timing, wrap.GetFrameTiming(config.GetFrameTimingFramesAgo()));
+		VISIT(frame_time_remaining, wrap.GetFrameTimeRemaining());
+		VISIT(cumulative_stats, wrap.GetCumulativeStats());
+		VISIT(foreground_fade_color, wrap.GetForegroundFadeColor());
+		VISIT(background_fade_color, wrap.GetBackgroundFadeColor());
+		VISIT(grid_alpha, wrap.GetCurrentGridAlpha());
+		VISIT(is_fullscreen, wrap.IsFullscreen());
+		VISIT(current_scene_focus_process, wrap.GetCurrentSceneFocusProcess());
+		VISIT(last_frame_renderer, wrap.GetLastFrameRenderer());
+		VISIT(can_render_scene, wrap.CanRenderScene());
+		VISIT(is_mirror_visible, wrap.IsMirrorWindowVisible());
+		VISIT(should_app_render_with_low_resource, wrap.ShouldAppRenderWithLowResources());
+		VISIT(frame_timings, wrap.GetFrameTimings(config.GetFrameTimingsNumFrames(),
+			&(TMPCompositorFrameTimingString<>())));
 	}
 
-	if (visitor.visit_source_interfaces())
-	{
-		TMPCompositorFrameTimingString<> frame_timings;
-		wrap.GetFrameTimings(config.GetFrameTimingsNumFrames(), &frame_timings);
-		visitor.visit_node(ss->frame_timings, frame_timings);
-	}
-	else
-	{
-		visitor.visit_node(ss->frame_timings);
-	}
-
-
+	if (visitor.expand_structure())
 	{
 		ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
 		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 		{
-			ss->controllers.emplace_back(ss->make_url_for_child(std::to_string(ss->controllers.size()).c_str()));
+			const char *child_name = std::to_string(ss->controllers.size()).c_str();
+			ss->controllers.emplace_back(ss->make_url_for_child(child_name));
 		}
-
-		START_VECTOR(controllers);
-		for (int i = 0; i < (int)ss->controllers.size(); i++)
-		{
-			visit_compositor_controller(visitor, &ss->controllers[i], wrap, i);
-		}
-		END_VECTOR(controllers);
 	}
 
-	if (visitor.visit_source_interfaces())
+	START_VECTOR(controllers);
+	for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
 	{
-		TMPString<> result;
-		wrap.GetVulkanInstanceExtensionsRequired(&result);
-		visitor.visit_node(ss->instance_extensions_required, result);
+		visit_compositor_controller(visitor, &ss->controllers[i], wrap, i);
 	}
-	else
-	{
-		visitor.visit_node(ss->instance_extensions_required);
-	}
+	END_VECTOR(controllers);
+	
 
+	VISIT(instance_extensions_required, wrap.GetVulkanInstanceExtensionsRequired(&(TMPString<>())));
 	visitor.end_group_node(ss->get_url(), -1);
 }
 
@@ -1056,9 +979,9 @@ static void visit_permodelcomponent(
 		TMPString<> component_model_name;
 		wrap.GetComponentModelName(pchRenderModelName, component_index, &component_model_name);
 		visitor.visit_node(ss->component_name, component_model_name);
-		LEAF_SCALAR(button_mask, wrap.GetComponentButtonMask(pchRenderModelName, component_model_name.val.data()));
+		VISIT(button_mask, wrap.GetComponentButtonMask(pchRenderModelName, component_model_name.val.data()));
 		TMPString<bool> tmp;
-		LEAF_VECTOR1(render_model_name, 
+		VISIT(render_model_name, 
 				wrap.GetComponentRenderModelName(pchRenderModelName, component_model_name.val.data(), &tmp));
 	}
 	else
@@ -1101,20 +1024,22 @@ static void visit_rendermodel(visitor_fn &visitor,
 	// todo: index the rendermodels
 	const char *render_model_name = ss->render_model_name.latest().get_value().val.data();
 
-	RenderModel_t *pRenderModel = nullptr;
-	RenderModel_TextureMap_t *pTexture = nullptr;
-	EVRRenderModelError rc = VRRenderModelError_None;
-	const RenderModel_Vertex_t *rVertexData = nullptr;	// Vertex data for the mesh
-	uint32_t unVertexCount = 0;						// Number of vertices in the vertex data
-	const uint16_t *rIndexData = nullptr;
-	uint32_t unTriangleCount = 0;
-	uint16_t unWidth, unHeight; // width and height of the texture map in pixels
-	unWidth = unHeight = 0;
-	const uint8_t *rubTextureMapData = nullptr;
+	
 	if (visitor.visit_source_interfaces())
 	{
 		if (visitor.reload_render_models() || ss->vertex_data.empty())
 		{
+			RenderModel_t *pRenderModel = nullptr;
+			RenderModel_TextureMap_t *pTexture = nullptr;
+			EVRRenderModelError rc = VRRenderModelError_None;
+			const RenderModel_Vertex_t *rVertexData = nullptr;	// Vertex data for the mesh
+			uint32_t unVertexCount = 0;						// Number of vertices in the vertex data
+			const uint16_t *rIndexData = nullptr;
+			uint32_t unTriangleCount = 0;
+			uint16_t unWidth, unHeight; // width and height of the texture map in pixels
+			unWidth = unHeight = 0;
+			const uint8_t *rubTextureMapData = nullptr;
+
 			rc = wrap.LoadRenderModel(render_model_name, &pRenderModel, &pTexture);
 			if (pRenderModel)
 			{
@@ -1152,15 +1077,13 @@ static void visit_rendermodel(visitor_fn &visitor,
 		visitor.visit_node(ss->texture_width);
 	}
 
-	// set default
-	int component_count = (int)ss->components.size();
-	if (visitor.visit_source_interfaces())
+	if (visitor.expand_structure())
 	{
-		component_count = (int)wrap.GetComponentCount(render_model_name);
+		int component_count = wrap.GetComponentCount(render_model_name);
 		ss->components.reserve(component_count);
+		TMPString<> component_model_name;
 		while (size_as_int(ss->components.size()) < component_count)
 		{
-			TMPString<> component_model_name;
 			wrap.GetComponentModelName(render_model_name, ss->components.size(), &component_model_name);
 			ss->components.emplace_back(ss->components.make_url_for_child(component_model_name.val.data()));
 			*structure_version += 1;
@@ -1224,27 +1147,27 @@ static void visit_per_overlay(
 		visitor.visit_node(ss->overlay_image_data);
 	}
 
-	LEAF_SCALAR(overlay_rendering_pid, wrap.GetOverlayRenderingPid(handle));
-	LEAF_SCALAR(overlay_flags, wrap.GetOverlayFlags(handle));
-	LEAF_SCALAR(overlay_color, wrap.GetOverlayColor(handle));
-	LEAF_SCALAR(overlay_alpha, wrap.GetOverlayAlpha(handle));
-	LEAF_SCALAR(overlay_texel_aspect, wrap.GetOverlayTexelAspect(handle));
-	LEAF_SCALAR(overlay_sort_order, wrap.GetOverlaySortOrder(handle));
-	LEAF_SCALAR(overlay_width_in_meters, wrap.GetOverlayWidthInMeters(handle));
-	LEAF_SCALAR(overlay_auto_curve_range_in_meters, wrap.GetOverlayAutoCurveDistanceRangeInMeters(handle));
-	LEAF_SCALAR(overlay_texture_color_space, wrap.GetOverlayTextureColorSpace(handle));
-	LEAF_SCALAR(overlay_texture_bounds, wrap.GetOverlayTextureBounds(handle));
-	LEAF_SCALAR(overlay_transform_type, wrap.GetOverlayTransformType(handle));
-	LEAF_SCALAR(overlay_transform_absolute, wrap.GetOverlayTransformAbsolute(handle));
-	LEAF_SCALAR(overlay_transform_device_relative, wrap.GetOverlayTransformTrackedDeviceRelative(handle));
+	VISIT(overlay_rendering_pid, wrap.GetOverlayRenderingPid(handle));
+	VISIT(overlay_flags, wrap.GetOverlayFlags(handle));
+	VISIT(overlay_color, wrap.GetOverlayColor(handle));
+	VISIT(overlay_alpha, wrap.GetOverlayAlpha(handle));
+	VISIT(overlay_texel_aspect, wrap.GetOverlayTexelAspect(handle));
+	VISIT(overlay_sort_order, wrap.GetOverlaySortOrder(handle));
+	VISIT(overlay_width_in_meters, wrap.GetOverlayWidthInMeters(handle));
+	VISIT(overlay_auto_curve_range_in_meters, wrap.GetOverlayAutoCurveDistanceRangeInMeters(handle));
+	VISIT(overlay_texture_color_space, wrap.GetOverlayTextureColorSpace(handle));
+	VISIT(overlay_texture_bounds, wrap.GetOverlayTextureBounds(handle));
+	VISIT(overlay_transform_type, wrap.GetOverlayTransformType(handle));
+	VISIT(overlay_transform_absolute, wrap.GetOverlayTransformAbsolute(handle));
+	VISIT(overlay_transform_device_relative, wrap.GetOverlayTransformTrackedDeviceRelative(handle));
 
-	LEAF_SCALAR(overlay_input_method, wrap.GetOverlayInputMethod(handle));
-	LEAF_SCALAR(overlay_mouse_scale, wrap.GetOverlayMouseScale(handle));
-	LEAF_SCALAR(overlay_is_hover_target, wrap.IsHoverTargetOverlay(handle));
-	LEAF_SCALAR(overlay_is_visible, wrap.IsOverlayVisible(handle));
-	LEAF_SCALAR(overlay_is_active_dashboard, wrap.IsActiveDashboardOverlay(handle));
-	LEAF_SCALAR(overlay_dashboard_scene_process, wrap.GetDashboardOverlaySceneProcess(handle));
-	LEAF_SCALAR(overlay_texture_size, wrap.GetOverlayTextureSize(handle));
+	VISIT(overlay_input_method, wrap.GetOverlayInputMethod(handle));
+	VISIT(overlay_mouse_scale, wrap.GetOverlayMouseScale(handle));
+	VISIT(overlay_is_hover_target, wrap.IsHoverTargetOverlay(handle));
+	VISIT(overlay_is_visible, wrap.IsOverlayVisible(handle));
+	VISIT(overlay_is_active_dashboard, wrap.IsActiveDashboardOverlay(handle));
+	VISIT(overlay_dashboard_scene_process, wrap.GetDashboardOverlaySceneProcess(handle));
+	VISIT(overlay_texture_size, wrap.GetOverlayTextureSize(handle));
 
 
 	if (visitor.visit_source_interfaces())
@@ -1273,47 +1196,30 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
-	LEAF_SCALAR(gamepad_focus_overlay, wrap.GetGamepadFocusOverlay());
-	LEAF_SCALAR(primary_dashboard_device, wrap.GetPrimaryDashboardDevice());
-	LEAF_SCALAR(is_dashboard_visible, wrap.IsDashboardVisible());
+	VISIT(gamepad_focus_overlay, wrap.GetGamepadFocusOverlay());
+	VISIT(primary_dashboard_device, wrap.GetPrimaryDashboardDevice());
+	VISIT(is_dashboard_visible, wrap.IsDashboardVisible());
+	VISIT(keyboard_text, wrap.GetKeyboardText(&(TMPString<>())));
+	VISIT(active_overlay_indexes,
+		config.GetOverlayIndexer().update(&(TMPInt32String<>()), wrap));
 
-	if (visitor.visit_source_interfaces())
+	if (visitor.expand_structure())
 	{
-		TMPString<> keyboard_text;
-		wrap.GetKeyboardText(&keyboard_text);
-		visitor.visit_node(ss->keyboard_text, keyboard_text);
-	}
-	else
-	{
-		visitor.visit_node(ss->keyboard_text);
-	}
-
-
-	if (visitor.visit_source_interfaces())
-	{
-		TMPInt32String<> active_indexes;
-		config.GetOverlayIndexer().update(&active_indexes, wrap);
-		visitor.visit_node(ss->active_overlay_indexes, active_indexes);
-	}
-	else
-	{
-		visitor.visit_node(ss->active_overlay_indexes);
-	}
-
-	if (config.GetOverlayIndexer().get_num_overlays() > (int)ss->overlays.size())
-	{
-		ss->overlays.reserve(config.GetOverlayIndexer().get_num_overlays());
-		while (size_as_int(ss->overlays.size()) < config.GetOverlayIndexer().get_num_overlays())
+		if (config.GetOverlayIndexer().get_num_overlays() > (int)ss->overlays.size())
 		{
-			const char *child_name = config.GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
-			ss->overlays.emplace_back(ss->overlays.make_url_for_child(child_name));
+			ss->overlays.reserve(config.GetOverlayIndexer().get_num_overlays());
+			while (size_as_int(ss->overlays.size()) < config.GetOverlayIndexer().get_num_overlays())
+			{
+				const char *child_name = config.GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
+				ss->overlays.emplace_back(ss->overlays.make_url_for_child(child_name));
+			}
 		}
 	}
 
 	// history traversal always goes through the complete set
 	// see "Hwrap to track applications and overlays.docx"
 	START_VECTOR(overlays);
-	for (int i = 0; i < (int)ss->overlays.size(); i++)
+	for (int i = 0; i < size_as_int(ss->overlays.size()); i++)
 	{
 		visit_per_overlay(visitor, ss, wrap, i, config, allocator);
 	}
@@ -1328,7 +1234,7 @@ static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
-	if (visitor.visit_source_interfaces())
+	if (visitor.expand_structure())
 	{
 		Uint32<> current_rendermodels = wrap.GetRenderModelCount();
 		int num_render_models = current_rendermodels.val;
@@ -1344,7 +1250,7 @@ static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_
 	}
 
 	START_VECTOR(models);
-	for (int i = 0; i < (int)ss->models.size(); i++)
+	for (int i = 0; i < size_as_int(ss->models.size()); i++)
 	{
 		visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, wrap, i, allocator);
 	}
@@ -1357,9 +1263,9 @@ template <typename visitor_fn>
 static void visit_extended_display_state(visitor_fn &visitor, vr_state::extendeddisplay_schema *ss, ExtendedDisplayWrapper ew)
 {
 	visitor.start_group_node(ss->get_url(), -1);
-	LEAF_SCALAR(window_bounds, ew.GetWindowBounds());
-	LEAF_SCALAR(left_output_viewport, ew.GetEyeOutputViewport(vr::Eye_Left));
-	LEAF_SCALAR(right_output_viewport, ew.GetEyeOutputViewport(vr::Eye_Right));
+	VISIT(window_bounds, ew.GetWindowBounds());
+	VISIT(left_output_viewport, ew.GetEyeOutputViewport(vr::Eye_Left));
+	VISIT(right_output_viewport, ew.GetEyeOutputViewport(vr::Eye_Right));
 	visitor.end_group_node(ss->get_url(), -1);
 }
 
@@ -1391,10 +1297,10 @@ static void visit_cameraframetype_schema(visitor_fn &visitor,
 	HmdMatrix44<EVRTrackedCameraError> projection;
 	VideoStreamTextureSize<EVRTrackedCameraError> video_texture_size;
 
-	LEAF_SCALAR(frame_size, tcw.GetCameraFrameSize(device_index, frame_type, &f));
-	LEAF_SCALAR(intrinsics, tcw.GetCameraIntrinsics(device_index, frame_type, &intrinsics));
-	LEAF_SCALAR(projection, tcw.GetCameraProjection(device_index, frame_type, config.GetNearZ(), config.GetFarZ(), &projection));
-	LEAF_SCALAR(video_texture_size, tcw.GetVideoStreamTextureSize(device_index, frame_type, &video_texture_size));
+	VISIT(frame_size, tcw.GetCameraFrameSize(device_index, frame_type, &f));
+	VISIT(intrinsics, tcw.GetCameraIntrinsics(device_index, frame_type, &intrinsics));
+	VISIT(projection, tcw.GetCameraProjection(device_index, frame_type, config.GetNearZ(), config.GetFarZ(), &projection));
+	VISIT(video_texture_size, tcw.GetVideoStreamTextureSize(device_index, frame_type, &video_texture_size));
 
 	visitor.end_group_node(ss->get_url(), device_index);
 }
@@ -1405,19 +1311,23 @@ static void visit_per_controller_state(visitor_fn &visitor,
 	int device_index, vr_keys &resource_keys, PlaceHolderAllocator &allocator)
 {
 	visitor.start_group_node(ss->get_url(), device_index);
-	LEAF_SCALAR(has_camera, tcw.HasCamera(device_index));
+	VISIT(has_camera, tcw.HasCamera(device_index));
 
-	if (ss->cameraframetypes.size() < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES)
+	if (visitor.expand_structure())
 	{
-		ss->cameraframetypes.reserve(EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES);
-		for (int i = 0; i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
+		if (ss->cameraframetypes.size() < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES)
 		{
-			const char *child_name = FrameTypeToGroupName(EVRTrackedCameraFrameType(i));
-			ss->cameraframetypes.emplace_back(ss->cameraframetypes.make_url_for_child(child_name));
+			ss->cameraframetypes.reserve(EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES);
+			for (int i = 0; i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
+			{
+				const char *child_name = FrameTypeToGroupName(EVRTrackedCameraFrameType(i));
+				ss->cameraframetypes.emplace_back(ss->cameraframetypes.make_url_for_child(child_name));
+			}
 		}
 	}
+
 	START_VECTOR(cameraframetypes);
-	for (int i = 0; i < (int)ss->cameraframetypes.size(); i++)
+	for (int i = 0; i < size_as_int(ss->cameraframetypes.size()); i++)
 	{
 		visit_cameraframetype_schema(visitor, &ss->cameraframetypes[i], tcw, device_index, (EVRTrackedCameraFrameType)i, resource_keys);
 	}
@@ -1432,11 +1342,14 @@ static void visit_trackedcamera_state(visitor_fn &visitor,
 	PlaceHolderAllocator &allocator)
 {
 	visitor.start_group_node(ss->get_url(), -1);
-	ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
-	while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
+	if (visitor.expand_structure())
 	{
-		const char *child_name = std::to_string(ss->controllers.size()).c_str();
-		ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name));
+		ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
+		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
+		{
+			const char *child_name = std::to_string(ss->controllers.size()).c_str();
+			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name));
+		}
 	}
 
 	START_VECTOR(controllers);
@@ -1497,18 +1410,21 @@ static void visit_resources_state(visitor_fn &visitor,
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
-	if ((int)ss->resources.size() < resource_keys.GetResourcesIndexer().get_num_resources())
+	if (visitor.expand_structure())
 	{
-		ss->resources.reserve(resource_keys.GetResourcesIndexer().get_num_resources());
-		while ((int)ss->resources.size() < resource_keys.GetResourcesIndexer().get_num_resources())
+		if (size_as_int(ss->resources.size()) < resource_keys.GetResourcesIndexer().get_num_resources())
 		{
-			const char *child_name = std::to_string(ss->resources.size()).c_str();
-			ss->resources.emplace_back(ss->resources.make_url_for_child(child_name));
+			ss->resources.reserve(resource_keys.GetResourcesIndexer().get_num_resources());
+			while ((int)ss->resources.size() < resource_keys.GetResourcesIndexer().get_num_resources())
+			{
+				const char *child_name = std::to_string(ss->resources.size()).c_str();
+				ss->resources.emplace_back(ss->resources.make_url_for_child(child_name));
+			}
 		}
 	}
 
 	START_VECTOR(resources);
-	for (int i = 0; i < (int)ss->resources.size(); i++)
+	for (int i = 0; i < size_as_int(ss->resources.size()); i++)
 	{
 		visit_per_resource(visitor, ss, wrap, i, resource_keys, allocator);
 	}

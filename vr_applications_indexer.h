@@ -17,7 +17,7 @@ public:
 	void ReadFromStream(EncodeStream &s);
 
 	// read the wrapper assign indexes and return them in result
-	void update(vr_result::TMPInt32String<> *result, vr_result::ApplicationsWrapper &ow);
+	vr_result::TMPInt32String<>&update(vr_result::TMPInt32String<> *result, vr_result::ApplicationsWrapper &ow);
 	
 	// number of applications ever seen
 	int get_num_applications() { return (int)app_keys.size(); }

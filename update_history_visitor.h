@@ -5,15 +5,19 @@
 
 struct update_history_visitor 
 {
-	update_history_visitor(time_index_t frame_number)
+	constexpr update_history_visitor(time_index_t frame_number)
+		:	m_frame_number(0),
+			m_update_counter(0),
+			m_visit_counter(0)
 	{}
 
 	time_index_t m_frame_number;
 	int m_update_counter;
 	int m_visit_counter;
 
-	inline bool visit_source_interfaces() { return true; }
-	inline bool reload_render_models() { return false; }
+	constexpr bool visit_source_interfaces() const { return true; }
+	constexpr bool expand_structure() const { return true; }
+	constexpr bool reload_render_models() const { return false; }
 
 	inline void start_group_node(const base::URL &url_name, int group_id_index)
 	{}
