@@ -20,6 +20,8 @@ namespace plat
 typedef uint64_t time_stamp_t;
 typedef int time_index_t;
 
+#define TBL_SIZE(t) (sizeof(t)/sizeof(t[0]))
+
 template <typename T>
 constexpr int size_as_int(const T &size_in) {
 	assert(size_in <= static_cast<std::size_t>(std::numeric_limits<int>::max()));

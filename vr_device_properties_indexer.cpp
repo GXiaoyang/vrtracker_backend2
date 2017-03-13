@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vr_device_properties_indexer.h"
+#include "platform.h"
 
 // int32 device properties
 #define EXPANDO_DEVICE_PROPERTY_INT32O(x) { vr::Prop_ ## x ## _Int32 , #x }
@@ -146,7 +147,6 @@ void DevicePropertiesIndexer::Init
 	int num_float_properties, const char **float_names, int *float_values
 )
 {
-#define TBL_SIZE(t) (sizeof(t)/sizeof(t[0]))
 	PropertiesIndexer::Init(
 		device_bool_properties_table, TBL_SIZE(device_bool_properties_table),
 		device_string_properties_table, TBL_SIZE(device_string_properties_table),

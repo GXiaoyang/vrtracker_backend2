@@ -257,5 +257,11 @@
     <ClCompile Include="openvr_broker.cpp">
       <Filter>Source Files\vr base</Filter>
     </ClCompile>
+    <ClCompile Include="vr_settings_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="tracker_config.cpp">
+      <Filter>Source Files\vr base</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

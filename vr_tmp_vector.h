@@ -22,4 +22,29 @@ struct vr_tmp_vector : tmp_vector<T, VRFinalAllocatorType, VRTMPSize>, vr_tmp_ve
 		: tmp_vector<T, VRFinalAllocatorType, VRTMPSize>(m_global_pool, VRFinalAllocatorType())
 	{}
 	
+	vr_tmp_vector(int)	// int is a flag to indicate not to create from a pool
+	{}
+
+	vr_tmp_vector & operator = (vr_tmp_vector &&rhs)
+	{
+		tmp_vector<T, VRFinalAllocatorType, VRTMPSize>::operator=(std::move(rhs));
+		return *this;
+	}
+
+	vr_tmp_vector &operator =(const vr_tmp_vector &rhs) = delete;
+
+};
+
+template<typename T>
+struct vr_empty_vector : vr_tmp_vector<T>
+{
+	vr_empty_vector()
+		: vr_tmp_vector<T>(0)
+	{}
+
+	vr_empty_vector & operator = (vr_tmp_vector &&rhs)
+	{
+		vr_tmp_vector<T>::operator=(std::move(rhs));
+		return *this;
+	}
 };

@@ -9,6 +9,9 @@ struct tmp_vector_pool
 	static const size_t FixedSizeBytes = FixedSizeBytes;
 
 	tmp_vector_pool()
+		: 
+		m_alloc_one_calls(0),
+		m_free_one_calls(0)
 	{}
 
 	~tmp_vector_pool()
@@ -23,6 +26,7 @@ struct tmp_vector_pool
 	{
 		char *ret;
 		pool_mutex.lock();
+		m_alloc_one_calls++;
 
 		if (string_pool.empty())
 		{
@@ -42,7 +46,7 @@ struct tmp_vector_pool
 	void FreeOne(char *s)
 	{
 		pool_mutex.lock();
-
+		m_free_one_calls++;
 		for (int i = 0; i < (int)string_pool.size(); i++)
 		{
 			// make sure duplicates don't appear back in the string pool
@@ -52,7 +56,16 @@ struct tmp_vector_pool
 
 		pool_mutex.unlock();
 	}
+
+	int get_num_alloc_one_calls() const {
+		return m_alloc_one_calls;
+	}
+	int get_num_free_one_calls() const {
+		return m_free_one_calls;
+	}
 private:
+	int m_alloc_one_calls;
+	int m_free_one_calls;
 	std::mutex pool_mutex;
 	std::vector<char *> string_pool;
 };
@@ -101,6 +114,18 @@ public:
 		m_final_allocator(rhs.m_final_allocator)
 	{
 		rhs.m_s = nullptr;
+	}
+
+	tmp_vector & operator = (tmp_vector &&rhs)
+	{
+		m_s		= rhs.m_s;
+		m_pool	= rhs.m_pool;
+		m_count = rhs.m_count;
+		m_final_allocator = rhs.m_final_allocator;
+		
+		rhs.m_s = nullptr;
+		
+		return *this;
 	}
 
 	tmp_vector(const tmp_vector &rhs) = delete;// dangerous - do I want to have copies of tempoaries

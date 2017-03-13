@@ -470,12 +470,12 @@ namespace vr_result
 		{
 			rendermodel_component_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
-				INIT(component_name),
+				//INIT(component_name),
 				INIT(button_mask),
 				INIT(render_model_name)
 			{}
 
-			TIMENODE<String<>> component_name;
+//			TIMENODE<String<>> component_name;
 			TIMENODE<Uint64<>> button_mask;
 			TIMENODE<String<bool>> render_model_name;
 		};
@@ -484,7 +484,6 @@ namespace vr_result
 		{
 			rendermodel_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
-				INIT(render_model_name),
 				INIT(thumbnail_url),
 				INIT(original_path),
 				INIT(vertex_data),
@@ -494,7 +493,6 @@ namespace vr_result
 				INIT(texture_map_data),
 				INIT(components)
 			{}
-			TIMENODE<String<>> render_model_name;
 			TIMENODE<String<EVRRenderModelError>> thumbnail_url;
 			TIMENODE<String<EVRRenderModelError>> original_path;
 			TIMENODE<RenderModelVertexString<EVRRenderModelError>> vertex_data;

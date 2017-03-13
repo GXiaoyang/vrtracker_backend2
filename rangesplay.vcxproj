@@ -216,6 +216,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="tracker_config.cpp" />
     <ClCompile Include="unit_tests\test_result.cpp" />
     <ClCompile Include="unit_tests\test_schema_common.cpp" />
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />
@@ -229,6 +230,7 @@
     <ClCompile Include="vr_overlay_indexer.cpp" />
     <ClCompile Include="vr_properties_indexer.cpp" />
     <ClCompile Include="vr_resources_indexer.cpp" />
+    <ClCompile Include="vr_settings_indexer.cpp" />
     <ClCompile Include="vr_tmp_vector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

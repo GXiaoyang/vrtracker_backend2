@@ -19,8 +19,8 @@ struct TrackerConfig	// aka Hints
 	int num_bounds_colors;					// intercept: GetBoundsColor
 	float collision_bounds_fade_distance;	// ""
 
-	uint32_t frame_timing_frames_ago;		// intercept GetFrameTiming
-	uint32_t frame_timings_num_frames;		// intercept GetFrameTimings
+	unsigned int frame_timing_frames_ago;		// intercept GetFrameTiming
+	unsigned int frame_timings_num_frames;		// intercept GetFrameTimings
 
 	int num_overlays;				// intercept 30-50 overlay functions
 	const char **overlay_keys;

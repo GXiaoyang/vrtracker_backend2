@@ -76,6 +76,4 @@ namespace vr_result
 
 		IVRTrackedCamera *taci;
 	};
-
-
 }

@@ -226,6 +226,7 @@ static void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2,
 {
 	assign_return_code(a, b);
 	a.val.resize(b.val.size());
+	assert(a.val.size() == b.val.size());
 	memcpy(a.val.data(), b.val.data(), b.val.size() * sizeof(a.val[0]));
 }
 

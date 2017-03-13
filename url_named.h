@@ -43,8 +43,8 @@ namespace base
 		url_named(const URL &url)
 			: m_url(url)
 		{}
-		std::string get_name() const { return m_url.get_name(); };
-		std::string get_path() const { return m_url.get_full_path(); };
+		const std::string &get_name() const { return m_url.get_name(); };
+		const std::string &get_path() const { return m_url.get_full_path(); };
 		const URL &get_url() const { return m_url; }
 		void set_url(const URL&url) { m_url = url; }
 

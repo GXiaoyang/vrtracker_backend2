@@ -75,7 +75,6 @@ struct SystemWrapper
 		return make_result(sysi->IsInputFocusCapturedByAnotherProcess());
 	}
 	
-	
 	SCALAR_WRAP(IVRSystem, sysi, GetSeatedZeroPoseToStandingAbsoluteTrackingPose);
 	SCALAR_WRAP(IVRSystem, sysi, GetRawZeroPoseToStandingAbsoluteTrackingPose);
 

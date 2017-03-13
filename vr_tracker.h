@@ -31,7 +31,7 @@ struct vr_tracker
 	int blocking_update_calls;
 	int non_blocking_update_calls;
 	tracker_save_summary save_info;
-	vr_keys additional_resource_keys;
+	vr_keys keys;
 
 	vr_result::vr_schema<false, std::allocator> s2;
 
