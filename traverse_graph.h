@@ -17,8 +17,6 @@
 #include "vr_keys.h"
 #include "openvr_string.h"
 
-typedef int PlaceHolderAllocator;
-
 namespace vr_result
 {
 
@@ -80,8 +78,7 @@ static void visit_eye_state(visitor_fn &visitor,
 	vr_state::system_schema *system_ss,
 	vr::EVREye eEye,
 	IVRSystem *sysi, SystemWrapper wrap,
-	const vr_keys &c,
-	PlaceHolderAllocator &allocator)
+	const vr_keys &c)
 {
 	visitor.start_group_node(ss->get_url(), eEye);
 	VISIT(projection, wrap.GetProjectionMatrix(eEye, c.GetNearZ(), c.GetFarZ()));
@@ -235,8 +232,7 @@ static void visit_controller_state(visitor_fn &visitor,
 	vr_state::system_schema *system_ss,
 	SystemWrapper &wrap, RenderModelWrapper &rmw,
 	int controller_index,
-	PropertiesIndexer *indexer,
-	PlaceHolderAllocator &allocator)
+	PropertiesIndexer *indexer)
 {
 	{
 		VISIT(activity_level, wrap.GetTrackedDeviceActivityLevel(controller_index));
@@ -276,12 +272,12 @@ static void visit_controller_state(visitor_fn &visitor,
 	}
 	if (visitor.expand_structure())
 	{
-		structure_check(&system_ss->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING, allocator);
-		structure_check(&system_ss->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL, allocator);
-		structure_check(&system_ss->structure_version, ss->float_props, indexer, PropertiesIndexer::PROP_FLOAT, allocator);
-		structure_check(&system_ss->structure_version, ss->mat34_props, indexer, PropertiesIndexer::PROP_MAT34, allocator);
-		structure_check(&system_ss->structure_version, ss->int32_props, indexer, PropertiesIndexer::PROP_INT32, allocator);
-		structure_check(&system_ss->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64, allocator);
+		structure_check(&system_ss->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING);
+		structure_check(&system_ss->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL);
+		structure_check(&system_ss->structure_version, ss->float_props, indexer, PropertiesIndexer::PROP_FLOAT);
+		structure_check(&system_ss->structure_version, ss->mat34_props, indexer, PropertiesIndexer::PROP_MAT34);
+		structure_check(&system_ss->structure_version, ss->int32_props, indexer, PropertiesIndexer::PROP_INT32);
+		structure_check(&system_ss->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64);
 	}
 	
 	visit_string_vec(visitor, controller_index, ss->string_props, wrap, indexer, PropertiesIndexer::PROP_STRING, "string props");
@@ -343,8 +339,7 @@ static void visit_system_node(
 	vr_state::system_schema *ss,
 	IVRSystem *sysi, SystemWrapper sysw,
 	RenderModelWrapper rmw,
-	vr_keys &resource_keys,
-	PlaceHolderAllocator &allocator)
+	vr_keys &resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
@@ -395,7 +390,7 @@ static void visit_system_node(
 		for (int i = 0; i < 2; i++)
 		{
 			vr::EVREye eEye = (i == 0) ? vr::Eye_Left : vr::Eye_Right;
-			visit_eye_state(visitor, &ss->eyes[i], ss, eEye, sysi, sysw, resource_keys, allocator);
+			visit_eye_state(visitor, &ss->eyes[i], ss, eEye, sysi, sysw, resource_keys);
 		}
 		END_VECTOR(eyes);
 	}
@@ -442,7 +437,7 @@ static void visit_system_node(
 		VISIT(controllers[i].raw_tracking_pose, make_result(raw_pose_array[i]));
 		VISIT(controllers[i].standing_tracking_pose, make_result(standing_pose_array[i]));
 		VISIT(controllers[i].seated_tracking_pose, make_result(seated_pose_array[i]));
-		visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer, allocator);
+		visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer);
 		visitor.end_group_node(ss->controllers.get_url(), i);
 	}
 	END_VECTOR(controllers);
@@ -512,7 +507,7 @@ void structure_check(int *structure_version,
 	vr_state::VECTOR_OF_TIMENODES<ResultType> &vec,
 	//std::vector<HTYPE, PlaceHolderAllocator> &vec,
 	PropertiesIndexer *indexer,
-	PropertiesIndexer::PropertySettingType prop_type, PlaceHolderAllocator &allocator)
+	PropertiesIndexer::PropertySettingType prop_type)
 {
 	int num_props = indexer->GetNumPropertiesOfType(prop_type);
 	if (size_as_int(vec.size()) < num_props)
@@ -596,7 +591,7 @@ void visit_string_vec(visitor_fn &visitor,
 template <typename visitor_fn>
 void visit_application_state(visitor_fn &visitor, vr_state::applications_schema *applications,
 	ApplicationsWrapper &wrap, uint32_t app_index,
-	vr_keys &resource_keys, PlaceHolderAllocator &allocator)
+	vr_keys &resource_keys)
 {
 	const char *app_key = nullptr;
 	int app_key_string_size;
@@ -627,9 +622,9 @@ void visit_application_state(visitor_fn &visitor, vr_state::applications_schema 
 
 	if (visitor.expand_structure())
 	{
-		structure_check(&applications->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING, allocator);
-		structure_check(&applications->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL, allocator);
-		structure_check(&applications->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64, allocator);
+		structure_check(&applications->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING);
+		structure_check(&applications->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL);
+		structure_check(&applications->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64);
 	}
 
 	visit_string_vec(visitor, ss->string_props, wrap, app_key, indexer, PropertiesIndexer::PROP_STRING, "string_props");
@@ -662,7 +657,7 @@ void visit_mime_type_schema(visitor_fn &visitor, vr_state::mime_type_schema *ss,
 template <typename visitor_fn>
 static void visit_applications_node(visitor_fn &visitor, vr_state::applications_schema *ss, 
 	ApplicationsWrapper &wrap,
-	vr_keys &resource_keys, PlaceHolderAllocator &allocator)
+	vr_keys &resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	VISIT(active_application_indexes, resource_keys.GetApplicationsIndexer().update(&(TMPInt32String<>()), wrap));
@@ -708,7 +703,7 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 	START_VECTOR(applications);
 	for (int i = 0; i < size_as_int(ss->applications.size()); i++)
 	{
-		visit_application_state(visitor, ss, wrap, i, resource_keys, allocator);
+		visit_application_state(visitor, ss, wrap, i, resource_keys);
 	}
 	END_VECTOR(applications);
 
@@ -721,7 +716,7 @@ void structure_check(
 	VecType &vec,
 	SettingsIndexer *indexer,
 	const char *section_name,
-	SettingsIndexer::SectionSettingType setting_type, PlaceHolderAllocator &allocator)
+	SettingsIndexer::SectionSettingType setting_type)
 {
 	int required_size = indexer->GetNumFields(section_name, setting_type);
 	if (size_as_int(vec.size()) < required_size)
@@ -804,18 +799,17 @@ static void visit_section(
 	vr_state::section_schema *s,
 	int *structure_version,
 	SettingsWrapper &wrap,
-	vr_keys &resource_keys,
-	PlaceHolderAllocator &allocator
+	vr_keys &resource_keys
 )
 {
 	SettingsIndexer * indexer = &resource_keys.GetSettingsIndexer();
 
 	if (visitor.expand_structure())
 	{
-		structure_check(structure_version, s->bool_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_BOOL, allocator);
-		structure_check(structure_version, s->string_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_STRING, allocator);
-		structure_check(structure_version, s->float_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_FLOAT, allocator);
-		structure_check(structure_version, s->int32_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_INT32, allocator);
+		structure_check(structure_version, s->bool_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_BOOL);
+		structure_check(structure_version, s->string_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_STRING);
+		structure_check(structure_version, s->float_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_FLOAT);
+		structure_check(structure_version, s->int32_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_INT32);
 	}
 	
 	visit_subtable2<visitor_fn, bool>(visitor, s->bool_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_BOOL, resource_keys);
@@ -830,8 +824,8 @@ static void visit_settings_node(
 	visitor_fn &visitor,
 	vr_state::settings_schema *ss,
 	SettingsWrapper& wrap,
-	vr_keys &resource_keys,
-	PlaceHolderAllocator &allocator)
+	vr_keys &resource_keys
+	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -853,7 +847,7 @@ static void visit_settings_node(
 	for (int index = 0; index < size_as_int(ss->sections.size()); index++)
 	{
 		visit_section(visitor, resource_keys.GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
-			&ss->structure_version, wrap, resource_keys, allocator);
+			&ss->structure_version, wrap, resource_keys);
 	}
 	END_VECTOR(sections);
 
@@ -938,7 +932,7 @@ static void visit_compositor_controller(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_compositor_state(visitor_fn &visitor,
 	vr_state::compositor_schema *ss, CompositorWrapper wrap,
-	vr_keys &config, PlaceHolderAllocator &allocator)
+	vr_keys &config)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
@@ -1011,7 +1005,7 @@ static void visit_rendermodel(visitor_fn &visitor,
 	vr_state::rendermodel_schema *ss,
 	int *structure_version,
 	RenderModelWrapper wrap,
-	uint32_t unRenderModelIndex, PlaceHolderAllocator &allocator)
+	uint32_t unRenderModelIndex)
 {
 
 	const char *render_model_name = ss->get_name().c_str();
@@ -1105,8 +1099,8 @@ static void visit_per_overlay(
 	vr_state::overlay_schema *overlay_state,
 	OverlayWrapper wrap,
 	uint32_t overlay_index,
-	vr_keys &config,
-	PlaceHolderAllocator &allocator)
+	vr_keys &config
+	)
 {
 	vr_state::per_overlay_state *ss = &overlay_state->overlays[overlay_index];
 	visitor.start_group_node(ss->get_url(), overlay_index);
@@ -1188,8 +1182,8 @@ static void visit_per_overlay(
 template <typename visitor_fn>
 static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *ss,
 	OverlayWrapper wrap,
-	vr_keys &config,
-	PlaceHolderAllocator &allocator)
+	vr_keys &config
+	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -1218,7 +1212,7 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 	START_VECTOR(overlays);
 	for (int i = 0; i < size_as_int(ss->overlays.size()); i++)
 	{
-		visit_per_overlay(visitor, ss, wrap, i, config, allocator);
+		visit_per_overlay(visitor, ss, wrap, i, config);
 	}
 	END_VECTOR(overlays);
 
@@ -1227,7 +1221,7 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 
 template <typename visitor_fn>
 static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_schema *ss, 
-	RenderModelWrapper wrap, PlaceHolderAllocator &allocator)
+	RenderModelWrapper wrap)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -1249,7 +1243,7 @@ static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_
 	START_VECTOR(models);
 	for (int i = 0; i < size_as_int(ss->models.size()); i++)
 	{
-		visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, wrap, i, allocator);
+		visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, wrap, i);
 	}
 	END_VECTOR(models);
 	visitor.end_group_node(ss->get_url(), -1);
@@ -1305,7 +1299,7 @@ static void visit_cameraframetype_schema(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_per_controller_state(visitor_fn &visitor,
 	vr_state::controller_camera_schema *ss, TrackedCameraWrapper tcw,
-	int device_index, vr_keys &resource_keys, PlaceHolderAllocator &allocator)
+	int device_index, vr_keys &resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), device_index);
 	VISIT(has_camera, tcw.HasCamera(device_index));
@@ -1335,8 +1329,8 @@ static void visit_per_controller_state(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_trackedcamera_state(visitor_fn &visitor,
 	vr_state::trackedcamera_schema *ss, TrackedCameraWrapper tcw,
-	vr_keys &resource_keys,
-	PlaceHolderAllocator &allocator)
+	vr_keys &resource_keys
+	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	if (visitor.expand_structure())
@@ -1352,7 +1346,7 @@ static void visit_trackedcamera_state(visitor_fn &visitor,
 	START_VECTOR(controllers);
 	for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
 	{
-		visit_per_controller_state(visitor, &ss->controllers[i], tcw, i, resource_keys, allocator);
+		visit_per_controller_state(visitor, &ss->controllers[i], tcw, i, resource_keys);
 	}
 	END_VECTOR(controllers);
 
@@ -1362,8 +1356,8 @@ static void visit_trackedcamera_state(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_per_resource(visitor_fn &visitor,
 	vr_state::resources_schema *ss, ResourcesWrapper &wrap,
-	int i, vr_keys &resource_keys,
-	PlaceHolderAllocator &allocator)
+	int i, vr_keys &resource_keys
+	)
 {
 	visitor.start_group_node(ss->get_url(), i);
 	if (visitor.visit_source_interfaces())
@@ -1402,8 +1396,8 @@ static void visit_per_resource(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_resources_state(visitor_fn &visitor,
 	vr_state::resources_schema *ss, ResourcesWrapper &wrap,
-	vr_keys &resource_keys,
-	PlaceHolderAllocator &allocator)
+	vr_keys &resource_keys
+	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -1423,7 +1417,7 @@ static void visit_resources_state(visitor_fn &visitor,
 	START_VECTOR(resources);
 	for (int i = 0; i < size_as_int(ss->resources.size()); i++)
 	{
-		visit_per_resource(visitor, ss, wrap, i, resource_keys, allocator);
+		visit_per_resource(visitor, ss, wrap, i, resource_keys);
 	}
 	END_VECTOR(resources);
 

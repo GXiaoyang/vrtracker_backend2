@@ -12,6 +12,95 @@
 using namespace vr_result;
 
 template <typename visitor_fn>
+static void traverse_history_graph_threaded(visitor_fn &visitor,
+	vr_tracker<slab_allocator<char>> *outer_state,
+	openvr_broker::open_vr_interfaces &interfaces)
+{
+	SystemWrapper			system_wrapper(interfaces.sysi);
+	ApplicationsWrapper		application_wrapper(interfaces.appi);
+	SettingsWrapper			settings_wrapper(interfaces.seti);
+	ChaperoneWrapper		chaperone_wrapper(interfaces.chapi);
+	ChaperoneSetupWrapper	chaperone_setup_wrapper(interfaces.chapsi);
+	CompositorWrapper		compositor_wrapper(interfaces.compi);
+	OverlayWrapper			overlay_wrapper(interfaces.ovi);
+	RenderModelWrapper		rendermodel_wrapper(interfaces.remi);
+	ExtendedDisplayWrapper	extended_display_wrapper(interfaces.exdi);
+	TrackedCameraWrapper	tracked_camera_wrapper(interfaces.taci);
+	ResourcesWrapper		resources_wrapper(interfaces.resi);
+
+	std::vector<std::thread*> threads;
+
+	vr_state *s = &outer_state->m_state;
+	vr_keys &keys(outer_state->keys);
+
+	{
+		auto tt = new std::thread(visit_system_node<visitor_fn>, visitor,
+			&s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper, keys);
+		threads.push_back(tt);
+	}
+	
+	{
+		auto ta = new std::thread(visit_applications_node<visitor_fn>, visitor, &s->applications_node, application_wrapper,
+			keys);
+		threads.push_back(ta);
+	}
+
+	{
+		auto tt = new std::thread(visit_settings_node<visitor_fn>, visitor, &s->settings_node, settings_wrapper, keys);
+		threads.push_back(tt);
+	}
+
+	{
+		auto tt = new std::thread(visit_chaperone_node<visitor_fn>, visitor, &s->chaperone_node, chaperone_wrapper, keys);
+		threads.push_back(tt);
+	}
+	
+	{
+		auto tt = new std::thread(visit_chaperone_setup_node<visitor_fn>, visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
+		threads.push_back(tt);
+	}
+	
+	{
+		auto tt = new std::thread(visit_compositor_state<visitor_fn>, visitor, &s->compositor_node, compositor_wrapper, keys);
+		threads.push_back(tt);
+	}
+
+	{
+		auto tt = new std::thread(visit_overlay_state<visitor_fn>, visitor, &s->overlay_node, overlay_wrapper, keys);
+		threads.push_back(tt);
+	}
+	
+	{
+		auto tt = new std::thread(visit_rendermodel_state<visitor_fn>, visitor, &s->rendermodels_node, rendermodel_wrapper);
+		threads.push_back(tt);
+	}
+
+	{
+		auto tb = new std::thread(visit_extended_display_state<visitor_fn>, visitor, &s->extendeddisplay_node, extended_display_wrapper);
+		threads.push_back(tb);
+	}
+	
+	{
+		auto tt = new std::thread(visit_trackedcamera_state<visitor_fn>,visitor, &s->trackedcamera_node, tracked_camera_wrapper, keys);
+		threads.push_back(tt);
+	}
+
+	{
+		auto tt = new std::thread(visit_resources_state<visitor_fn>, visitor, &s->resources_node, resources_wrapper, keys);
+		threads.push_back(tt);
+	}
+	
+	for (auto i = threads.begin(); i < threads.end(); i++)
+	{
+		(*i)->join();
+		delete *i;
+	}
+}
+
+
+
+
+template <typename visitor_fn>
 static void traverse_history_graph_sequential(visitor_fn &visitor, 
 	vr_tracker<slab_allocator<char>> *outer_state,
 	openvr_broker::open_vr_interfaces &interfaces)
@@ -29,35 +118,33 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 	ResourcesWrapper		resources_wrapper(interfaces.resi);
 
 	vr_state *s = &outer_state->m_state;
-	//VRAllocator &allocator = outer_state->m_allocator;
-	PlaceHolderAllocator p = 0;
+	vr_keys &keys(outer_state->keys);
 
-	visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper,
-			outer_state->keys, p);
+	visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper,keys);
 
 	visit_applications_node(visitor, &s->applications_node, application_wrapper, 
-		outer_state->keys, p);
+		keys);
 	
 	visit_settings_node(visitor, &s->settings_node, settings_wrapper, 
-			outer_state->keys, p);
+			keys);
 
-	visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, outer_state->keys);
+	visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, keys);
 
 	visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
 
 
-	visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, outer_state->keys, p);
+	visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys);
 
-	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, outer_state->keys, p);
+	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys);
 	
-	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, p);
+	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper);
 
 	visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
 
 	visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper,
-			outer_state->keys, p);
+			keys);
 
-	visit_resources_state(visitor, &s->resources_node, resources_wrapper, outer_state->keys, p);
+	visit_resources_state(visitor, &s->resources_node, resources_wrapper, keys);
 }
 
 struct read_only_visitor
@@ -133,6 +220,16 @@ void UPDATE_USE_CASE()
 	char *error;
 	openvr_broker::acquire_interfaces("raw", &interfaces, &error);
 	traverse_history_graph_sequential(update_visitor, &tracker, interfaces);
+
+	
+	traverse_history_graph_sequential(update_visitor, &tracker, interfaces);
+
+	// thread test
+	for (int i = 0; i < 2; i++)
+	{
+		update_visitor.m_frame_number++;
+		traverse_history_graph_threaded(update_visitor, &tracker, interfaces);
+	}
 
 	//
 	// test the read only visitor

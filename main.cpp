@@ -11,8 +11,11 @@ extern void TEST_RESULT();
 extern void TEST_TIME_CONTAINERS();
 extern void TEST_SCHEMA_COMMON();
 
+extern void TEST_SLAB_ALLOCATOR();
+
 void unit_tests()
 {
+	TEST_SLAB_ALLOCATOR();
 	TEST_SCHEMA_COMMON();
 	TEST_TIME_CONTAINERS();
 	TEST_RESULT();

@@ -263,5 +263,8 @@
     <ClCompile Include="tracker_config.cpp">
       <Filter>Source Files\vr base</Filter>
     </ClCompile>
+    <ClCompile Include="unit_tests\test_slab_allocator.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -220,6 +220,7 @@
     <ClCompile Include="unit_tests\test_result.cpp" />
     <ClCompile Include="unit_tests\test_schema_common.cpp" />
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />
+    <ClCompile Include="unit_tests\test_slab_allocator.cpp" />
     <ClCompile Include="unit_tests\test_time_containers.cpp" />
     <ClCompile Include="UPDATE.cpp" />
     <ClCompile Include="update_history_visitor.h" />
