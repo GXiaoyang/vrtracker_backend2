@@ -18,6 +18,7 @@ struct update_history_visitor
 	constexpr bool visit_source_interfaces() const { return true; }
 	constexpr bool expand_structure() const { return true; }
 	constexpr bool reload_render_models() const { return false; }
+	constexpr bool recheck_distortion() const { return false; }
 
 	inline void start_group_node(const base::URL &url_name, int group_id_index)
 	{}

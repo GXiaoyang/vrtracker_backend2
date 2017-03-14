@@ -78,18 +78,18 @@ static void visit_eye_state(visitor_fn &visitor,
 	vr_state::system_schema *system_ss,
 	vr::EVREye eEye,
 	IVRSystem *sysi, SystemWrapper wrap,
-	const vr_keys &c)
+	const vr_keys *keys)
 {
 	visitor.start_group_node(ss->get_url(), eEye);
-	VISIT(projection, wrap.GetProjectionMatrix(eEye, c.GetNearZ(), c.GetFarZ()));
+	VISIT(projection, wrap.GetProjectionMatrix(eEye, keys->GetNearZ(), keys->GetFarZ()));
 	VISIT(eye2head, wrap.GetEyeToHeadTransform(eEye));
 	VISIT(projection_raw, wrap.GetProjectionRaw(eEye));
 
-	if (visitor.visit_source_interfaces())
+	if (visitor.visit_source_interfaces() && (visitor.recheck_distortion() || ss->distortion.empty()))
 	{
 		DistortionCoordinates_t *coords;
 		int count;
-		bool rc = wrap.ComputeDistortion(eEye, c.GetDistortionSampleWidth(), c.GetDistortionSampleHeight(), &coords, &count);
+		bool rc = wrap.ComputeDistortion(eEye, keys->GetDistortionSampleWidth(), keys->GetDistortionSampleHeight(), &coords, &count);
 		visitor.visit_node(ss->distortion, make_result(gsl::make_span(coords, count), rc));
 		wrap.FreeDistortion(coords);
 	}
@@ -339,7 +339,7 @@ static void visit_system_node(
 	vr_state::system_schema *ss,
 	IVRSystem *sysi, SystemWrapper sysw,
 	RenderModelWrapper rmw,
-	vr_keys &resource_keys)
+	vr_keys *resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
@@ -420,16 +420,16 @@ static void visit_system_node(
 		memset(standing_pose_array, 0, sizeof(standing_pose_array));
 		memset(seated_pose_array, 0, sizeof(seated_pose_array));
 		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseRawAndUncalibrated,
-			resource_keys.GetPredictedSecondsToPhoton(), raw_pose_array, vr::k_unMaxTrackedDeviceCount);
+			resource_keys->GetPredictedSecondsToPhoton(), raw_pose_array, vr::k_unMaxTrackedDeviceCount);
 
 		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseStanding,
-			resource_keys.GetPredictedSecondsToPhoton(), standing_pose_array, vr::k_unMaxTrackedDeviceCount);
+			resource_keys->GetPredictedSecondsToPhoton(), standing_pose_array, vr::k_unMaxTrackedDeviceCount);
 
 		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseSeated,
-			resource_keys.GetPredictedSecondsToPhoton(), seated_pose_array, vr::k_unMaxTrackedDeviceCount);
+			resource_keys->GetPredictedSecondsToPhoton(), seated_pose_array, vr::k_unMaxTrackedDeviceCount);
 	}
 
-	PropertiesIndexer *indexer = &resource_keys.GetDevicePropertiesIndexer();
+	PropertiesIndexer *indexer = &resource_keys->GetDevicePropertiesIndexer();
 
 	for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
 	{
@@ -591,11 +591,11 @@ void visit_string_vec(visitor_fn &visitor,
 template <typename visitor_fn>
 void visit_application_state(visitor_fn &visitor, vr_state::applications_schema *applications,
 	ApplicationsWrapper &wrap, uint32_t app_index,
-	vr_keys &resource_keys)
+	vr_keys *resource_keys)
 {
 	const char *app_key = nullptr;
 	int app_key_string_size;
-	app_key = resource_keys.GetApplicationsIndexer().get_key_for_index(app_index, &app_key_string_size);
+	app_key = resource_keys->GetApplicationsIndexer().get_key_for_index(app_index, &app_key_string_size);
 	vr_state::application_schema *ss = &applications->applications[app_index];
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -618,7 +618,7 @@ void visit_application_state(visitor_fn &visitor, vr_state::applications_schema 
 	VISIT(auto_launch, wrap.GetApplicationAutoLaunch(app_key));
 	VISIT(supported_mime_types, wrap.GetApplicationSupportedMimeTypes(app_key, &(TMPString<bool>())));
 
-	ApplicationsPropertiesIndexer *indexer = &resource_keys.GetApplicationsPropertiesIndexer();
+	ApplicationsPropertiesIndexer *indexer = &resource_keys->GetApplicationsPropertiesIndexer();
 
 	if (visitor.expand_structure())
 	{
@@ -637,9 +637,9 @@ void visit_application_state(visitor_fn &visitor, vr_state::applications_schema 
 
 template <typename visitor_fn>
 void visit_mime_type_schema(visitor_fn &visitor, vr_state::mime_type_schema *ss,
-	ApplicationsWrapper wrap, uint32_t mime_index, vr_keys &resource_keys)
+	ApplicationsWrapper wrap, uint32_t mime_index, vr_keys *resource_keys)
 {
-	const char *mime_type = resource_keys.GetMimeTypesIndexer().GetNameForIndex(mime_index);
+	const char *mime_type = resource_keys->GetMimeTypesIndexer().GetNameForIndex(mime_index);
 	if (visitor.visit_source_interfaces())
 	{
 		visitor.visit_node(ss->mime_type, make_result(gsl::make_span(mime_type, strlen(mime_type) + 1)));
@@ -657,19 +657,19 @@ void visit_mime_type_schema(visitor_fn &visitor, vr_state::mime_type_schema *ss,
 template <typename visitor_fn>
 static void visit_applications_node(visitor_fn &visitor, vr_state::applications_schema *ss, 
 	ApplicationsWrapper &wrap,
-	vr_keys &resource_keys)
+	vr_keys *resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), -1);
-	VISIT(active_application_indexes, resource_keys.GetApplicationsIndexer().update(&(TMPInt32String<>()), wrap));
+	VISIT(active_application_indexes, resource_keys->GetApplicationsIndexer().update(&(TMPInt32String<>()), wrap));
 
 	if (visitor.expand_structure())
 	{
-		if (resource_keys.GetApplicationsIndexer().get_num_applications() > size_as_int(ss->applications.size()))
+		if (resource_keys->GetApplicationsIndexer().get_num_applications() > size_as_int(ss->applications.size()))
 		{
-			ss->applications.reserve(resource_keys.GetApplicationsIndexer().get_num_applications());
-			while (size_as_int(ss->applications.size()) < resource_keys.GetApplicationsIndexer().get_num_applications())
+			ss->applications.reserve(resource_keys->GetApplicationsIndexer().get_num_applications());
+			while (size_as_int(ss->applications.size()) < resource_keys->GetApplicationsIndexer().get_num_applications())
 			{
-				const char *application_name = resource_keys.GetApplicationsIndexer().get_key_for_index(ss->applications.size());
+				const char *application_name = resource_keys->GetApplicationsIndexer().get_key_for_index(ss->applications.size());
 				ss->applications.emplace_back(ss->applications.make_url_for_child(application_name));
 			}
 			ss->structure_version++;
@@ -683,11 +683,11 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 
 	if (visitor.expand_structure())
 	{
-		int num_mime_types = resource_keys.GetMimeTypesIndexer().GetNumMimeTypes();
+		int num_mime_types = resource_keys->GetMimeTypesIndexer().GetNumMimeTypes();
 		while (size_as_int(ss->mime_types.size()) < num_mime_types)
 		{
 			ss->mime_types.reserve(num_mime_types);
-			const char *mime_type = resource_keys.GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
+			const char *mime_type = resource_keys->GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
 			ss->mime_types.emplace_back(ss->mime_types.make_url_for_child(mime_type));
 			ss->structure_version++;
 		}
@@ -737,7 +737,7 @@ void visit_subtable2(visitor_fn &visitor,
 	vr_state::VECTOR_OF_TIMENODES<Result<T,EVRSettingsError>> &subtable,
 	SettingsWrapper sw, const char *section_name,
 	SettingsIndexer::SectionSettingType setting_type,
-	vr_keys &resource_keys)
+	vr_keys *resource_keys)
 {
 	visitor.start_group_node(subtable.get_url(), -1);
 	visitor.start_vector(subtable.get_url(), subtable);
@@ -766,7 +766,7 @@ void visit_string_subtable2(visitor_fn &visitor,
 	vr_state::VECTOR_OF_TIMENODES<Result<T, EVRSettingsError>> &subtable,
 	SettingsWrapper &wrap, const char *section_name,
 	SettingsIndexer::SectionSettingType setting_type,
-	vr_keys &resource_keys)
+	vr_keys *resource_keys)
 {
 	visitor.start_group_node(subtable.get_url(), -1);
 	visitor.start_vector(subtable.get_url(), subtable);
@@ -799,10 +799,10 @@ static void visit_section(
 	vr_state::section_schema *s,
 	int *structure_version,
 	SettingsWrapper &wrap,
-	vr_keys &resource_keys
+	vr_keys *resource_keys
 )
 {
-	SettingsIndexer * indexer = &resource_keys.GetSettingsIndexer();
+	SettingsIndexer * indexer = &resource_keys->GetSettingsIndexer();
 
 	if (visitor.expand_structure())
 	{
@@ -824,21 +824,21 @@ static void visit_settings_node(
 	visitor_fn &visitor,
 	vr_state::settings_schema *ss,
 	SettingsWrapper& wrap,
-	vr_keys &resource_keys
+	vr_keys *resource_keys
 	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
 	if (visitor.expand_structure())
 	{
-		int required_size = resource_keys.GetSettingsIndexer().GetNumSections();
+		int required_size = resource_keys->GetSettingsIndexer().GetNumSections();
 		if (size_as_int(ss->sections.size()) < required_size)
 		{
 			ss->sections.reserve(vr::k_unMaxTrackedDeviceCount);
 			while (size_as_int(ss->sections.size()) < required_size)
 			{
 				int section = ss->sections.size();
-				ss->sections.emplace_back(ss->sections.make_url_for_child(resource_keys.GetSettingsIndexer().GetSectionName(section)));
+				ss->sections.emplace_back(ss->sections.make_url_for_child(resource_keys->GetSettingsIndexer().GetSectionName(section)));
 			}
 		}
 	}
@@ -846,7 +846,7 @@ static void visit_settings_node(
 	START_VECTOR(sections);
 	for (int index = 0; index < size_as_int(ss->sections.size()); index++)
 	{
-		visit_section(visitor, resource_keys.GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
+		visit_section(visitor, resource_keys->GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
 			&ss->structure_version, wrap, resource_keys);
 	}
 	END_VECTOR(sections);
@@ -860,7 +860,7 @@ static void visit_chaperone_node(
 	visitor_fn &visitor,
 	vr_state::chaperone_schema *ss,
 	ChaperoneWrapper &wrap,
-	const vr_keys &resource_keys)
+	const vr_keys *resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	VISIT(calibration_state, wrap.GetCalibrationState());
@@ -873,8 +873,8 @@ static void visit_chaperone_node(
 		TMPHMDColorString<> colors;
 		HmdColor<> camera_color;
 
-		wrap.GetBoundsColor(&colors, resource_keys.GetNumBoundsColors(),
-			resource_keys.GetCollisionBoundsFadeDistance(),
+		wrap.GetBoundsColor(&colors, resource_keys->GetNumBoundsColors(),
+			resource_keys->GetCollisionBoundsFadeDistance(),
 			&camera_color);
 
 		visitor.visit_node(ss->bounds_colors, colors);
@@ -932,12 +932,12 @@ static void visit_compositor_controller(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_compositor_state(visitor_fn &visitor,
 	vr_state::compositor_schema *ss, CompositorWrapper wrap,
-	vr_keys &config)
+	vr_keys *config)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
 		VISIT(tracking_space, wrap.GetTrackingSpace());
-		VISIT(frame_timing, wrap.GetFrameTiming(config.GetFrameTimingFramesAgo()));
+		VISIT(frame_timing, wrap.GetFrameTiming(config->GetFrameTimingFramesAgo()));
 		VISIT(frame_time_remaining, wrap.GetFrameTimeRemaining());
 		VISIT(cumulative_stats, wrap.GetCumulativeStats());
 		VISIT(foreground_fade_color, wrap.GetForegroundFadeColor());
@@ -949,7 +949,7 @@ static void visit_compositor_state(visitor_fn &visitor,
 		VISIT(can_render_scene, wrap.CanRenderScene());
 		VISIT(is_mirror_visible, wrap.IsMirrorWindowVisible());
 		VISIT(should_app_render_with_low_resource, wrap.ShouldAppRenderWithLowResources());
-		VISIT(frame_timings, wrap.GetFrameTimings(config.GetFrameTimingsNumFrames(),
+		VISIT(frame_timings, wrap.GetFrameTimings(config->GetFrameTimingsNumFrames(),
 			&(TMPCompositorFrameTimingString<>())));
 	}
 
@@ -971,7 +971,7 @@ static void visit_compositor_state(visitor_fn &visitor,
 	END_VECTOR(controllers);
 	
 
-	VISIT(instance_extensions_required, wrap.GetVulkanInstanceExtensionsRequired(&(TMPString<>())));
+	//VISIT(instance_extensions_required, wrap.GetVulkanInstanceExtensionsRequired(&(TMPString<>())));
 	visitor.end_group_node(ss->get_url(), -1);
 }
 
@@ -1099,7 +1099,7 @@ static void visit_per_overlay(
 	vr_state::overlay_schema *overlay_state,
 	OverlayWrapper wrap,
 	uint32_t overlay_index,
-	vr_keys &config
+	vr_keys *config
 	)
 {
 	vr_state::per_overlay_state *ss = &overlay_state->overlays[overlay_index];
@@ -1109,7 +1109,7 @@ static void visit_per_overlay(
 
 	if (visitor.visit_source_interfaces())
 	{
-		const char *key = config.GetOverlayIndexer().get_overlay_key_for_index(overlay_index);
+		const char *key = config->GetOverlayIndexer().get_overlay_key_for_index(overlay_index);
 		OverlayHandle<EVROverlayError> handle_result = wrap.GetOverlayHandle(key);
 		handle = handle_result.val;
 		TMPString<vr::EVROverlayError> name;
@@ -1182,7 +1182,7 @@ static void visit_per_overlay(
 template <typename visitor_fn>
 static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *ss,
 	OverlayWrapper wrap,
-	vr_keys &config
+	vr_keys *config
 	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
@@ -1192,16 +1192,16 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 	VISIT(is_dashboard_visible, wrap.IsDashboardVisible());
 	VISIT(keyboard_text, wrap.GetKeyboardText(&(TMPString<>())));
 	VISIT(active_overlay_indexes,
-		config.GetOverlayIndexer().update(&(TMPInt32String<>()), wrap));
+		config->GetOverlayIndexer().update(&(TMPInt32String<>()), wrap));
 
 	if (visitor.expand_structure())
 	{
-		if (config.GetOverlayIndexer().get_num_overlays() > size_as_int(ss->overlays.size()))
+		if (config->GetOverlayIndexer().get_num_overlays() > size_as_int(ss->overlays.size()))
 		{
-			ss->overlays.reserve(config.GetOverlayIndexer().get_num_overlays());
-			while (size_as_int(ss->overlays.size()) < config.GetOverlayIndexer().get_num_overlays())
+			ss->overlays.reserve(config->GetOverlayIndexer().get_num_overlays());
+			while (size_as_int(ss->overlays.size()) < config->GetOverlayIndexer().get_num_overlays())
 			{
-				const char *child_name = config.GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
+				const char *child_name = config->GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
 				ss->overlays.emplace_back(ss->overlays.make_url_for_child(child_name));
 			}
 		}
@@ -1279,7 +1279,7 @@ static void visit_cameraframetype_schema(visitor_fn &visitor,
 	vr_state::cameraframetype_schema *ss, TrackedCameraWrapper tcw,
 	int device_index,
 	EVRTrackedCameraFrameType frame_type,
-	vr_keys &config)
+	vr_keys *config)
 {
 	visitor.start_group_node(ss->get_url(), device_index);
 
@@ -1290,7 +1290,7 @@ static void visit_cameraframetype_schema(visitor_fn &visitor,
 
 	VISIT(frame_size, tcw.GetCameraFrameSize(device_index, frame_type, &f));
 	VISIT(intrinsics, tcw.GetCameraIntrinsics(device_index, frame_type, &intrinsics));
-	VISIT(projection, tcw.GetCameraProjection(device_index, frame_type, config.GetNearZ(), config.GetFarZ(), &projection));
+	VISIT(projection, tcw.GetCameraProjection(device_index, frame_type, config->GetNearZ(), config->GetFarZ(), &projection));
 	VISIT(video_texture_size, tcw.GetVideoStreamTextureSize(device_index, frame_type, &video_texture_size));
 
 	visitor.end_group_node(ss->get_url(), device_index);
@@ -1299,7 +1299,7 @@ static void visit_cameraframetype_schema(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_per_controller_state(visitor_fn &visitor,
 	vr_state::controller_camera_schema *ss, TrackedCameraWrapper tcw,
-	int device_index, vr_keys &resource_keys)
+	int device_index, vr_keys *resource_keys)
 {
 	visitor.start_group_node(ss->get_url(), device_index);
 	VISIT(has_camera, tcw.HasCamera(device_index));
@@ -1329,7 +1329,7 @@ static void visit_per_controller_state(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_trackedcamera_state(visitor_fn &visitor,
 	vr_state::trackedcamera_schema *ss, TrackedCameraWrapper tcw,
-	vr_keys &resource_keys
+	vr_keys *resource_keys
 	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
@@ -1356,16 +1356,16 @@ static void visit_trackedcamera_state(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_per_resource(visitor_fn &visitor,
 	vr_state::resources_schema *ss, ResourcesWrapper &wrap,
-	int i, vr_keys &resource_keys
+	int i, vr_keys *resource_keys
 	)
 {
 	visitor.start_group_node(ss->get_url(), i);
 	if (visitor.visit_source_interfaces())
 	{
 		int fname_size;
-		const char *fname = resource_keys.GetResourcesIndexer().get_filename_for_index(i, &fname_size);
+		const char *fname = resource_keys->GetResourcesIndexer().get_filename_for_index(i, &fname_size);
 		int dname_size;
-		const char *dname = resource_keys.GetResourcesIndexer().get_directoryname_for_index(i, &dname_size);
+		const char *dname = resource_keys->GetResourcesIndexer().get_directoryname_for_index(i, &dname_size);
 		visitor.visit_node(ss->resources[i].resource_name, make_result(gsl::make_span(fname, fname_size)));
 		visitor.visit_node(ss->resources[i].resource_directory, make_result(gsl::make_span(dname, dname_size)));
 
@@ -1396,17 +1396,17 @@ static void visit_per_resource(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_resources_state(visitor_fn &visitor,
 	vr_state::resources_schema *ss, ResourcesWrapper &wrap,
-	vr_keys &resource_keys
+	vr_keys *resource_keys
 	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
 	if (visitor.expand_structure())
 	{
-		if (size_as_int(ss->resources.size()) < resource_keys.GetResourcesIndexer().get_num_resources())
+		if (size_as_int(ss->resources.size()) < resource_keys->GetResourcesIndexer().get_num_resources())
 		{
-			ss->resources.reserve(resource_keys.GetResourcesIndexer().get_num_resources());
-			while ((int)ss->resources.size() < resource_keys.GetResourcesIndexer().get_num_resources())
+			ss->resources.reserve(resource_keys->GetResourcesIndexer().get_num_resources());
+			while ((int)ss->resources.size() < resource_keys->GetResourcesIndexer().get_num_resources())
 			{
 				const char *child_name = std::to_string(ss->resources.size()).c_str();
 				ss->resources.emplace_back(ss->resources.make_url_for_child(child_name));

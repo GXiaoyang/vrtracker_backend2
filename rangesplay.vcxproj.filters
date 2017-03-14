@@ -200,15 +200,6 @@
     <ClCompile Include="update_history_visitor.h">
       <Filter>Source Files\x vr visitors</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UPDATE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="vr_properties_indexer.cpp">
       <Filter>Source Files\vr keys</Filter>
     </ClCompile>
@@ -264,6 +255,15 @@
       <Filter>Source Files\vr base</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_slab_allocator.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="UPDATE.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
   </ItemGroup>

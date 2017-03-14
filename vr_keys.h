@@ -19,6 +19,9 @@ struct vr_keys
 	vr_keys()
 	{}
 
+	vr_keys(const vr_keys &) = delete;
+
+
 	DevicePropertiesIndexer &GetDevicePropertiesIndexer() { return m_device_properties_indexer; }
 	OverlayIndexer	&GetOverlayIndexer() { return m_overlay_indexer; }
 	ApplicationsIndexer &GetApplicationsIndexer() { return m_applications_indexer; }

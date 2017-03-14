@@ -51,7 +51,7 @@ struct slab
 		slab_num_alloc_calls += 1;
 
 		// critical start
-		mutex.lock();
+		//mutex.lock();
 		if (pages.empty() || (int)size + current_page_pos > page_size)
 		{
 			current_page_pos = 0;
@@ -64,7 +64,7 @@ struct slab
 		ret += current_page_pos;
 		current_page_pos += size;
 		// critical end
-		mutex.unlock();
+		//mutex.unlock();
 		return ret;
 	}
 
