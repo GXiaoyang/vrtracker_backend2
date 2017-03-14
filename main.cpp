@@ -16,6 +16,7 @@ extern void TEST_SLAB_ALLOCATOR();
 void unit_tests()
 {
 	TEST_SLAB_ALLOCATOR();
+
 	TEST_SCHEMA_COMMON();
 	TEST_TIME_CONTAINERS();
 	TEST_RESULT();
@@ -24,8 +25,8 @@ void unit_tests()
 
 int main()
 {
-	UPDATE_USE_CASE();
 	unit_tests();
+	UPDATE_USE_CASE();
 	GUI_USE_CASE();
 	
 }

@@ -239,7 +239,7 @@ public:
 		return size() == 0;
 	}
 
-	size_t size() const
+	size_type size() const 
 	{
 		return m_size;
 	}

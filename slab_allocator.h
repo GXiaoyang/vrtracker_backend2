@@ -8,6 +8,7 @@
 #pragma once
 #include <assert.h>
 #include <forward_list>
+#include <mutex>
 
 struct slab
 {
@@ -20,6 +21,7 @@ struct slab
 	std::forward_list<char *> pages;
 	int		page_size;
 	int64_t current_page_pos;
+	std::mutex mutex;
 
 	slab(int page_size_in = 1024 * 1024)
 		: page_size(page_size_in)
@@ -28,6 +30,7 @@ struct slab
 		current_page_pos = 0;
 		slab_alloc(0);	// allocate the initial page
 	}
+
 
 	~slab()
 	{
@@ -43,11 +46,12 @@ struct slab
 
 	void *slab_alloc(size_t size)
 	{
-		assert((int)size < page_size);
+		assert((int)size <= page_size);
 		size = (size + 3) & ~0x3;
 		slab_num_alloc_calls += 1;
 
 		// critical start
+		mutex.lock();
 		if (pages.empty() || (int)size + current_page_pos > page_size)
 		{
 			current_page_pos = 0;
@@ -60,7 +64,7 @@ struct slab
 		ret += current_page_pos;
 		current_page_pos += size;
 		// critical end
-
+		mutex.unlock();
 		return ret;
 	}
 

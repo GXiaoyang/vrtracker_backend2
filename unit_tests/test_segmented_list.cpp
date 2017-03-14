@@ -107,8 +107,8 @@ void read_ordering_test_int()
 		for (int num_readers = 1; num_readers < 10; num_readers++)
 		{
 			SimpleAllocator<int> ss;
-			//typedef segmented_list<int, SegmentSize, SimpleAllocator<int>> list_t;
-			typedef std::list<int, SimpleAllocator<int>> list_t;
+			typedef segmented_list<int, SegmentSize, SimpleAllocator<int>> list_t;
+			//typedef std::list<int, SimpleAllocator<int>> list_t;
 			list_t shared_list(ss);
 			std::vector<std::thread*> threads;
 			printf("threading test. SegmentSize: %d starting with fast: %d num_readers %d\n", SegmentSize, fast_writer, num_readers);
