@@ -88,15 +88,15 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;C:\Users\sean\Downloads\tbb2017_20160916oss\include\tbb</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;d:\tbb\include</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; D:\tbb\build\vs2012\Win32\Debug-MT</AdditionalLibraryDirectories>
+      <AdditionalDependencies>tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,16 +121,16 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;C:\Users\sean\Downloads\tbb2017_20160916oss\include\tbb</AdditionalIncludeDirectories>
-      <ExceptionHandling>false</ExceptionHandling>
+      <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;d:\tbb\include</AdditionalIncludeDirectories>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>tbb.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32;D:\tbb\build\vs2012\Win32\Release-MT</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

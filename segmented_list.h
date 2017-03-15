@@ -113,6 +113,7 @@ public:
 		std::atomic<int> size_before;
 		size_before.store(m_size);
 		auto the_end = m_segment_container.end();
+		
 		if (size_before == m_size) // <-- if this is true, then the_end I got is a good one
 		{
 			the_end--;

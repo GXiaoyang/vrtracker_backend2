@@ -16,8 +16,7 @@ public:
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
 
-	// read the wrapper assign indexes and return them in result
-	vr_result::TMPInt32String<>&update(vr_result::TMPInt32String<> *result, vr_result::ApplicationsWrapper &ow);
+	void update(vr_result::ApplicationsWrapper &ow);
 	
 	// number of applications ever seen
 	int get_num_applications() { return (int)app_keys.size(); }
@@ -58,6 +57,9 @@ public:
 		return ret;
 	}
 
+	const std::vector<int> &get_present_indexes() { return present_indexes;  }
+
+
 private:
 	// return an index.  if the key doesn't exist yet add it.
 	int get_index_for_key(const std::string &key)
@@ -79,4 +81,5 @@ private:
 
 	std::vector<std::string> app_keys;
 	std::unordered_map<std::string, int> app_keys2index;
+	std::vector<int> present_indexes;
 };

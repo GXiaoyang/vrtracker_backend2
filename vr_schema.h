@@ -239,9 +239,9 @@ namespace vr_result
 			{}
 
 			TIMENODE<String<EVRApplicationError>>	starting_application;
-			TIMENODE<ApplicationTransitionState<>>		transition_state;
-			TIMENODE<Bool<>>							is_quit_user_prompt;
-			TIMENODE<Uint32<>>							current_scene_process_id;
+			TIMENODE<ApplicationTransitionState<>>	transition_state;
+			TIMENODE<Bool<>>						is_quit_user_prompt;
+			TIMENODE<Uint32<>>						current_scene_process_id;
 			TIMENODE<Int32String<>>					active_application_indexes;
 
 			VECTOR_OF_SCHEMAS<mime_type_schema>		mime_types;

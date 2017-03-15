@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <mutex>
 #include <vector>
+#include "tbb/spin_mutex.h"
 
 template <size_t FixedSizeBytes>
 struct tmp_vector_pool
@@ -67,7 +68,7 @@ struct tmp_vector_pool
 private:
 	int m_alloc_one_calls;
 	int m_free_one_calls;
-	std::mutex pool_mutex;
+	tbb::spin_mutex pool_mutex;
 	std::vector<char *> string_pool;
 };
 

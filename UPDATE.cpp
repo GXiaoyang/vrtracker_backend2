@@ -8,6 +8,9 @@
 #include "traverse_graph.h"
 #include "openvr_broker.h"
 #include "update_history_visitor.h"
+#include "tbb/tick_count.h"
+#include "tbb/task_scheduler_init.h"
+#include "tbb/task_group.h"
 #include <iostream>
 
 using namespace vr_result;
@@ -32,71 +35,66 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 	std::vector<std::thread*> threads;
 	vr_state *s = &outer_state->m_state;
 	vr_keys *keys = &outer_state->keys;
-	for (int i = 0; i < 10; i++)
-	{
-		{
-			auto tt = new std::thread(visit_system_node<visitor_fn>, visitor,
-				&s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper, keys);
-			threads.push_back(tt);
-		}
+	tbb::task_group g;
 
-		{
-			auto ta = new std::thread(visit_applications_node<visitor_fn>, visitor, &s->applications_node, application_wrapper,
-				keys);
-			threads.push_back(ta);
-		}
+	g.run([&] {
+		visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper, keys, g);
+	});
 
-		{
-			auto tt = new std::thread(visit_settings_node<visitor_fn>, visitor, &s->settings_node, settings_wrapper, keys);
-			threads.push_back(tt);
-		}
+	g.run([&] {
+		visit_applications_node(visitor, &s->applications_node, application_wrapper, keys, g);
+	});
 
-		{
-			auto tt = new std::thread(visit_chaperone_node<visitor_fn>, visitor, &s->chaperone_node, chaperone_wrapper, keys);
-			threads.push_back(tt);
-		}
+	g.run([&] {
+		visit_settings_node(visitor, &s->settings_node, settings_wrapper, keys, g);
+	});
 
-		{
-			auto tt = new std::thread(visit_chaperone_setup_node<visitor_fn>, visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
-			threads.push_back(tt);
-		}
+	g.run([&] {
+		visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, keys);
+	});
 
-		{
-			auto tt = new std::thread(visit_compositor_state<visitor_fn>, visitor, &s->compositor_node, compositor_wrapper, keys);
-			threads.push_back(tt);
-		}
+	g.run([&] {
+		visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
+	});
 
-		{
-			auto tt = new std::thread(visit_overlay_state<visitor_fn>, visitor, &s->overlay_node, overlay_wrapper, keys);
-			threads.push_back(tt);
-		}
+	g.run([&] {
+		visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys, g);
+	});
+	
+	g.run([&] {
+		visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys);
+	});
+	g.run([&] {
+		visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper);
+	});
+	g.run([&] {
+		visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
+	});
+	g.run([&] {
+		visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper, keys);
+	});
+	g.run([&] {
+		visit_resources_state(visitor, &s->resources_node, resources_wrapper, keys);
+	});
 
-		{
-			auto tt = new std::thread(visit_rendermodel_state<visitor_fn>, visitor, &s->rendermodels_node, rendermodel_wrapper);
-			threads.push_back(tt);
-		}
-
-		{
-			auto tb = new std::thread(visit_extended_display_state<visitor_fn>, visitor, &s->extendeddisplay_node, extended_display_wrapper);
-			threads.push_back(tb);
-		}
-
-		{
-			auto tt = new std::thread(visit_trackedcamera_state<visitor_fn>, visitor, &s->trackedcamera_node, tracked_camera_wrapper, keys);
-			threads.push_back(tt);
-		}
-
-		{
-			auto tt = new std::thread(visit_resources_state<visitor_fn>, visitor, &s->resources_node, resources_wrapper, keys);
-			threads.push_back(tt);
-		}
-	}
-	for (auto i = threads.begin(); i < threads.end(); i++)
-	{
-		(*i)->join();
-		delete *i;
-	}
+	g.wait();
 }
+
+#include <intrin.h>
+uint64_t rdtsc() {
+	return __rdtsc();
+}
+
+
+class ExecuteImmediatelyTaskGroup
+{
+public:
+	template <typename T>
+	void run(T t)
+	{
+		t();
+	}
+};
 
 template <typename visitor_fn>
 static void traverse_history_graph_sequential(visitor_fn &visitor, 
@@ -117,21 +115,44 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 
 	vr_state *s = &outer_state->m_state;
 	vr_keys *keys = &outer_state->keys;
+	ExecuteImmediatelyTaskGroup dummy;
 
-	visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper,keys);
+	uint64_t clock_start = rdtsc();
+	tbb::tick_count t0 = tbb::tick_count::now();
+	visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper, keys, dummy);
+
+	tbb::tick_count t1 = tbb::tick_count::now();
 	visit_applications_node(visitor, &s->applications_node, application_wrapper, 
-		keys);
+		keys, dummy);
+
+	tbb::tick_count t2 = tbb::tick_count::now();
 	visit_settings_node(visitor, &s->settings_node, settings_wrapper, 
-			keys);
+			keys, dummy);
+
+	tbb::tick_count t3 = tbb::tick_count::now();
 	visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, keys);
+	tbb::tick_count t4 = tbb::tick_count::now();
 	visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
-	visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys);
+	tbb::tick_count t5 = tbb::tick_count::now();
+	
+	visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys, dummy);
+
+	tbb::tick_count t6 = tbb::tick_count::now();
 	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys);
+	tbb::tick_count t7 = tbb::tick_count::now();
 	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper);
+	tbb::tick_count t8 = tbb::tick_count::now();
 	visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
+	tbb::tick_count t9 = tbb::tick_count::now();
 	visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper,
 			keys);
+	tbb::tick_count t10 = tbb::tick_count::now();
 	visit_resources_state(visitor, &s->resources_node, resources_wrapper, keys);
+	tbb::tick_count t11 = tbb::tick_count::now();
+	uint64_t clock_end = rdtsc();
+	std::cout << "sequential visitor cycles: "
+		<< clock_end - clock_start
+		<< "\n";
 }
 
 struct read_only_visitor
@@ -225,14 +246,18 @@ void UPDATE_USE_CASE()
 			<< "ms.\n";
 	}
 
+	//int n = tbb::task_scheduler_init::default_num_threads();
+	//tbb::task_scheduler_init init(8);
+	
+
 	update_visitor.m_frame_number++;
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 		traverse_history_graph_threaded(update_visitor, &tracker, interfaces);
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "threaded visit took "
-			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-			<< "ms.\n";
+			<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
+			<< "us.\n";
 	}
 
 	while (1)
@@ -242,9 +267,10 @@ void UPDATE_USE_CASE()
 			std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 			traverse_history_graph_threaded(update_visitor, &tracker, interfaces);
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-		//	std::cout << "threaded visit took "
-			//	<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-				//<< "ms.\n";
+
+			std::cout << "threaded visit took "
+				<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
+				<< "us.\n";
 		}
 	}
 

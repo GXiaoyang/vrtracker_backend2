@@ -17,6 +17,7 @@
 #include "vr_keys.h"
 #include "openvr_string.h"
 
+
 namespace vr_result
 {
 
@@ -333,169 +334,179 @@ static void visit_controller_state(visitor_fn &visitor,
 }
 
 
-template <typename visitor_fn>
+template <typename visitor_fn, typename task_group>
 static void visit_system_node(
 	visitor_fn &visitor,
 	vr_state::system_schema *ss,
-	IVRSystem *sysi, SystemWrapper sysw,
-	RenderModelWrapper rmw,
-	vr_keys *resource_keys)
+	IVRSystem *sysi, SystemWrapper &sysw,
+	RenderModelWrapper &rmw,
+	vr_keys *keys,
+	task_group &g)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
-		VISIT(recommended_target_size, sysw.GetRecommendedRenderTargetSize());
-		VISIT(is_display_on_desktop, sysw.GetIsDisplayOnDesktop());
-		VISIT(seated2standing, sysw.GetSeatedZeroPoseToStandingAbsoluteTrackingPose());
-		VISIT(raw2standing, sysw.GetRawZeroPoseToStandingAbsoluteTrackingPose());
 
-		VISIT(num_hmd, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_HMD));
-		VISIT(num_controller, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_Controller));
-		VISIT(num_tracking, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_GenericTracker));
-		VISIT(num_reference, sysw.CountDevicesOfClass(TrackedDeviceClass_TrackingReference));
-
-		VISIT(input_focus_captured_by_other, sysw.IsInputFocusCapturedByAnotherProcess());
-
-
-		if (visitor.visit_source_interfaces())
+		if (visitor.expand_structure())
 		{
-			Float<bool>		seconds_since_last_vsync;
-			Uint64<bool>	frame_counter_since_last_vsync;
-			sysw.GetTimeSinceLastVsync(&seconds_since_last_vsync, &frame_counter_since_last_vsync);
-			visitor.visit_node(ss->seconds_since_last_vsync, seconds_since_last_vsync);
-			visitor.visit_node(ss->frame_counter_since_last_vsync, frame_counter_since_last_vsync);
-		}
-		else
-		{
-			visitor.visit_node(ss->seconds_since_last_vsync);
-			visitor.visit_node(ss->frame_counter_since_last_vsync);
+			while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
+			{
+				ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
+				std::string name(std::to_string(ss->controllers.size()));
+				ss->controllers.emplace_back(ss->controllers.make_url_for_child(name.c_str()));
+				ss->structure_version++;
+			}
+			if (ss->eyes.size() < 2)
+			{
+				ss->eyes.reserve(2);
+				ss->eyes.emplace_back(ss->eyes.make_url_for_child("left"));
+				ss->eyes.emplace_back(ss->eyes.make_url_for_child("right"));
+				ss->structure_version++;
+			}
+			
+			while (ss->spatial_sorts.size() < vr::k_unMaxTrackedDeviceCount + 1)
+			{
+				ss->spatial_sorts.reserve(vr::k_unMaxTrackedDeviceCount + 1);
+				std::string name;
+				if (ss->spatial_sorts.size() == 0)
+				{
+					name = "absolute";
+				}
+				else
+				{
+					name = "relative_to_" + std::to_string(ss->spatial_sorts.size() - 1);
+				}
+				ss->spatial_sorts.emplace_back(ss->spatial_sorts.make_url_for_child(name.c_str()));
+			}
 		}
 
-		VISIT(d3d9_adapter_index, sysw.GetD3D9AdapterIndex());
-		VISIT(dxgi_output_info, sysw.GetDXGIOutputInfo());
+		g.run([&sysw, ss, &visitor] {
+			VISIT(recommended_target_size, sysw.GetRecommendedRenderTargetSize());
+			VISIT(is_display_on_desktop, sysw.GetIsDisplayOnDesktop());
+			VISIT(seated2standing, sysw.GetSeatedZeroPoseToStandingAbsoluteTrackingPose());
+			VISIT(raw2standing, sysw.GetRawZeroPoseToStandingAbsoluteTrackingPose());
+
+			VISIT(num_hmd, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_HMD));
+			VISIT(num_controller, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_Controller));
+			VISIT(num_tracking, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_GenericTracker));
+			VISIT(num_reference, sysw.CountDevicesOfClass(TrackedDeviceClass_TrackingReference));
+
+			VISIT(input_focus_captured_by_other, sysw.IsInputFocusCapturedByAnotherProcess());
+
+			if (visitor.visit_source_interfaces())
+			{
+				Float<bool>		seconds_since_last_vsync;
+				Uint64<bool>	frame_counter_since_last_vsync;
+				sysw.GetTimeSinceLastVsync(&seconds_since_last_vsync, &frame_counter_since_last_vsync);
+				visitor.visit_node(ss->seconds_since_last_vsync, seconds_since_last_vsync);
+				visitor.visit_node(ss->frame_counter_since_last_vsync, frame_counter_since_last_vsync);
+			}
+			else
+			{
+				visitor.visit_node(ss->seconds_since_last_vsync);
+				visitor.visit_node(ss->frame_counter_since_last_vsync);
+			}
+
+			VISIT(d3d9_adapter_index, sysw.GetD3D9AdapterIndex());
+			VISIT(dxgi_output_info, sysw.GetDXGIOutputInfo());
+
+		});
 	}
 
 	//
 	// eyes
 	//
-	if (visitor.expand_structure())
-	{
-		if (ss->eyes.size() < 2)
-		{
-			ss->eyes.reserve(2);
-			ss->eyes.emplace_back(ss->eyes.make_url_for_child("left"));
-			ss->eyes.emplace_back(ss->eyes.make_url_for_child("right"));
-			ss->structure_version++;
-		}
-		START_VECTOR(eyes);
-		for (int i = 0; i < 2; i++)
-		{
-			vr::EVREye eEye = (i == 0) ? vr::Eye_Left : vr::Eye_Right;
-			visit_eye_state(visitor, &ss->eyes[i], ss, eEye, sysi, sysw, resource_keys);
-		}
-		END_VECTOR(eyes);
-	}
+	START_VECTOR(eyes);
+		g.run([&visitor, ss, sysi, &sysw, keys] {
+			visit_eye_state(visitor, &ss->eyes[0], ss, vr::Eye_Left, sysi, sysw, keys);
+		});
+
+		g.run([&visitor, ss, sysi, &sysw, keys] {
+			visit_eye_state(visitor, &ss->eyes[1], ss, vr::Eye_Right, sysi, sysw, keys);
+		});
+	END_VECTOR(eyes);
+	
 
 	//
 	// controllers
 	//
-	if (visitor.expand_structure())
-	{
-		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
+	g.run([&visitor, ss, &sysw, &rmw, sysi, keys] {
+		START_VECTOR(controllers);
+		TrackedDevicePose_t raw_pose_array[vr::k_unMaxTrackedDeviceCount];
+		TrackedDevicePose_t standing_pose_array[vr::k_unMaxTrackedDeviceCount];
+		TrackedDevicePose_t seated_pose_array[vr::k_unMaxTrackedDeviceCount];
+
+		if (visitor.visit_source_interfaces())
 		{
-			ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
-			std::string name(std::to_string(ss->controllers.size()));
-			ss->controllers.emplace_back(ss->controllers.make_url_for_child(name.c_str()));
-			ss->structure_version++;
+			memset(raw_pose_array, 0, sizeof(raw_pose_array));	// 2/6/2017 - on error this stuff should be zero
+			memset(standing_pose_array, 0, sizeof(standing_pose_array));
+			memset(seated_pose_array, 0, sizeof(seated_pose_array));
+			sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseRawAndUncalibrated,
+				keys->GetPredictedSecondsToPhoton(), raw_pose_array, vr::k_unMaxTrackedDeviceCount);
+
+			sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseStanding,
+				keys->GetPredictedSecondsToPhoton(), standing_pose_array, vr::k_unMaxTrackedDeviceCount);
+
+			sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseSeated,
+				keys->GetPredictedSecondsToPhoton(), seated_pose_array, vr::k_unMaxTrackedDeviceCount);
 		}
-	}
 
-	START_VECTOR(controllers);
-	TrackedDevicePose_t raw_pose_array[vr::k_unMaxTrackedDeviceCount];
-	TrackedDevicePose_t standing_pose_array[vr::k_unMaxTrackedDeviceCount];
-	TrackedDevicePose_t seated_pose_array[vr::k_unMaxTrackedDeviceCount];
+		PropertiesIndexer *indexer = &keys->GetDevicePropertiesIndexer();
 
-	if (visitor.visit_source_interfaces())
-	{
-		memset(raw_pose_array, 0, sizeof(raw_pose_array));	// 2/6/2017 - on error this stuff should be zero
-		memset(standing_pose_array, 0, sizeof(standing_pose_array));
-		memset(seated_pose_array, 0, sizeof(seated_pose_array));
-		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseRawAndUncalibrated,
-			resource_keys->GetPredictedSecondsToPhoton(), raw_pose_array, vr::k_unMaxTrackedDeviceCount);
-
-		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseStanding,
-			resource_keys->GetPredictedSecondsToPhoton(), standing_pose_array, vr::k_unMaxTrackedDeviceCount);
-
-		sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseSeated,
-			resource_keys->GetPredictedSecondsToPhoton(), seated_pose_array, vr::k_unMaxTrackedDeviceCount);
-	}
-
-	PropertiesIndexer *indexer = &resource_keys->GetDevicePropertiesIndexer();
-
-	for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
-	{
-		visitor.start_group_node(ss->controllers.get_url(), i);
-		VISIT(controllers[i].raw_tracking_pose, make_result(raw_pose_array[i]));
-		VISIT(controllers[i].standing_tracking_pose, make_result(standing_pose_array[i]));
-		VISIT(controllers[i].seated_tracking_pose, make_result(seated_pose_array[i]));
-		visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer);
-		visitor.end_group_node(ss->controllers.get_url(), i);
-	}
-	END_VECTOR(controllers);
-
-	//
-	// spatial sorts
-	//
-	if (visitor.expand_structure())
-	{
-		while (ss->spatial_sorts.size() < vr::k_unMaxTrackedDeviceCount + 1)
+		for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
 		{
-			ss->spatial_sorts.reserve(vr::k_unMaxTrackedDeviceCount + 1);
-			std::string name;
-			if (ss->spatial_sorts.size() == 0)
+			visitor.start_group_node(ss->controllers.get_url(), i);
+			VISIT(controllers[i].raw_tracking_pose, make_result(raw_pose_array[i]));
+			VISIT(controllers[i].standing_tracking_pose, make_result(standing_pose_array[i]));
+			VISIT(controllers[i].seated_tracking_pose, make_result(seated_pose_array[i]));
+
+			visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer);
+
+			visitor.end_group_node(ss->controllers.get_url(), i);
+		}
+
+	END_VECTOR(controllers);
+	});
+
+	g.run([&visitor, ss, &sysw]
+	{
+		//
+		// spatial sorts
+		//
+		
+		START_VECTOR(spatial_sorts);
+		for (unsigned i = 0; i < k_unMaxTrackedDeviceCount + 1; i++)
+		{
+			// weird, but the iteration starts from -1 in unsigned space:
+			/** Get a sorted array of device indices of a given class of tracked devices (e.g. controllers).  Devices are sorted right to left
+			* relative to the specified tracked device (default: hmd -- pass in -1 for absolute tracking space).  Returns the number of devices
+			* in the list, or the size of the array needed if not large enough. */
+			unsigned unRelativeToTrackedDeviceIndex = -1 + i;
+			if (visitor.visit_source_interfaces())
 			{
-				name = "absolute";
+				TMPDeviceIndexes result;
+
+				sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_HMD, unRelativeToTrackedDeviceIndex, &result);
+				visitor.visit_node(ss->spatial_sorts[i].hmds_sorted, result);
+
+				sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_Controller, unRelativeToTrackedDeviceIndex, &result);
+				visitor.visit_node(ss->spatial_sorts[i].controllers_sorted, result);
+
+				sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_GenericTracker, unRelativeToTrackedDeviceIndex, &result);
+				visitor.visit_node(ss->spatial_sorts[i].trackers_sorted, result);
+
+				sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_TrackingReference, unRelativeToTrackedDeviceIndex, &result);
+				visitor.visit_node(ss->spatial_sorts[i].reference_sorted, result);
 			}
 			else
 			{
-				name = "relative_to_" + std::to_string(ss->spatial_sorts.size() - 1);
+				visitor.visit_node(ss->spatial_sorts[i].hmds_sorted);
+				visitor.visit_node(ss->spatial_sorts[i].controllers_sorted);
+				visitor.visit_node(ss->spatial_sorts[i].trackers_sorted);
+				visitor.visit_node(ss->spatial_sorts[i].reference_sorted);
 			}
-			ss->spatial_sorts.emplace_back(ss->spatial_sorts.make_url_for_child(name.c_str()));
 		}
-	}
-
-	START_VECTOR(spatial_sorts);
-	for (unsigned i = 0; i < k_unMaxTrackedDeviceCount + 1; i++)
-	{
-		// weird, but the iteration starts from -1 in unsigned space:
-		/** Get a sorted array of device indices of a given class of tracked devices (e.g. controllers).  Devices are sorted right to left
-		* relative to the specified tracked device (default: hmd -- pass in -1 for absolute tracking space).  Returns the number of devices
-		* in the list, or the size of the array needed if not large enough. */
-		unsigned unRelativeToTrackedDeviceIndex = -1 + i;
-		if (visitor.visit_source_interfaces())
-		{
-			TMPDeviceIndexes result;			
-
-			sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_HMD, unRelativeToTrackedDeviceIndex, &result);
-			visitor.visit_node(ss->spatial_sorts[i].hmds_sorted, result);
-
-			sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_Controller, unRelativeToTrackedDeviceIndex, &result);
-			visitor.visit_node(ss->spatial_sorts[i].controllers_sorted, result);
-
-			sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_GenericTracker, unRelativeToTrackedDeviceIndex, &result);
-			visitor.visit_node(ss->spatial_sorts[i].trackers_sorted, result);
-
-			sysw.GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_TrackingReference, unRelativeToTrackedDeviceIndex, &result);
-			visitor.visit_node(ss->spatial_sorts[i].reference_sorted, result);
-		}
-		else
-		{
-			visitor.visit_node(ss->spatial_sorts[i].hmds_sorted);
-			visitor.visit_node(ss->spatial_sorts[i].controllers_sorted);
-			visitor.visit_node(ss->spatial_sorts[i].trackers_sorted);
-			visitor.visit_node(ss->spatial_sorts[i].reference_sorted);
-		}
-	}
-	END_VECTOR(spatial_sorts);
+		END_VECTOR(spatial_sorts);
+	});
 	visitor.end_group_node(ss->get_url(), -1);
 }
 
@@ -587,15 +598,14 @@ void visit_string_vec(visitor_fn &visitor,
 	visitor.end_vector(vec.get_url(), vec);
 }
 
-
 template <typename visitor_fn>
 void visit_application_state(visitor_fn &visitor, vr_state::applications_schema *applications,
 	ApplicationsWrapper &wrap, uint32_t app_index,
-	vr_keys *resource_keys)
+	vr_keys *keys)
 {
 	const char *app_key = nullptr;
 	int app_key_string_size;
-	app_key = resource_keys->GetApplicationsIndexer().get_key_for_index(app_index, &app_key_string_size);
+	app_key = keys->GetApplicationsIndexer().get_key_for_index(app_index, &app_key_string_size);
 	vr_state::application_schema *ss = &applications->applications[app_index];
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -618,7 +628,7 @@ void visit_application_state(visitor_fn &visitor, vr_state::applications_schema 
 	VISIT(auto_launch, wrap.GetApplicationAutoLaunch(app_key));
 	VISIT(supported_mime_types, wrap.GetApplicationSupportedMimeTypes(app_key, &(TMPString<bool>())));
 
-	ApplicationsPropertiesIndexer *indexer = &resource_keys->GetApplicationsPropertiesIndexer();
+	ApplicationsPropertiesIndexer *indexer = &keys->GetApplicationsPropertiesIndexer();
 
 	if (visitor.expand_structure())
 	{
@@ -637,9 +647,9 @@ void visit_application_state(visitor_fn &visitor, vr_state::applications_schema 
 
 template <typename visitor_fn>
 void visit_mime_type_schema(visitor_fn &visitor, vr_state::mime_type_schema *ss,
-	ApplicationsWrapper wrap, uint32_t mime_index, vr_keys *resource_keys)
+	ApplicationsWrapper wrap, uint32_t mime_index, vr_keys *keys)
 {
-	const char *mime_type = resource_keys->GetMimeTypesIndexer().GetNameForIndex(mime_index);
+	const char *mime_type = keys->GetMimeTypesIndexer().GetNameForIndex(mime_index);
 	if (visitor.visit_source_interfaces())
 	{
 		visitor.visit_node(ss->mime_type, make_result(gsl::make_span(mime_type, strlen(mime_type) + 1)));
@@ -654,58 +664,64 @@ void visit_mime_type_schema(visitor_fn &visitor, vr_state::mime_type_schema *ss,
 }
 
 
-template <typename visitor_fn>
+template <typename visitor_fn, typename TaskGroup>
 static void visit_applications_node(visitor_fn &visitor, vr_state::applications_schema *ss, 
 	ApplicationsWrapper &wrap,
-	vr_keys *resource_keys)
+	vr_keys *keys,
+	TaskGroup &g)
 {
 	visitor.start_group_node(ss->get_url(), -1);
-	VISIT(active_application_indexes, resource_keys->GetApplicationsIndexer().update(&(TMPInt32String<>()), wrap));
 
+	keys->GetApplicationsIndexer().update(wrap);
 	if (visitor.expand_structure())
 	{
-		if (resource_keys->GetApplicationsIndexer().get_num_applications() > size_as_int(ss->applications.size()))
+		if (keys->GetApplicationsIndexer().get_num_applications() > size_as_int(ss->applications.size()))
 		{
-			ss->applications.reserve(resource_keys->GetApplicationsIndexer().get_num_applications());
-			while (size_as_int(ss->applications.size()) < resource_keys->GetApplicationsIndexer().get_num_applications())
+			ss->applications.reserve(keys->GetApplicationsIndexer().get_num_applications());
+			while (size_as_int(ss->applications.size()) < keys->GetApplicationsIndexer().get_num_applications())
 			{
-				const char *application_name = resource_keys->GetApplicationsIndexer().get_key_for_index(ss->applications.size());
+				const char *application_name = keys->GetApplicationsIndexer().get_key_for_index(ss->applications.size());
 				ss->applications.emplace_back(ss->applications.make_url_for_child(application_name));
 			}
 			ss->structure_version++;
 		}
-	}
-
-	VISIT(starting_application, wrap.GetStartingApplication(&(TMPString<vr::EVRApplicationError>())));
-	VISIT(transition_state, wrap.GetTransitionState());
-	VISIT(is_quit_user_prompt, wrap.IsQuitUserPromptRequested());
-	VISIT(current_scene_process_id, wrap.GetCurrentSceneProcessId());
-
-	if (visitor.expand_structure())
-	{
-		int num_mime_types = resource_keys->GetMimeTypesIndexer().GetNumMimeTypes();
+		int num_mime_types = keys->GetMimeTypesIndexer().GetNumMimeTypes();
 		while (size_as_int(ss->mime_types.size()) < num_mime_types)
 		{
 			ss->mime_types.reserve(num_mime_types);
-			const char *mime_type = resource_keys->GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
+			const char *mime_type = keys->GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
 			ss->mime_types.emplace_back(ss->mime_types.make_url_for_child(mime_type));
 			ss->structure_version++;
 		}
 	}
 
-	START_VECTOR(mime_types);
-	for (int i = 0; i < size_as_int(ss->mime_types.size()); i++)
+	g.run([&visitor, ss, keys, &wrap] 
 	{
-		visit_mime_type_schema(visitor, &ss->mime_types[i], wrap, i, resource_keys);
-	}
-	END_VECTOR(mime_types);
 
-	START_VECTOR(applications);
-	for (int i = 0; i < size_as_int(ss->applications.size()); i++)
+		VISIT(active_application_indexes, make_result(keys->GetApplicationsIndexer().get_present_indexes()));
+		VISIT(starting_application, wrap.GetStartingApplication(&(TMPString<vr::EVRApplicationError>())));
+		VISIT(transition_state, wrap.GetTransitionState());
+		VISIT(is_quit_user_prompt, wrap.IsQuitUserPromptRequested());
+		VISIT(current_scene_process_id, wrap.GetCurrentSceneProcessId());
+
+
+		START_VECTOR(mime_types);
+		for (int i = 0; i < size_as_int(ss->mime_types.size()); i++)
+		{
+			visit_mime_type_schema(visitor, &ss->mime_types[i], wrap, i, keys);
+		}
+		END_VECTOR(mime_types);
+	});
+
+	g.run([&visitor, ss, keys, &wrap]
 	{
-		visit_application_state(visitor, ss, wrap, i, resource_keys);
-	}
-	END_VECTOR(applications);
+		START_VECTOR(applications);
+		for (int i = 0; i < size_as_int(ss->applications.size()); i++)
+		{
+			visit_application_state(visitor, ss, wrap, i, keys);
+		}
+		END_VECTOR(applications);
+	});
 
 	visitor.end_group_node(ss->get_url(), -1);
 }
@@ -737,7 +753,7 @@ void visit_subtable2(visitor_fn &visitor,
 	vr_state::VECTOR_OF_TIMENODES<Result<T,EVRSettingsError>> &subtable,
 	SettingsWrapper sw, const char *section_name,
 	SettingsIndexer::SectionSettingType setting_type,
-	vr_keys *resource_keys)
+	vr_keys *keys)
 {
 	visitor.start_group_node(subtable.get_url(), -1);
 	visitor.start_vector(subtable.get_url(), subtable);
@@ -766,7 +782,7 @@ void visit_string_subtable2(visitor_fn &visitor,
 	vr_state::VECTOR_OF_TIMENODES<Result<T, EVRSettingsError>> &subtable,
 	SettingsWrapper &wrap, const char *section_name,
 	SettingsIndexer::SectionSettingType setting_type,
-	vr_keys *resource_keys)
+	vr_keys *keys)
 {
 	visitor.start_group_node(subtable.get_url(), -1);
 	visitor.start_vector(subtable.get_url(), subtable);
@@ -799,10 +815,10 @@ static void visit_section(
 	vr_state::section_schema *s,
 	int *structure_version,
 	SettingsWrapper &wrap,
-	vr_keys *resource_keys
+	vr_keys *keys
 )
 {
-	SettingsIndexer * indexer = &resource_keys->GetSettingsIndexer();
+	SettingsIndexer * indexer = &keys->GetSettingsIndexer();
 
 	if (visitor.expand_structure())
 	{
@@ -812,33 +828,34 @@ static void visit_section(
 		structure_check(structure_version, s->int32_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_INT32);
 	}
 	
-	visit_subtable2<visitor_fn, bool>(visitor, s->bool_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_BOOL, resource_keys);
-	visit_string_subtable2(visitor, s->string_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_STRING, resource_keys);
-	visit_subtable2(visitor, s->float_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_FLOAT, resource_keys);
-	visit_subtable2(visitor, s->int32_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_INT32, resource_keys);
+	visit_subtable2<visitor_fn, bool>(visitor, s->bool_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_BOOL, keys);
+	visit_string_subtable2(visitor, s->string_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_STRING, keys);
+	visit_subtable2(visitor, s->float_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_FLOAT, keys);
+	visit_subtable2(visitor, s->int32_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_INT32, keys);
 }
 
 
-template <typename visitor_fn>
+template <typename visitor_fn, typename TaskGroup>
 static void visit_settings_node(
 	visitor_fn &visitor,
 	vr_state::settings_schema *ss,
 	SettingsWrapper& wrap,
-	vr_keys *resource_keys
+	vr_keys *keys,
+	TaskGroup &g
 	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
 	if (visitor.expand_structure())
 	{
-		int required_size = resource_keys->GetSettingsIndexer().GetNumSections();
+		int required_size = keys->GetSettingsIndexer().GetNumSections();
 		if (size_as_int(ss->sections.size()) < required_size)
 		{
 			ss->sections.reserve(vr::k_unMaxTrackedDeviceCount);
 			while (size_as_int(ss->sections.size()) < required_size)
 			{
 				int section = ss->sections.size();
-				ss->sections.emplace_back(ss->sections.make_url_for_child(resource_keys->GetSettingsIndexer().GetSectionName(section)));
+				ss->sections.emplace_back(ss->sections.make_url_for_child(keys->GetSettingsIndexer().GetSectionName(section)));
 			}
 		}
 	}
@@ -846,8 +863,10 @@ static void visit_settings_node(
 	START_VECTOR(sections);
 	for (int index = 0; index < size_as_int(ss->sections.size()); index++)
 	{
-		visit_section(visitor, resource_keys->GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
-			&ss->structure_version, wrap, resource_keys);
+		g.run([&visitor, ss, &wrap, keys, index] {
+			visit_section(visitor, keys->GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
+				&ss->structure_version, wrap, keys);
+		});
 	}
 	END_VECTOR(sections);
 
@@ -860,7 +879,7 @@ static void visit_chaperone_node(
 	visitor_fn &visitor,
 	vr_state::chaperone_schema *ss,
 	ChaperoneWrapper &wrap,
-	const vr_keys *resource_keys)
+	const vr_keys *keys)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	VISIT(calibration_state, wrap.GetCalibrationState());
@@ -873,8 +892,8 @@ static void visit_chaperone_node(
 		TMPHMDColorString<> colors;
 		HmdColor<> camera_color;
 
-		wrap.GetBoundsColor(&colors, resource_keys->GetNumBoundsColors(),
-			resource_keys->GetCollisionBoundsFadeDistance(),
+		wrap.GetBoundsColor(&colors, keys->GetNumBoundsColors(),
+			keys->GetCollisionBoundsFadeDistance(),
 			&camera_color);
 
 		visitor.visit_node(ss->bounds_colors, colors);
@@ -929,12 +948,24 @@ static void visit_compositor_controller(visitor_fn &visitor,
 	visitor.end_group_node(ss->get_url(), unDeviceIndex);
 }
 
-template <typename visitor_fn>
+template <typename visitor_fn, typename TaskGroup>
 static void visit_compositor_state(visitor_fn &visitor,
-	vr_state::compositor_schema *ss, CompositorWrapper wrap,
-	vr_keys *config)
+	vr_state::compositor_schema *ss, CompositorWrapper &wrap,
+	vr_keys *config, 
+	TaskGroup &g)
 {
+	if (visitor.expand_structure())
+	{
+		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
+		{
+			ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
+			const char *child_name = std::to_string(ss->controllers.size()).c_str();
+			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name));
+		}
+	}
+
 	visitor.start_group_node(ss->get_url(), -1);
+	g.run([&visitor, ss, &wrap, config]
 	{
 		VISIT(tracking_space, wrap.GetTrackingSpace());
 		VISIT(frame_timing, wrap.GetFrameTiming(config->GetFrameTimingFramesAgo()));
@@ -951,24 +982,17 @@ static void visit_compositor_state(visitor_fn &visitor,
 		VISIT(should_app_render_with_low_resource, wrap.ShouldAppRenderWithLowResources());
 		VISIT(frame_timings, wrap.GetFrameTimings(config->GetFrameTimingsNumFrames(),
 			&(TMPCompositorFrameTimingString<>())));
-	}
+	});
 
-	if (visitor.expand_structure())
+	g.run([&visitor, ss, &wrap]
 	{
-		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
+		START_VECTOR(controllers);
+		for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
 		{
-			ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
-			const char *child_name = std::to_string(ss->controllers.size()).c_str();
-			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name));
+			visit_compositor_controller(visitor, &ss->controllers[i], wrap, i);
 		}
-	}
-
-	START_VECTOR(controllers);
-	for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
-	{
-		visit_compositor_controller(visitor, &ss->controllers[i], wrap, i);
-	}
-	END_VECTOR(controllers);
+		END_VECTOR(controllers);
+	});
 	
 
 	//VISIT(instance_extensions_required, wrap.GetVulkanInstanceExtensionsRequired(&(TMPString<>())));
@@ -1007,7 +1031,6 @@ static void visit_rendermodel(visitor_fn &visitor,
 	RenderModelWrapper wrap,
 	uint32_t unRenderModelIndex)
 {
-
 	const char *render_model_name = ss->get_name().c_str();
 
 	visitor.start_group_node(ss->get_url(), unRenderModelIndex);
@@ -1185,15 +1208,6 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 	vr_keys *config
 	)
 {
-	visitor.start_group_node(ss->get_url(), -1);
-
-	VISIT(gamepad_focus_overlay, wrap.GetGamepadFocusOverlay());
-	VISIT(primary_dashboard_device, wrap.GetPrimaryDashboardDevice());
-	VISIT(is_dashboard_visible, wrap.IsDashboardVisible());
-	VISIT(keyboard_text, wrap.GetKeyboardText(&(TMPString<>())));
-	VISIT(active_overlay_indexes,
-		config->GetOverlayIndexer().update(&(TMPInt32String<>()), wrap));
-
 	if (visitor.expand_structure())
 	{
 		if (config->GetOverlayIndexer().get_num_overlays() > size_as_int(ss->overlays.size()))
@@ -1206,6 +1220,15 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 			}
 		}
 	}
+
+	visitor.start_group_node(ss->get_url(), -1);
+
+	VISIT(gamepad_focus_overlay, wrap.GetGamepadFocusOverlay());
+	VISIT(primary_dashboard_device, wrap.GetPrimaryDashboardDevice());
+	VISIT(is_dashboard_visible, wrap.IsDashboardVisible());
+	VISIT(keyboard_text, wrap.GetKeyboardText(&(TMPString<>())));
+	VISIT(active_overlay_indexes,
+		config->GetOverlayIndexer().update(&(TMPInt32String<>()), wrap));
 
 	// history traversal always goes through the complete set
 	// see "Hwrap to track applications and overlays.docx"
@@ -1299,10 +1322,9 @@ static void visit_cameraframetype_schema(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_per_controller_state(visitor_fn &visitor,
 	vr_state::controller_camera_schema *ss, TrackedCameraWrapper tcw,
-	int device_index, vr_keys *resource_keys)
+	int device_index, vr_keys *keys)
 {
 	visitor.start_group_node(ss->get_url(), device_index);
-	VISIT(has_camera, tcw.HasCamera(device_index));
 
 	if (visitor.expand_structure())
 	{
@@ -1317,10 +1339,12 @@ static void visit_per_controller_state(visitor_fn &visitor,
 		}
 	}
 
+	VISIT(has_camera, tcw.HasCamera(device_index));
+
 	START_VECTOR(cameraframetypes);
 	for (int i = 0; i < size_as_int(ss->cameraframetypes.size()); i++)
 	{
-		visit_cameraframetype_schema(visitor, &ss->cameraframetypes[i], tcw, device_index, (EVRTrackedCameraFrameType)i, resource_keys);
+		visit_cameraframetype_schema(visitor, &ss->cameraframetypes[i], tcw, device_index, (EVRTrackedCameraFrameType)i, keys);
 	}
 	END_VECTOR(cameraframetypes);
 	visitor.end_group_node(ss->get_url(), device_index);
@@ -1329,7 +1353,7 @@ static void visit_per_controller_state(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_trackedcamera_state(visitor_fn &visitor,
 	vr_state::trackedcamera_schema *ss, TrackedCameraWrapper tcw,
-	vr_keys *resource_keys
+	vr_keys *keys
 	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
@@ -1346,7 +1370,7 @@ static void visit_trackedcamera_state(visitor_fn &visitor,
 	START_VECTOR(controllers);
 	for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
 	{
-		visit_per_controller_state(visitor, &ss->controllers[i], tcw, i, resource_keys);
+		visit_per_controller_state(visitor, &ss->controllers[i], tcw, i, keys);
 	}
 	END_VECTOR(controllers);
 
@@ -1356,16 +1380,16 @@ static void visit_trackedcamera_state(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_per_resource(visitor_fn &visitor,
 	vr_state::resources_schema *ss, ResourcesWrapper &wrap,
-	int i, vr_keys *resource_keys
+	int i, vr_keys *keys
 	)
 {
 	visitor.start_group_node(ss->get_url(), i);
 	if (visitor.visit_source_interfaces())
 	{
 		int fname_size;
-		const char *fname = resource_keys->GetResourcesIndexer().get_filename_for_index(i, &fname_size);
+		const char *fname = keys->GetResourcesIndexer().get_filename_for_index(i, &fname_size);
 		int dname_size;
-		const char *dname = resource_keys->GetResourcesIndexer().get_directoryname_for_index(i, &dname_size);
+		const char *dname = keys->GetResourcesIndexer().get_directoryname_for_index(i, &dname_size);
 		visitor.visit_node(ss->resources[i].resource_name, make_result(gsl::make_span(fname, fname_size)));
 		visitor.visit_node(ss->resources[i].resource_directory, make_result(gsl::make_span(dname, dname_size)));
 
@@ -1396,17 +1420,17 @@ static void visit_per_resource(visitor_fn &visitor,
 template <typename visitor_fn>
 static void visit_resources_state(visitor_fn &visitor,
 	vr_state::resources_schema *ss, ResourcesWrapper &wrap,
-	vr_keys *resource_keys
+	vr_keys *keys
 	)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
 	if (visitor.expand_structure())
 	{
-		if (size_as_int(ss->resources.size()) < resource_keys->GetResourcesIndexer().get_num_resources())
+		if (size_as_int(ss->resources.size()) < keys->GetResourcesIndexer().get_num_resources())
 		{
-			ss->resources.reserve(resource_keys->GetResourcesIndexer().get_num_resources());
-			while ((int)ss->resources.size() < resource_keys->GetResourcesIndexer().get_num_resources())
+			ss->resources.reserve(keys->GetResourcesIndexer().get_num_resources());
+			while (size_as_int(ss->resources.size()) < keys->GetResourcesIndexer().get_num_resources())
 			{
 				const char *child_name = std::to_string(ss->resources.size()).c_str();
 				ss->resources.emplace_back(ss->resources.make_url_for_child(child_name));
@@ -1417,7 +1441,7 @@ static void visit_resources_state(visitor_fn &visitor,
 	START_VECTOR(resources);
 	for (int i = 0; i < size_as_int(ss->resources.size()); i++)
 	{
-		visit_per_resource(visitor, ss, wrap, i, resource_keys);
+		visit_per_resource(visitor, ss, wrap, i, keys);
 	}
 	END_VECTOR(resources);
 

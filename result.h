@@ -173,7 +173,7 @@ static bool not_equals(
 	typename std::enable_if<Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0) 
 {
 	static_assert(std::is_same<std::remove_cv<std::remove_reference<decltype(a.val[0])>::type>::type, 
-							   std::remove_cv<std::remove_reference<decltype(b.val[0])>::type>::type>::value, "same type");
+							   std::remove_cv<std::remove_reference<decltype(b.val[0])>::type>::type>::value, "a and b are not the same type");
 	static_assert(std::is_pod<typename ElementType::value_type>::value, "values are not pods.  the memcmp prob won't work");
 
 	if (return_code_not_equals(a, b))
