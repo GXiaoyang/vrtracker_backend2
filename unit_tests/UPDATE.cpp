@@ -62,7 +62,6 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 	vr_state *s = &outer_state->m_state;
 	vr_keys *keys = &outer_state->keys;
 	//ExecuteImmediatelyTaskGroup g;
-
 	named_task_group g;
 
 	g.run("visit_system_node", 
@@ -96,7 +95,7 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 	
 	g.run("visit_overlay_state",
 		[&] {
-		visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys);
+		visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys, g);
 	});
 
 	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, g);
@@ -159,7 +158,7 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 	visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys, dummy);
 
 	tbb::tick_count t6 = tbb::tick_count::now();
-	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys);
+	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys, dummy);
 	tbb::tick_count t7 = tbb::tick_count::now();
 	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, dummy);
 	tbb::tick_count t8 = tbb::tick_count::now();

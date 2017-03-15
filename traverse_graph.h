@@ -680,7 +680,7 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 
 	if (visitor.visit_source_interfaces())
 	{
-		keys->GetApplicationsIndexer().update(wrap);
+		keys->GetApplicationsIndexer().update_presence_and_size(wrap);
 	}
 	if (visitor.expand_structure())
 	{
@@ -1166,6 +1166,51 @@ static void visit_rendermodel(visitor_fn &visitor,
 
 
 template <typename visitor_fn>
+static void visit_per_overlay_image(
+	visitor_fn &visitor,
+	vr_state::overlay_schema *overlay_state,
+	OverlayWrapper &wrap,
+	uint32_t overlay_index,
+	vr_keys *config
+)
+{
+	vr_state::per_overlay_state *ss = &overlay_state->overlays[overlay_index];
+	if (visitor.visit_source_interfaces())
+	{
+		const char *key = config->GetOverlayIndexer().get_overlay_key_for_index(overlay_index);
+		OverlayHandle<EVROverlayError> handle_result = wrap.GetOverlayHandle(key);
+		
+		if (handle_result.is_present())
+		{
+			Uint32<EVROverlayError> width;
+			Uint32<EVROverlayError> height;
+			uint8_t *ptr;
+			uint32_t size;
+			EVROverlayError err = wrap.GetImageData(handle_result.val, &width, &height, &ptr, &size);
+			visitor.visit_node(ss->overlay_image_width, width);
+			visitor.visit_node(ss->overlay_image_height, height);
+			auto result(make_result(gsl::make_span(ptr, size), err));
+			visitor.visit_node(ss->overlay_image_data, result);
+			wrap.FreeImageData(ptr);
+		}
+		else
+		{
+			visitor.visit_node(ss->overlay_image_width, make_result(0, handle_result.return_code));
+			visitor.visit_node(ss->overlay_image_height, make_result(0, handle_result.return_code));
+			uint8_t *ptr = nullptr;
+			auto result(make_result(gsl::make_span(ptr, 0), handle_result.return_code));
+			visitor.visit_node(ss->overlay_image_data, result);
+		}
+	}
+	else
+	{
+		visitor.visit_node(ss->overlay_image_width);
+		visitor.visit_node(ss->overlay_image_height);
+		visitor.visit_node(ss->overlay_image_data);
+	}
+}
+
+template <typename visitor_fn>
 static void visit_per_overlay(
 	visitor_fn &visitor,
 	vr_state::overlay_schema *overlay_state,
@@ -1190,25 +1235,43 @@ static void visit_per_overlay(
 		visitor.visit_node(ss->overlay_handle, handle_result);
 		visitor.visit_node(ss->overlay_name, name);
 
-		Uint32<EVROverlayError> width;
-		Uint32<EVROverlayError> height;
-		uint8_t *ptr;
-		uint32_t size;
-		EVROverlayError err = wrap.GetImageData(handle, &width, &height, &ptr, &size);
-		visitor.visit_node(ss->overlay_image_width, width);
-		visitor.visit_node(ss->overlay_image_height, height);
-		auto result(make_result(gsl::make_span(ptr, size), err));
-		visitor.visit_node(ss->overlay_image_data, result);
-		wrap.FreeImageData(ptr);
+// 3/15/2017: disable image data since it's too slow
+#if 0
+		if (overlay_index == derp)
+		{
+			if (handle_result.is_present())
+			{
+				Uint32<EVROverlayError> width;
+				Uint32<EVROverlayError> height;
+				uint8_t *ptr;
+				uint32_t size;
+				EVROverlayError err = wrap.GetImageData(handle_result.val, &width, &height, &ptr, &size);
+				visitor.visit_node(ss->overlay_image_width, width);
+				visitor.visit_node(ss->overlay_image_height, height);
+				auto result(make_result(gsl::make_span(ptr, size), err));
+				visitor.visit_node(ss->overlay_image_data, result);
+				wrap.FreeImageData(ptr);
+			}
+			else
+			{
+				visitor.visit_node(ss->overlay_image_width, make_result(0, handle_result.return_code));
+				visitor.visit_node(ss->overlay_image_height, make_result(0, handle_result.return_code));
+				uint8_t *ptr = nullptr;
+				auto result(make_result(gsl::make_span(ptr, 0), handle_result.return_code));
+				visitor.visit_node(ss->overlay_image_data, result);
+			}
+		}
+#endif
 	}
 	else
 	{
 		visitor.visit_node(ss->overlay_handle);
 		visitor.visit_node(ss->overlay_name);
-
+#if 0
 		visitor.visit_node(ss->overlay_image_width);
 		visitor.visit_node(ss->overlay_image_height);
 		visitor.visit_node(ss->overlay_image_data);
+#endif
 	}
 
 	VISIT(overlay_rendering_pid, wrap.GetOverlayRenderingPid(handle));
@@ -1251,20 +1314,21 @@ static void visit_per_overlay(
 	visitor.end_group_node(ss->get_url(), overlay_index);
 }
 
-template <typename visitor_fn>
+template <typename visitor_fn, typename TaskGroup>
 static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *ss,
 	OverlayWrapper &wrap,
-	vr_keys *config
+	vr_keys *keys,
+	TaskGroup &g
 	)
 {
 	if (visitor.expand_structure())
 	{
-		if (config->GetOverlayIndexer().get_num_overlays() > size_as_int(ss->overlays.size()))
+		if (keys->GetOverlayIndexer().get_num_overlays() > size_as_int(ss->overlays.size()))
 		{
-			ss->overlays.reserve(config->GetOverlayIndexer().get_num_overlays());
-			while (size_as_int(ss->overlays.size()) < config->GetOverlayIndexer().get_num_overlays())
+			ss->overlays.reserve(keys->GetOverlayIndexer().get_num_overlays());
+			while (size_as_int(ss->overlays.size()) < keys->GetOverlayIndexer().get_num_overlays())
 			{
-				const char *child_name = config->GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
+				const char *child_name = keys->GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
 				ss->overlays.emplace_back(ss->overlays.make_url_for_child(child_name));
 			}
 		}
@@ -1272,20 +1336,48 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 
 	visitor.start_group_node(ss->get_url(), -1);
 
+	if (visitor.visit_source_interfaces())
+	{
+		keys->GetOverlayIndexer().update_presence(wrap);
+	}
+
 	VISIT(gamepad_focus_overlay, wrap.GetGamepadFocusOverlay());
 	VISIT(primary_dashboard_device, wrap.GetPrimaryDashboardDevice());
 	VISIT(is_dashboard_visible, wrap.IsDashboardVisible());
 	VISIT(keyboard_text, wrap.GetKeyboardText(&(TMPString<>())));
-	VISIT(active_overlay_indexes,
-		config->GetOverlayIndexer().update(&(TMPInt32String<>()), wrap));
 
-	// history traversal always goes through the complete set
-	// see "Hwrap to track applications and overlays.docx"
+	if (visitor.visit_source_interfaces())
+	{
+		keys->GetOverlayIndexer().read_lock_present_indexes();
+		visitor.visit_node(ss->active_overlay_indexes, make_result(keys->GetOverlayIndexer().get_present_indexes()));
+		keys->GetOverlayIndexer().read_unlock_present_indexes();
+	}
+	else
+	{
+		visitor.visit_node(ss->active_overlay_indexes);
+	}
+
+	
 	START_VECTOR(overlays);
 	for (int i = 0; i < size_as_int(ss->overlays.size()); i++)
 	{
-		visit_per_overlay(visitor, ss, wrap, i, config);
+		g.run("single overlay", [&visitor, ss, &wrap, i, keys]
+		{
+			visit_per_overlay(visitor, ss, wrap, i, keys);
+		});
 	}
+
+	// // 3/15/2017 - calling GetOverlayImage simultaneously causes vrclient.dll to 
+	// crash - so to avoid this, we call it in a single thread:
+	g.run("image update", [&visitor, ss, &wrap, keys]
+	{
+		for (int i = 0; i < size_as_int(ss->overlays.size()); i++)
+		{
+			visit_per_overlay_image(visitor, ss, wrap, i, keys);
+		}
+	});
+
+
 	END_VECTOR(overlays);
 
 	visitor.end_group_node(ss->get_url(), -1);

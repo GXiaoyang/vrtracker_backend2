@@ -183,6 +183,9 @@
     <ClInclude Include="unit_tests\test_context.h">
       <Filter>Source Files\unit tests</Filter>
     </ClInclude>
+    <ClInclude Include="vr_string_indexer.h">
+      <Filter>Source Files\vr keys</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -271,6 +274,9 @@
     </ClCompile>
     <ClCompile Include="unit_tests\UPDATE.cpp">
       <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_string_indexer.cpp">
+      <Filter>Source Files\vr keys</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

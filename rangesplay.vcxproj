@@ -191,6 +191,7 @@
     <ClInclude Include="vr_resources_wrapper.h" />
     <ClInclude Include="vr_settings_indexer.h" />
     <ClInclude Include="vr_settings_wrapper.h" />
+    <ClInclude Include="vr_string_indexer.h" />
     <ClInclude Include="vr_tmp_vector.h" />
     <ClInclude Include="vr_tracked_camera_wrapper.h" />
     <ClInclude Include="vr_tracker.h" />
@@ -236,6 +237,7 @@
     <ClCompile Include="vr_properties_indexer.cpp" />
     <ClCompile Include="vr_resources_indexer.cpp" />
     <ClCompile Include="vr_settings_indexer.cpp" />
+    <ClCompile Include="vr_string_indexer.cpp" />
     <ClCompile Include="vr_tmp_vector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

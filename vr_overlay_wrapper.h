@@ -66,10 +66,9 @@ namespace vr_result
 			{
 				uint32_t size = width_query * height_query * 4;
 				uint8_t *ptr = (uint8_t *)malloc(size);
-				vr::EVROverlayError err = ovi->GetOverlayImageData(ulOverlayHandle, ptr, size, &width_query, &height_query);
-				if (err != vr::VROverlayError_None)
+
+				if (!ptr)
 				{
-					free(ptr);
 					*width_out = make_result<uint32_t, EVROverlayError>(0, err);
 					*height_out = make_result<uint32_t, EVROverlayError>(0, err);
 					*ptr_out = nullptr;
@@ -78,11 +77,25 @@ namespace vr_result
 				}
 				else
 				{
-					*width_out = make_result<uint32_t, EVROverlayError>(width_query, err);
-					*height_out = make_result<uint32_t, EVROverlayError>(height_query, err);
-					*ptr_out = ptr;
-					*size_out = size;
-					rc = err;
+					//printf("%p %llu, %p %d %d\n", ovi, ulOverlayHandle, ptr, size, err);
+					vr::EVROverlayError err2 = ovi->GetOverlayImageData(ulOverlayHandle, ptr, size, &width_query, &height_query);
+					if (err2 != vr::VROverlayError_None)
+					{
+						free(ptr);
+						*width_out = make_result<uint32_t, EVROverlayError>(0, err2);
+						*height_out = make_result<uint32_t, EVROverlayError>(0, err2);
+						*ptr_out = nullptr;
+						*size_out = 0;
+						rc = err2;
+					}
+					else
+					{
+						*width_out = make_result<uint32_t, EVROverlayError>(width_query, err2);
+						*height_out = make_result<uint32_t, EVROverlayError>(height_query, err2);
+						*ptr_out = ptr;
+						*size_out = size;
+						rc = err2;
+					}
 				}
 			}
 			return rc;

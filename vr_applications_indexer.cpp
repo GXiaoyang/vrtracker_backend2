@@ -6,34 +6,20 @@
 
 void ApplicationsIndexer::WriteToStream(EncodeStream &s)
 {
-	int x = 88;
-	encode(x, s);
-	write_string_vector_to_stream(s, app_keys);
+	m_string_indexer.WriteToStream(s);
 }
 
 
 void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
 {
-	int x;
-	decode(x, s);
-	assert(x == 88);
-	app_keys.clear();
-	app_keys2index.clear();
-	read_string_vector_from_stream(s, app_keys);
-	for (int i = 0; i < (int)app_keys.size(); i++)
-	{
-		app_keys2index.insert({ app_keys[i].c_str(), i });
-	}
+	m_string_indexer.ReadFromStream(s);
 }
 
-// Go through each application in application count
-// * if I don't have an index for this app, make one.
-// * return in active_indexes, the list of indexes that were found
-void ApplicationsIndexer::update(vr_result::ApplicationsWrapper &ow)
+void ApplicationsIndexer::update_presence_and_size(vr_result::ApplicationsWrapper &ow)
 {
 	auto count = ow.GetApplicationCount();
 	int my_buf = 1;
-	present_indexes[my_buf].clear();
+	present_indexes_tmp.clear();
 
 	for (int i = 0; i < size_as_int(count.val); i++)
 	{
@@ -41,17 +27,11 @@ void ApplicationsIndexer::update(vr_result::ApplicationsWrapper &ow)
 		ow.GetApplicationKeyByIndex(i, &key); 
 		if (key.is_present())
 		{
-			internal_get_index_for_key(key.val.data());
-			present_indexes[my_buf].push_back(i);
+			int indexer_index = m_string_indexer.add_key_to_set(key.val.data()); // can increase size <--- 
+			present_indexes_tmp.push_back(indexer_index);
 		}
 	}
-	if (present_indexes[my_buf] != present_indexes[0])
-	{
-		present_index_lock.lock(); // writer lock
-		present_indexes[my_buf].swap(present_indexes[0]);
-		present_index_lock.unlock();
-	}
 
-	updated_size = app_keys.size();
+	m_string_indexer.maybe_swap_present_indexes(&present_indexes_tmp);
 }
 
