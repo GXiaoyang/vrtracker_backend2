@@ -4,6 +4,18 @@
 // needs to be tested  - ie I don't think it really needs to go though
 // the entire string to build a seed
 
+struct hash_c_string
+{
+	size_t operator() (const char *s) const
+	{
+		size_t h = 0;
+		for (; *s; ++s)
+			h = (h * 17) ^ *s;
+		return h;
+	}
+};
+
+#if 0
 struct hash_c_string {
 	void hash_combine(uint32_t& seed, char v) const {
 		seed ^= v + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -15,6 +27,7 @@ struct hash_c_string {
 		return hash;
 	}
 };
+#endif
 struct comp_c_string {
 	bool operator()(const char * p1, const char * p2) const {
 		return strcmp(p1, p2) == 0;

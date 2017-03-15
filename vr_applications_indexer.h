@@ -6,8 +6,11 @@
 #include "tbb/concurrent_vector.h"
 #include "tbb/concurrent_unordered_map.h"
 #include "tbb/spin_rw_mutex.h"
+#include "string2int.h"
 
 struct vr_result::ApplicationsWrapper;
+
+
 
 // knows how to map indexes to application keys
 class ApplicationsIndexer
@@ -40,8 +43,7 @@ public:
 		int ret = -1;
 		if (key)
 		{
-			std::string skey(key);	// todo blargh, just use char *
-			auto iter = app_keys2index.find(skey);
+			auto iter = app_keys2index.find(key);
 			if (iter != app_keys2index.end())
 			{
 				ret = iter->second;
@@ -66,7 +68,7 @@ public:
 
 private:
 	// return an index.  if the key doesn't exist yet add it.
-	int get_index_for_key(const std::string &key)
+	void internal_get_index_for_key(const char *key)
 	{
 		int rc;
 		auto iter = app_keys2index.find(key);
@@ -76,17 +78,21 @@ private:
 		}
 		else
 		{
-			app_keys.push_back(key);					// update caches
+			auto iter = app_keys.push_back(key);					// update caches
 			rc = (int)app_keys.size() - 1;
-			app_keys2index.insert(iter, { key, rc });
+			const char *p = (*iter).c_str(); // p needs to point to the char in app_keys
+			app_keys2index.insert({ p, rc });
 		}
-		return rc;
 	}
 
 	std::atomic<int> updated_size;
 
 	tbb::concurrent_vector<std::string> app_keys;
-	tbb::concurrent_unordered_map<std::string, int> app_keys2index;
+	tbb::concurrent_unordered_map<
+		const char *,
+		uint32_t,
+		hash_c_string,
+		comp_c_string> app_keys2index;
 
 	tbb::spin_rw_mutex present_index_lock;
 	std::vector<int> present_indexes[2];

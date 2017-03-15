@@ -22,7 +22,7 @@ void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
 	read_string_vector_from_stream(s, app_keys);
 	for (int i = 0; i < (int)app_keys.size(); i++)
 	{
-		app_keys2index.insert({ app_keys[i], i });
+		app_keys2index.insert({ app_keys[i].c_str(), i });
 	}
 }
 
@@ -41,8 +41,7 @@ void ApplicationsIndexer::update(vr_result::ApplicationsWrapper &ow)
 		ow.GetApplicationKeyByIndex(i, &key); 
 		if (key.is_present())
 		{
-			std::string key(key.val.data());	// todo get rid of stupid string - yet again
-			int index = get_index_for_key(key);	// implicitly automatically populates keys
+			internal_get_index_for_key(key.val.data());
 			present_indexes[my_buf].push_back(i);
 		}
 	}

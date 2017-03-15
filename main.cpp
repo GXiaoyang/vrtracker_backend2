@@ -17,7 +17,6 @@ extern void TEST_INDEXERS();
 void unit_tests()
 {
 	TEST_INDEXERS();
-	exit(1);
 	TEST_SLAB_ALLOCATOR();
 
 	TEST_SCHEMA_COMMON();
