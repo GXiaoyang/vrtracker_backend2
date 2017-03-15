@@ -15,6 +15,38 @@
 
 using namespace vr_result;
 
+
+#include <intrin.h>
+uint64_t rdtsc() {
+	return __rdtsc();
+}
+
+class named_task_group : public tbb::task_group
+{
+public:
+	template<typename F>
+	void run(const char *name, const F& f)
+	{
+		tbb::task_group::run(f);
+	}
+};
+
+
+class ExecuteImmediatelyTaskGroup
+{
+public:
+	template <typename T>
+	void run(const char *name, T t)
+	{
+		uint64_t start = rdtsc();
+		t();
+		uint64_t end = rdtsc();
+		printf("%s %lld\n", name, end - start);
+	}
+	void wait() {}
+};
+
+
 template <typename visitor_fn>
 static void traverse_history_graph_threaded(visitor_fn &visitor,
 	vr_tracker<slab_allocator<char>> *outer_state,
@@ -35,66 +67,60 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 	std::vector<std::thread*> threads;
 	vr_state *s = &outer_state->m_state;
 	vr_keys *keys = &outer_state->keys;
-	tbb::task_group g;
+	//ExecuteImmediatelyTaskGroup g;
+	named_task_group g;
 
-	g.run([&] {
+	g.run("visit_system_node", 
+		[&] {
 		visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper, keys, g);
 	});
 
-	g.run([&] {
+	g.run("visit_application_node", [&] {
 		visit_applications_node(visitor, &s->applications_node, application_wrapper, keys, g);
 	});
 
-	g.run([&] {
+	g.run("visit_settings_node",
+		[&] {
 		visit_settings_node(visitor, &s->settings_node, settings_wrapper, keys, g);
 	});
 
-	g.run([&] {
+	g.run("visit_chaperone_node",
+		[&] {
 		visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, keys);
 	});
 
-	g.run([&] {
+	g.run("visit_chaperone_setup", 
+		[&] {
 		visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
 	});
 
-	g.run([&] {
+	g.run("visit_compositor_state",
+		[&] {
 		visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys, g);
 	});
 	
-	g.run([&] {
+	g.run("visit_overlay_state",
+		[&] {
 		visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys);
 	});
-	g.run([&] {
-		visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper);
-	});
-	g.run([&] {
+
+	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, g);
+	
+	g.run("visit_extended_display_state",
+		[&] {
 		visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
 	});
-	g.run([&] {
+	g.run("visit_tracked_camera_state",
+		[&] {
 		visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper, keys);
 	});
-	g.run([&] {
+	g.run("visit_resources_state",
+		[&] {
 		visit_resources_state(visitor, &s->resources_node, resources_wrapper, keys);
 	});
-
 	g.wait();
 }
 
-#include <intrin.h>
-uint64_t rdtsc() {
-	return __rdtsc();
-}
-
-
-class ExecuteImmediatelyTaskGroup
-{
-public:
-	template <typename T>
-	void run(T t)
-	{
-		t();
-	}
-};
 
 template <typename visitor_fn>
 static void traverse_history_graph_sequential(visitor_fn &visitor, 
@@ -140,7 +166,7 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 	tbb::tick_count t6 = tbb::tick_count::now();
 	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys);
 	tbb::tick_count t7 = tbb::tick_count::now();
-	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper);
+	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, dummy);
 	tbb::tick_count t8 = tbb::tick_count::now();
 	visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
 	tbb::tick_count t9 = tbb::tick_count::now();

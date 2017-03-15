@@ -43,7 +43,7 @@ static void visit_hidden_mesh(visitor_fn &visitor,
 	vr_state::hidden_mesh_schema *ss,
 	vr::EVREye eEye,
 	EHiddenAreaMeshType mesh_type,
-	IVRSystem *sysi, SystemWrapper wrap)
+	IVRSystem *sysi, SystemWrapper &wrap)
 {
 	if (visitor.visit_source_interfaces())
 	{
@@ -78,7 +78,7 @@ static void visit_eye_state(visitor_fn &visitor,
 	vr_state::eye_schema *ss,
 	vr_state::system_schema *system_ss,
 	vr::EVREye eEye,
-	IVRSystem *sysi, SystemWrapper wrap,
+	IVRSystem *sysi, SystemWrapper &wrap,
 	const vr_keys *keys)
 {
 	visitor.start_group_node(ss->get_url(), eEye);
@@ -121,7 +121,7 @@ static void visit_eye_state(visitor_fn &visitor,
 
 template <typename visitor_fn>
 static void visit_component_on_controller_schema(
-	visitor_fn &visitor, vr_state::component_on_controller_schema *ss, RenderModelWrapper wrap,
+	visitor_fn &visitor, vr_state::component_on_controller_schema *ss, RenderModelWrapper &wrap,
 	const char *render_model_name,
 	ControllerState<bool> &controller_state,
 	uint32_t component_index)
@@ -345,7 +345,6 @@ static void visit_system_node(
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	{
-
 		if (visitor.expand_structure())
 		{
 			while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
@@ -379,19 +378,25 @@ static void visit_system_node(
 			}
 		}
 
-		g.run([&sysw, ss, &visitor] {
-			VISIT(recommended_target_size, sysw.GetRecommendedRenderTargetSize());
+		g.run("system scalars1", 
+			[&sysw, ss, &visitor] {
 			VISIT(is_display_on_desktop, sysw.GetIsDisplayOnDesktop());
+		});
+
+		g.run("system scalars2",
+			[&sysw, ss, &visitor] {
 			VISIT(seated2standing, sysw.GetSeatedZeroPoseToStandingAbsoluteTrackingPose());
 			VISIT(raw2standing, sysw.GetRawZeroPoseToStandingAbsoluteTrackingPose());
-
+			VISIT(recommended_target_size, sysw.GetRecommendedRenderTargetSize());
 			VISIT(num_hmd, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_HMD));
 			VISIT(num_controller, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_Controller));
 			VISIT(num_tracking, sysw.CountDevicesOfClass(vr::TrackedDeviceClass_GenericTracker));
 			VISIT(num_reference, sysw.CountDevicesOfClass(TrackedDeviceClass_TrackingReference));
-
 			VISIT(input_focus_captured_by_other, sysw.IsInputFocusCapturedByAnotherProcess());
+		});
 
+		g.run("system scalars3",
+			[&sysw, ss, &visitor] {
 			if (visitor.visit_source_interfaces())
 			{
 				Float<bool>		seconds_since_last_vsync;
@@ -405,31 +410,21 @@ static void visit_system_node(
 				visitor.visit_node(ss->seconds_since_last_vsync);
 				visitor.visit_node(ss->frame_counter_since_last_vsync);
 			}
-
 			VISIT(d3d9_adapter_index, sysw.GetD3D9AdapterIndex());
-			VISIT(dxgi_output_info, sysw.GetDXGIOutputInfo());
+		});
 
+		g.run("system scalars4",
+			[&sysw, ss, &visitor] 
+		{
+			VISIT(dxgi_output_info, sysw.GetDXGIOutputInfo());
 		});
 	}
 
 	//
-	// eyes
-	//
-	START_VECTOR(eyes);
-		g.run([&visitor, ss, sysi, &sysw, keys] {
-			visit_eye_state(visitor, &ss->eyes[0], ss, vr::Eye_Left, sysi, sysw, keys);
-		});
-
-		g.run([&visitor, ss, sysi, &sysw, keys] {
-			visit_eye_state(visitor, &ss->eyes[1], ss, vr::Eye_Right, sysi, sysw, keys);
-		});
-	END_VECTOR(eyes);
-	
-
-	//
 	// controllers
 	//
-	g.run([&visitor, ss, &sysw, &rmw, sysi, keys] {
+	g.run("controllers",
+		[&visitor, ss, &sysw, &rmw, sysi, keys, &g] {
 		START_VECTOR(controllers);
 		TrackedDevicePose_t raw_pose_array[vr::k_unMaxTrackedDeviceCount];
 		TrackedDevicePose_t standing_pose_array[vr::k_unMaxTrackedDeviceCount];
@@ -451,24 +446,34 @@ static void visit_system_node(
 		}
 
 		PropertiesIndexer *indexer = &keys->GetDevicePropertiesIndexer();
-
 		for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
 		{
 			visitor.start_group_node(ss->controllers.get_url(), i);
 			VISIT(controllers[i].raw_tracking_pose, make_result(raw_pose_array[i]));
 			VISIT(controllers[i].standing_tracking_pose, make_result(standing_pose_array[i]));
 			VISIT(controllers[i].seated_tracking_pose, make_result(seated_pose_array[i]));
-
-			visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer);
-
-			visitor.end_group_node(ss->controllers.get_url(), i);
+			g.run("controller",
+				[&visitor, ss, &sysw, &rmw, sysi, indexer, i] {
+				visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer);
+			});
+				visitor.end_group_node(ss->controllers.get_url(), i);
 		}
 
 	END_VECTOR(controllers);
 	});
 
-	g.run([&visitor, ss, &sysw]
+	g.run("spatial sorts + eyes",
+		[&visitor, ss, sysi, &sysw, keys]
 	{
+		//
+		// eyes
+		//
+		START_VECTOR(eyes);
+		visit_eye_state(visitor, &ss->eyes[0], ss, vr::Eye_Left, sysi, sysw, keys);
+		visit_eye_state(visitor, &ss->eyes[1], ss, vr::Eye_Right, sysi, sysw, keys);
+		END_VECTOR(eyes);
+
+
 		//
 		// spatial sorts
 		//
@@ -647,7 +652,7 @@ void visit_application_state(visitor_fn &visitor, vr_state::applications_schema 
 
 template <typename visitor_fn>
 void visit_mime_type_schema(visitor_fn &visitor, vr_state::mime_type_schema *ss,
-	ApplicationsWrapper wrap, uint32_t mime_index, vr_keys *keys)
+	ApplicationsWrapper &wrap, uint32_t mime_index, vr_keys *keys)
 {
 	const char *mime_type = keys->GetMimeTypesIndexer().GetNameForIndex(mime_index);
 	if (visitor.visit_source_interfaces())
@@ -695,7 +700,8 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 		}
 	}
 
-	g.run([&visitor, ss, keys, &wrap] 
+	g.run("applications top level",
+		[&visitor, ss, keys, &wrap] 
 	{
 
 		VISIT(active_application_indexes, make_result(keys->GetApplicationsIndexer().get_present_indexes()));
@@ -703,7 +709,6 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 		VISIT(transition_state, wrap.GetTransitionState());
 		VISIT(is_quit_user_prompt, wrap.IsQuitUserPromptRequested());
 		VISIT(current_scene_process_id, wrap.GetCurrentSceneProcessId());
-
 
 		START_VECTOR(mime_types);
 		for (int i = 0; i < size_as_int(ss->mime_types.size()); i++)
@@ -713,15 +718,24 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 		END_VECTOR(mime_types);
 	});
 
-	g.run([&visitor, ss, keys, &wrap]
+	START_VECTOR(applications);
+	int num_applications = size_as_int(ss->applications.size());
+
+	for (int i = 0; i < num_applications;)
 	{
-		START_VECTOR(applications);
-		for (int i = 0; i < size_as_int(ss->applications.size()); i++)
+		int num_iter = std::min(4, num_applications - i);
+		g.run("application instance",
+			[&visitor, ss, keys, &wrap, i, num_iter]
 		{
-			visit_application_state(visitor, ss, wrap, i, keys);
-		}
-		END_VECTOR(applications);
-	});
+			for (int j = i; j < i + num_iter; j++)
+			{
+				visit_application_state(visitor, ss, wrap, j, keys);
+			}
+		});
+		i += num_iter;
+	}
+
+	END_VECTOR(applications);
 
 	visitor.end_group_node(ss->get_url(), -1);
 }
@@ -863,7 +877,8 @@ static void visit_settings_node(
 	START_VECTOR(sections);
 	for (int index = 0; index < size_as_int(ss->sections.size()); index++)
 	{
-		g.run([&visitor, ss, &wrap, keys, index] {
+		g.run("settings section",
+			[&visitor, ss, &wrap, keys, index] {
 			visit_section(visitor, keys->GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
 				&ss->structure_version, wrap, keys);
 		});
@@ -910,7 +925,7 @@ static void visit_chaperone_node(
 
 
 template <typename visitor_fn>
-static void visit_chaperone_setup_node(visitor_fn &visitor, vr_state::chaperonesetup_schema *ss, ChaperoneSetupWrapper wrap)
+static void visit_chaperone_setup_node(visitor_fn &visitor, vr_state::chaperonesetup_schema *ss, ChaperoneSetupWrapper &wrap)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	VISIT(working_play_area_size, wrap.GetWorkingPlayAreaSize());
@@ -965,7 +980,8 @@ static void visit_compositor_state(visitor_fn &visitor,
 	}
 
 	visitor.start_group_node(ss->get_url(), -1);
-	g.run([&visitor, ss, &wrap, config]
+	g.run("compositor scalars",
+		[&visitor, ss, &wrap, config]
 	{
 		VISIT(tracking_space, wrap.GetTrackingSpace());
 		VISIT(frame_timing, wrap.GetFrameTiming(config->GetFrameTimingFramesAgo()));
@@ -984,7 +1000,8 @@ static void visit_compositor_state(visitor_fn &visitor,
 			&(TMPCompositorFrameTimingString<>())));
 	});
 
-	g.run([&visitor, ss, &wrap]
+	g.run("compositor controllers",
+		[&visitor, ss, &wrap]
 	{
 		START_VECTOR(controllers);
 		for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
@@ -1003,7 +1020,7 @@ template <typename visitor_fn>
 static void visit_permodelcomponent(
 	visitor_fn &visitor,
 	vr_state::rendermodel_component_schema *ss,
-	RenderModelWrapper wrap,
+	RenderModelWrapper &wrap,
 	const char *pchRenderModelName, uint32_t component_index)
 {
 	visitor.start_group_node(ss->get_url(), component_index);
@@ -1028,7 +1045,7 @@ template <typename visitor_fn>
 static void visit_rendermodel(visitor_fn &visitor,
 	vr_state::rendermodel_schema *ss,
 	int *structure_version,
-	RenderModelWrapper wrap,
+	RenderModelWrapper &wrap,
 	uint32_t unRenderModelIndex)
 {
 	const char *render_model_name = ss->get_name().c_str();
@@ -1120,7 +1137,7 @@ template <typename visitor_fn>
 static void visit_per_overlay(
 	visitor_fn &visitor,
 	vr_state::overlay_schema *overlay_state,
-	OverlayWrapper wrap,
+	OverlayWrapper &wrap,
 	uint32_t overlay_index,
 	vr_keys *config
 	)
@@ -1204,7 +1221,7 @@ static void visit_per_overlay(
 
 template <typename visitor_fn>
 static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *ss,
-	OverlayWrapper wrap,
+	OverlayWrapper &wrap,
 	vr_keys *config
 	)
 {
@@ -1242,9 +1259,9 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 	visitor.end_group_node(ss->get_url(), -1);
 }
 
-template <typename visitor_fn>
+template <typename visitor_fn, typename TaskGroup>
 static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_schema *ss, 
-	RenderModelWrapper wrap)
+	RenderModelWrapper &wrap, TaskGroup &g)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -1263,10 +1280,20 @@ static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_
 		}
 	}
 
+	int num_render_models = size_as_int(ss->models.size());
 	START_VECTOR(models);
-	for (int i = 0; i < size_as_int(ss->models.size()); i++)
+	for (int i = 0; i < num_render_models;)
 	{
-		visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, wrap, i);
+		int num_iter = std::min(10, num_render_models - i);
+		g.run("render model instances",
+			[&visitor, ss, &wrap, i, num_iter]
+		{
+			for (int j = i; j < i + num_iter; j++)
+			{
+				visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, wrap, i);
+			}
+		});
+		i += num_iter;
 	}
 	END_VECTOR(models);
 	visitor.end_group_node(ss->get_url(), -1);
