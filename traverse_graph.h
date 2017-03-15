@@ -873,16 +873,33 @@ static void visit_settings_node(
 			}
 		}
 	}
-
+#if 0
 	START_VECTOR(sections);
-	for (int index = 0; index < size_as_int(ss->sections.size()); index++)
+	int num_sections = size_as_int(ss->sections.size());
+	for (int index = 0; index < num_sections;index++)
 	{
 		g.run("settings section",
 			[&visitor, ss, &wrap, keys, index] {
-			visit_section(visitor, keys->GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
-				&ss->structure_version, wrap, keys);
+				visit_section(visitor, keys->GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
+					&ss->structure_version, wrap, keys);
 		});
 	}
+#endif
+	int num_sections = size_as_int(ss->sections.size());
+	for (int index = 0; index < num_sections;)
+	{
+		int num_iter = std::min(3, num_sections - index);
+		g.run("settings section",
+			[&visitor, ss, &wrap, keys, index, num_iter] {
+			for (int j = index; j < index + num_iter; j++)
+			{
+				visit_section(visitor, keys->GetSettingsIndexer().GetSectionName(j), &ss->sections[j],
+					&ss->structure_version, wrap, keys);
+			}
+		});
+		index += num_iter;
+	}
+
 	END_VECTOR(sections);
 
 	visitor.end_group_node(ss->get_url(), -1);
@@ -1284,13 +1301,13 @@ static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_
 	START_VECTOR(models);
 	for (int i = 0; i < num_render_models;)
 	{
-		int num_iter = std::min(10, num_render_models - i);
+		int num_iter = std::min(5, num_render_models - i);
 		g.run("render model instances",
 			[&visitor, ss, &wrap, i, num_iter]
 		{
 			for (int j = i; j < i + num_iter; j++)
 			{
-				visit_rendermodel(visitor, &ss->models[i], &ss->structure_version, wrap, i);
+				visit_rendermodel(visitor, &ss->models[j], &ss->structure_version, wrap, j);
 			}
 		});
 		i += num_iter;

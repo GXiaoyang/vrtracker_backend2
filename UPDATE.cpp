@@ -68,6 +68,7 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 	vr_state *s = &outer_state->m_state;
 	vr_keys *keys = &outer_state->keys;
 	//ExecuteImmediatelyTaskGroup g;
+
 	named_task_group g;
 
 	g.run("visit_system_node", 
