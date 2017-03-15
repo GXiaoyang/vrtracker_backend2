@@ -410,14 +410,15 @@ static void visit_system_node(
 				visitor.visit_node(ss->seconds_since_last_vsync);
 				visitor.visit_node(ss->frame_counter_since_last_vsync);
 			}
-			VISIT(d3d9_adapter_index, sysw.GetD3D9AdapterIndex());
+	//		VISIT(d3d9_adapter_index, sysw.GetD3D9AdapterIndex());
 		});
-
+#if 0
 		g.run("system scalars4",
 			[&sysw, ss, &visitor] 
 		{
 			VISIT(dxgi_output_info, sysw.GetDXGIOutputInfo());
 		});
+#endif
 	}
 
 	//

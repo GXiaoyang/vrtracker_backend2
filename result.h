@@ -155,7 +155,7 @@ bool return_code_not_equals(const Result &a, const Result2 &b,
 
 // if it's not a container, evaluate the values
 template <typename ElementType, typename ReturnCode, typename ResultType2>
-static bool not_equals(const Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
+bool not_equals(const Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<!Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0)
 {
 	if (return_code_not_equals(a,b))
@@ -167,7 +167,7 @@ static bool not_equals(const Result<ElementType, ReturnCode> &a, const Result<Re
 
 // if it is a container, evaluate the sizes before the values
 template <typename ElementType, typename ReturnCode, typename ResultType2>
-static bool not_equals(
+bool not_equals(
 	const Result<ElementType, ReturnCode> &a, 
 	const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0) 
@@ -188,13 +188,13 @@ static bool not_equals(
 }
 
 template <typename ElementType, typename ReturnCode, typename ResultType2>
-static bool operator != (const Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b)
+bool operator != (const Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b)
 {
 	return not_equals(a, b);
 }
 
 template <typename ElementType, typename ReturnCode, typename ResultType2>
-static bool operator == (const Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b)
+bool operator == (const Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b)
 {
 	return !not_equals(a, b);
 }
@@ -213,7 +213,7 @@ void assign_return_code(const Result &a, const Result2 &b,
 }
 
 template <typename ElementType, typename ReturnCode, typename ResultType2>
-static void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
+void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<!Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0)
 {
 	assign_return_code(a, b);
@@ -221,7 +221,7 @@ static void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2,
 }
 
 template <typename ElementType, typename ReturnCode, typename ResultType2>
-static void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
+void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0)
 {
 	assign_return_code(a, b);
