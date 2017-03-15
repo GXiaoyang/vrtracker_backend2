@@ -17,6 +17,7 @@ extern void TEST_INDEXERS();
 void unit_tests()
 {
 	TEST_INDEXERS();
+	exit(1);
 	TEST_SLAB_ALLOCATOR();
 
 	TEST_SCHEMA_COMMON();
@@ -27,9 +28,10 @@ void unit_tests()
 
 int main()
 {
-	//unit_tests();
+	unit_tests();
+	
 	UPDATE_USE_CASE();
-	exit(1);
+	
 	unit_tests();
 
 	GUI_USE_CASE();
