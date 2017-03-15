@@ -68,7 +68,8 @@ inline void decode(vr::HmdMatrix34_t &v, EncodeStream &e)
 	e.memcpy_from_stream(&v, sizeof(v));
 }
 
-inline void write_string_vector_to_stream(EncodeStream &s, std::vector<std::string> &v)
+template <typename StringVectorType>
+inline void write_string_vector_to_stream(EncodeStream &s, StringVectorType &v)
 {
 	uint32_t count = (uint32_t)v.size();
 	encode(count, s);
@@ -79,7 +80,8 @@ inline void write_string_vector_to_stream(EncodeStream &s, std::vector<std::stri
 	}
 }
 
-inline void read_string_vector_from_stream(EncodeStream &s, std::vector<std::string> &v)
+template <typename StringVectorType>
+inline void read_string_vector_from_stream(EncodeStream &s, StringVectorType &v)
 {
 	uint32_t count;
 	decode(count, s);

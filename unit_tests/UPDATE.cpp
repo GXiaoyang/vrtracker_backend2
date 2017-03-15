@@ -1,12 +1,10 @@
 // rangesplay.cpp : Defines the entry point for the console application.
 //
 
-
-#include "vr_tracker.h"
+#include "test_context.h"
 #include "update_history_visitor.h"
 #include "vr_system_wrapper.h"
 #include "traverse_graph.h"
-#include "openvr_broker.h"
 #include "update_history_visitor.h"
 #include "tbb/tick_count.h"
 #include "tbb/task_scheduler_init.h"
@@ -16,10 +14,6 @@
 using namespace vr_result;
 
 
-#include <intrin.h>
-uint64_t rdtsc() {
-	return __rdtsc();
-}
 
 class named_task_group : public tbb::task_group
 {
@@ -227,37 +221,20 @@ void UPDATE_USE_CASE()
 	using namespace vr_result;
 	using std::range;
 
-	// 
-	// Initialize base
-	//
-	slab s(1024 * 1024 * 32);	// todo - put textures onto their own slab (2048*2048*4 = 16MB)
-	slab_allocator<char>::m_temp_slab = &s;
-	tmp_vector_pool<VRTMPSize> tmp_pool;
-	vr_tmp_vector_base::m_global_pool = &tmp_pool;
+	test_context context;
 
-	//
-	// Construct a tracker
-	//
-	slab_allocator<char> allocator;
-	vr_tracker<slab_allocator<char>> tracker(&s);
-
-	//
-	// Baseline config
-	// 
-	TrackerConfig c;
-	c.set_default();
-	tracker.keys.Init(c);
+	&context.tracker();
+	context.vr_interfaces();
 
 	// 
 	// Sequential visit 
 	//
 	update_history_visitor update_visitor(1);
-	openvr_broker::open_vr_interfaces interfaces;
-	char *error;
-	openvr_broker::acquire_interfaces("raw", &interfaces, &error);
+	
+
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_sequential(update_visitor, &tracker, interfaces);
+		traverse_history_graph_sequential(update_visitor, &context.tracker(), context.vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "first sequential visit took "
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
@@ -266,7 +243,7 @@ void UPDATE_USE_CASE()
 	
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_sequential(update_visitor, &tracker, interfaces);
+		traverse_history_graph_sequential(update_visitor, &context.tracker(), context.vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "second sequential visit took "
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
@@ -280,7 +257,7 @@ void UPDATE_USE_CASE()
 	update_visitor.m_frame_number++;
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_threaded(update_visitor, &tracker, interfaces);
+		traverse_history_graph_threaded(update_visitor, &context.tracker(), context.vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "threaded visit took "
 			<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
@@ -292,7 +269,7 @@ void UPDATE_USE_CASE()
 		update_visitor.m_frame_number++;
 		{
 			std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-			traverse_history_graph_threaded(update_visitor, &tracker, interfaces);
+			traverse_history_graph_threaded(update_visitor, &context.tracker(), context.vr_interfaces());
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 			std::cout << "threaded visit took "
@@ -303,7 +280,7 @@ void UPDATE_USE_CASE()
 
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_sequential(update_visitor, &tracker, interfaces);
+		traverse_history_graph_sequential(update_visitor, &context.tracker(), context.vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "final sequential visit took "
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
@@ -315,14 +292,14 @@ void UPDATE_USE_CASE()
 	//
 	// test the read only visitor
 	//
-	int allocs_before = tmp_pool.get_num_alloc_one_calls();
-	int frees_before = tmp_pool.get_num_free_one_calls();
+	int allocs_before = context.tmp_pool()->get_num_alloc_one_calls();
+	int frees_before = context.tmp_pool()->get_num_free_one_calls();
 	read_only_visitor read_visitor;
-	traverse_history_graph_sequential(read_visitor, &tracker, interfaces);
+	traverse_history_graph_sequential(read_visitor, &context.tracker(), context.vr_interfaces());
 
 	// see if the read only allocated any temporaries
-	assert(allocs_before == tmp_pool.get_num_alloc_one_calls());
-	assert(frees_before == tmp_pool.get_num_free_one_calls());
+	assert(allocs_before == context.tmp_pool()->get_num_alloc_one_calls());
+	assert(frees_before == context.tmp_pool()->get_num_free_one_calls());
 
 }
 

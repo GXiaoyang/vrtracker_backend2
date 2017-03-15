@@ -2,6 +2,10 @@
 #include "vr_applications_wrapper.h"
 #include "openvr_serialization.h"
 #include <unordered_map>
+#include <atomic>
+#include "tbb/concurrent_vector.h"
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/spin_rw_mutex.h"
 
 struct vr_result::ApplicationsWrapper;
 
@@ -19,7 +23,7 @@ public:
 	void update(vr_result::ApplicationsWrapper &ow);
 	
 	// number of applications ever seen
-	int get_num_applications() { return (int)app_keys.size(); }
+	volatile int get_num_applications()  { return updated_size; }
 
 	// index to key mapping
 	// say
@@ -57,7 +61,21 @@ public:
 		return ret;
 	}
 
-	const std::vector<int> &get_present_indexes() { return present_indexes;  }
+	// updater wants lock free access
+	//
+
+	void read_lock_present_indexes()
+	{
+		present_index_lock.lock_read();
+	}
+	const std::vector<int> &get_present_indexes() 
+	{ 
+		return present_indexes[0];  
+	}
+	void read_unlock_present_indexes()
+	{
+		present_index_lock.unlock();
+	}
 
 
 private:
@@ -79,7 +97,11 @@ private:
 		return rc;
 	}
 
-	std::vector<std::string> app_keys;
-	std::unordered_map<std::string, int> app_keys2index;
-	std::vector<int> present_indexes;
+	std::atomic<int> updated_size;
+
+	tbb::concurrent_vector<std::string> app_keys;
+	tbb::concurrent_unordered_map<std::string, int> app_keys2index;
+
+	tbb::spin_rw_mutex present_index_lock;
+	std::vector<int> present_indexes[2];
 };

@@ -180,6 +180,9 @@
     <ClInclude Include="result.h">
       <Filter>Source Files\base</Filter>
     </ClInclude>
+    <ClInclude Include="unit_tests\test_context.h">
+      <Filter>Source Files\unit tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -257,13 +260,16 @@
     <ClCompile Include="unit_tests\test_slab_allocator.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
-    <ClCompile Include="UPDATE.cpp">
-      <Filter>Source Files\unit tests</Filter>
-    </ClCompile>
     <ClCompile Include="GUI.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_indexers.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\UPDATE.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
   </ItemGroup>

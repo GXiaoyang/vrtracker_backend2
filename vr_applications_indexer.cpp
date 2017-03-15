@@ -32,8 +32,10 @@ void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
 void ApplicationsIndexer::update(vr_result::ApplicationsWrapper &ow)
 {
 	auto count = ow.GetApplicationCount();
-	present_indexes.clear();
-	for (int i = 0; i < (int)count.val; i++)
+	int my_buf = 1;
+	present_indexes[my_buf].clear();
+
+	for (int i = 0; i < size_as_int(count.val); i++)
 	{
 		vr_result::TMPString<vr::EVRApplicationError> key;
 		ow.GetApplicationKeyByIndex(i, &key); 
@@ -41,8 +43,16 @@ void ApplicationsIndexer::update(vr_result::ApplicationsWrapper &ow)
 		{
 			std::string key(key.val.data());	// todo get rid of stupid string - yet again
 			int index = get_index_for_key(key);	// implicitly automatically populates keys
-			present_indexes.push_back(i);
+			present_indexes[my_buf].push_back(i);
 		}
 	}
+	if (present_indexes[my_buf] != present_indexes[0])
+	{
+		present_index_lock.lock(); // writer lock
+		present_indexes[my_buf].swap(present_indexes[0]);
+		present_index_lock.unlock();
+	}
+
+	updated_size = app_keys.size();
 }
 

@@ -405,7 +405,7 @@ static void visit_system_node(
 				visitor.visit_node(ss->seconds_since_last_vsync, seconds_since_last_vsync);
 				visitor.visit_node(ss->frame_counter_since_last_vsync, frame_counter_since_last_vsync);
 			}
-			else
+			else 
 			{
 				visitor.visit_node(ss->seconds_since_last_vsync);
 				visitor.visit_node(ss->frame_counter_since_last_vsync);
@@ -678,7 +678,10 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
-	keys->GetApplicationsIndexer().update(wrap);
+	if (visitor.visit_source_interfaces())
+	{
+		keys->GetApplicationsIndexer().update(wrap);
+	}
 	if (visitor.expand_structure())
 	{
 		if (keys->GetApplicationsIndexer().get_num_applications() > size_as_int(ss->applications.size()))
@@ -705,7 +708,18 @@ static void visit_applications_node(visitor_fn &visitor, vr_state::applications_
 		[&visitor, ss, keys, &wrap] 
 	{
 
-		VISIT(active_application_indexes, make_result(keys->GetApplicationsIndexer().get_present_indexes()));
+		if (visitor.visit_source_interfaces())
+		{
+			keys->GetApplicationsIndexer().read_lock_present_indexes();
+			ss->active_application_indexes, make_result(keys->GetApplicationsIndexer().get_present_indexes());
+			keys->GetApplicationsIndexer().read_unlock_present_indexes();
+		}
+		else
+		{
+			visitor.visit_node(ss->active_application_indexes);
+		}
+		
+
 		VISIT(starting_application, wrap.GetStartingApplication(&(TMPString<vr::EVRApplicationError>())));
 		VISIT(transition_state, wrap.GetTransitionState());
 		VISIT(is_quit_user_prompt, wrap.IsQuitUserPromptRequested());

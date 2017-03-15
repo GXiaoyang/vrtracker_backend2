@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstddef>
 #include <limits>
+#include <intrin.h>
 
 namespace plat
 {
@@ -19,6 +20,11 @@ namespace plat
 
 typedef uint64_t time_stamp_t;
 typedef int time_index_t;
+
+inline uint64_t rdtsc() {
+	return __rdtsc();
+}
+
 
 #define TBL_SIZE(t) (sizeof(t)/sizeof(t[0]))
 

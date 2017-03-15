@@ -12,9 +12,11 @@ extern void TEST_TIME_CONTAINERS();
 extern void TEST_SCHEMA_COMMON();
 
 extern void TEST_SLAB_ALLOCATOR();
+extern void TEST_INDEXERS();
 
 void unit_tests()
 {
+	TEST_INDEXERS();
 	TEST_SLAB_ALLOCATOR();
 
 	TEST_SCHEMA_COMMON();
@@ -25,6 +27,7 @@ void unit_tests()
 
 int main()
 {
+	//unit_tests();
 	UPDATE_USE_CASE();
 	exit(1);
 	unit_tests();
