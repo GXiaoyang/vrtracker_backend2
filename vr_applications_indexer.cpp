@@ -15,16 +15,16 @@ void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
 	m_string_indexer.ReadFromStream(s);
 }
 
-void ApplicationsIndexer::update_presence_and_size(vr_result::ApplicationsWrapper &ow)
+void ApplicationsIndexer::update_presence_and_size(vr_result::ApplicationsWrapper *wrap)
 {
-	auto count = ow.GetApplicationCount();
+	auto count = wrap->GetApplicationCount();
 	int my_buf = 1;
 	present_indexes_tmp.clear();
 
 	for (int i = 0; i < size_as_int(count.val); i++)
 	{
 		vr_result::TMPString<vr::EVRApplicationError> key;
-		ow.GetApplicationKeyByIndex(i, &key); 
+		wrap->GetApplicationKeyByIndex(i, &key); 
 		if (key.is_present())
 		{
 			int indexer_index = m_string_indexer.add_key_to_set(key.val.data()); // can increase size <--- 

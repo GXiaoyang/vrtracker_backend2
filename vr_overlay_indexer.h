@@ -17,7 +17,7 @@ public:
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
 
-	void update_presence(vr_result::OverlayWrapper &ow);
+	void update_presence(vr_result::OverlayWrapper *ow);
 
 	int get_index_for_key(const char *key)
 	{

@@ -66,51 +66,51 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 
 	g.run("visit_system_node", 
 		[&] {
-		visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper, keys, g);
+		visit_system_node(visitor, &s->system_node, interfaces.sysi, &system_wrapper, &rendermodel_wrapper, keys, g);
 	});
 
 	g.run("visit_application_node", [&] {
-		visit_applications_node(visitor, &s->applications_node, application_wrapper, keys, g);
+		visit_applications_node(visitor, &s->applications_node, &application_wrapper, keys, g);
 	});
 
 	g.run("visit_settings_node",
 		[&] {
-		visit_settings_node(visitor, &s->settings_node, settings_wrapper, keys, g);
+		visit_settings_node(visitor, &s->settings_node, &settings_wrapper, keys, g);
 	});
 
 	g.run("visit_chaperone_node",
 		[&] {
-		visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, keys);
+		visit_chaperone_node(visitor, &s->chaperone_node, &chaperone_wrapper, keys);
 	});
 
 	g.run("visit_chaperone_setup", 
 		[&] {
-		visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
+		visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, &chaperone_setup_wrapper);
 	});
 
 	g.run("visit_compositor_state",
 		[&] {
-		visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys, g);
+		visit_compositor_state(visitor, &s->compositor_node, &compositor_wrapper, keys, g);
 	});
 	
 	g.run("visit_overlay_state",
 		[&] {
-		visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys, g);
+		visit_overlay_state(visitor, &s->overlay_node, &overlay_wrapper, keys, g);
 	});
 
-	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, g);
+	visit_rendermodel_state(visitor, &s->rendermodels_node, &rendermodel_wrapper, g);
 	
 	g.run("visit_extended_display_state",
 		[&] {
-		visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
+		visit_extended_display_state(visitor, &s->extendeddisplay_node, &extended_display_wrapper);
 	});
 	g.run("visit_tracked_camera_state",
 		[&] {
-		visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper, keys);
+		visit_trackedcamera_state(visitor, &s->trackedcamera_node, &tracked_camera_wrapper, keys);
 	});
 	g.run("visit_resources_state",
 		[&] {
-		visit_resources_state(visitor, &s->resources_node, resources_wrapper, keys);
+		visit_resources_state(visitor, &s->resources_node, &resources_wrapper, keys);
 	});
 	g.wait();
 }
@@ -139,35 +139,34 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 
 	uint64_t clock_start = rdtsc();
 	tbb::tick_count t0 = tbb::tick_count::now();
-	visit_system_node(visitor, &s->system_node, interfaces.sysi, system_wrapper, rendermodel_wrapper, keys, dummy);
+	visit_system_node(visitor, &s->system_node, interfaces.sysi, &system_wrapper, &rendermodel_wrapper, keys, dummy);
 
 	tbb::tick_count t1 = tbb::tick_count::now();
-	visit_applications_node(visitor, &s->applications_node, application_wrapper, 
+	visit_applications_node(visitor, &s->applications_node, &application_wrapper, 
 		keys, dummy);
 
 	tbb::tick_count t2 = tbb::tick_count::now();
-	visit_settings_node(visitor, &s->settings_node, settings_wrapper, 
-			keys, dummy);
+	visit_settings_node(visitor, &s->settings_node, &settings_wrapper, keys, dummy);
 
 	tbb::tick_count t3 = tbb::tick_count::now();
-	visit_chaperone_node(visitor, &s->chaperone_node, chaperone_wrapper, keys);
+	visit_chaperone_node(visitor, &s->chaperone_node, &chaperone_wrapper, keys);
 	tbb::tick_count t4 = tbb::tick_count::now();
-	visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, chaperone_setup_wrapper);
+	visit_chaperone_setup_node(visitor, &s->chaperone_setup_node, &chaperone_setup_wrapper);
 	tbb::tick_count t5 = tbb::tick_count::now();
 	
-	visit_compositor_state(visitor, &s->compositor_node, compositor_wrapper, keys, dummy);
+	visit_compositor_state(visitor, &s->compositor_node, &compositor_wrapper, keys, dummy);
 
 	tbb::tick_count t6 = tbb::tick_count::now();
-	visit_overlay_state(visitor, &s->overlay_node, overlay_wrapper, keys, dummy);
+	visit_overlay_state(visitor, &s->overlay_node, &overlay_wrapper, keys, dummy);
 	tbb::tick_count t7 = tbb::tick_count::now();
-	visit_rendermodel_state(visitor, &s->rendermodels_node, rendermodel_wrapper, dummy);
+	visit_rendermodel_state(visitor, &s->rendermodels_node, &rendermodel_wrapper, dummy);
 	tbb::tick_count t8 = tbb::tick_count::now();
-	visit_extended_display_state(visitor, &s->extendeddisplay_node, extended_display_wrapper);
+	visit_extended_display_state(visitor, &s->extendeddisplay_node, &extended_display_wrapper);
 	tbb::tick_count t9 = tbb::tick_count::now();
-	visit_trackedcamera_state(visitor, &s->trackedcamera_node, tracked_camera_wrapper,
+	visit_trackedcamera_state(visitor, &s->trackedcamera_node, &tracked_camera_wrapper,
 			keys);
 	tbb::tick_count t10 = tbb::tick_count::now();
-	visit_resources_state(visitor, &s->resources_node, resources_wrapper, keys);
+	visit_resources_state(visitor, &s->resources_node, &resources_wrapper, keys);
 	tbb::tick_count t11 = tbb::tick_count::now();
 	uint64_t clock_end = rdtsc();
 	std::cout << "sequential visitor cycles: "
@@ -214,6 +213,63 @@ struct read_only_visitor
 };
 
 
+void load_one_overlay_image(const char *overlay_name, vr::IVROverlay *ovi)
+{
+	vr::VROverlayHandle_t handle;
+	vr::EVROverlayError err = ovi->FindOverlay(overlay_name, &handle);
+	if (err == vr::VROverlayError_None)
+	{
+		uint32_t width;
+		uint32_t height;
+		EVROverlayError err2 = ovi->GetOverlayImageData(
+			handle, nullptr, 0, &width, &height);
+		if (err2 == VROverlayError_ArrayTooSmall)
+		{
+			size_t required_size = width * height * 4;
+			void *buf = malloc(required_size);
+			if (buf)
+			{
+				EVROverlayError err3 = ovi->GetOverlayImageData(handle, buf, required_size, &width, &height);
+				if (err3 == VROverlayError_None)
+				{
+					printf("success\n");
+				}
+				else
+				{
+					printf("failed\n");
+				}
+				free(buf);
+			}
+		}
+	}
+}
+
+void parallel_overlay_test(vr::IVROverlay *ovi)
+{
+	for (int i = 0; i < 10; i++)
+	{
+		load_one_overlay_image("valve.steam.desktop", ovi);
+		load_one_overlay_image("valve.steam.bigpicture", ovi);
+		load_one_overlay_image("system.vrdashboard", ovi);
+	}
+
+	
+	std::vector<std::thread *> threads;
+	for (int i = 0; i < 100; i++)
+	{
+		threads.push_back(new std::thread(load_one_overlay_image, "valve.steam.bigpicture", ovi));
+		threads.push_back(new std::thread(load_one_overlay_image, "system.vrdashboard", ovi));
+	}
+
+	for (auto thread : threads)
+	{
+		thread->join();
+	}
+
+	
+	
+}
+
 void UPDATE_USE_CASE()
 {
 	using namespace vr;
@@ -224,6 +280,12 @@ void UPDATE_USE_CASE()
 
 	&context.tracker();
 	context.vr_interfaces();
+
+
+	//parallel_overlay_test(context.vr_interfaces().ovi);
+
+
+
 
 	// 
 	// Sequential visit 
@@ -249,12 +311,14 @@ void UPDATE_USE_CASE()
 			<< "ms.\n";
 	}
 
-	//int n = tbb::task_scheduler_init::default_num_threads();
-	//tbb::task_scheduler_init init(8);
 	
 
 	update_visitor.m_frame_number++;
 	{
+		
+		
+
+
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 		traverse_history_graph_threaded(update_visitor, &context.tracker(), context.vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -265,13 +329,18 @@ void UPDATE_USE_CASE()
 
 	while (1)
 	{
-		update_visitor.m_frame_number++;
-		{
+		{			
+			int num_threads = update_visitor.m_frame_number % 8 + 1;
+			tbb::task_scheduler_init init(num_threads);
+		
+			update_visitor.m_frame_number++;
 			std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 			traverse_history_graph_threaded(update_visitor, &context.tracker(), context.vr_interfaces());
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-			std::cout << "threaded visit took "
+			std::cout 
+				<< "frame:" << update_visitor.m_frame_number
+				<< " num_threads:" << num_threads << " took "
 				<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
 				<< "us.\n";
 		}

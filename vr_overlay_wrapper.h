@@ -14,6 +14,9 @@ namespace vr_result
 			: ovi(ovi_in)
 		{}
 
+		OverlayWrapper(const OverlayWrapper &rhs) = delete;
+		OverlayWrapper& operator=(const OverlayWrapper &rhs) = delete;
+
 		SCALAR_WRAP(IVROverlay, ovi, GetPrimaryDashboardDevice);
 		SCALAR_WRAP(IVROverlay, ovi, GetHighQualityOverlay);
 		SCALAR_WRAP(IVROverlay, ovi, IsDashboardVisible);
@@ -43,6 +46,7 @@ namespace vr_result
 			rc.return_code = ovi->FindOverlay(key, &rc.val);
 			return rc;
 		}
+
 
 		vr::EVROverlayError GetImageData(VROverlayHandle_t ulOverlayHandle,
 			Uint32<EVROverlayError> *width_out,
@@ -77,7 +81,7 @@ namespace vr_result
 				}
 				else
 				{
-					//printf("%p %llu, %p %d %d\n", ovi, ulOverlayHandle, ptr, size, err);
+					//printf("%p %p %d\n", ovi, ptr, size);
 					vr::EVROverlayError err2 = ovi->GetOverlayImageData(ulOverlayHandle, ptr, size, &width_query, &height_query);
 					if (err2 != vr::VROverlayError_None)
 					{

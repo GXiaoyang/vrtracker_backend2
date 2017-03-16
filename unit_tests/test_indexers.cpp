@@ -37,7 +37,7 @@ static void app_reader(ApplicationsIndexer *ai)
 	app_reader_done = 1;
 }
 
-static void app_updater(ApplicationsIndexer *ai, vr_result::ApplicationsWrapper &wrap)
+static void app_updater(ApplicationsIndexer *ai, vr_result::ApplicationsWrapper *wrap)
 {
 	while (!app_reader_done)
 	{
@@ -45,7 +45,7 @@ static void app_updater(ApplicationsIndexer *ai, vr_result::ApplicationsWrapper 
 	}
 }
 
-void app_test_multi_threading(ApplicationsIndexer *ai, vr_result::ApplicationsWrapper &wrap)
+void app_test_multi_threading(ApplicationsIndexer *ai, vr_result::ApplicationsWrapper *wrap)
 {
 	auto a = std::thread(app_reader, ai);
 	auto b = std::thread(app_updater, ai, wrap);
@@ -54,7 +54,7 @@ void app_test_multi_threading(ApplicationsIndexer *ai, vr_result::ApplicationsWr
 	b.join();
 }
 
-void app_lookup_perf_test(ApplicationsIndexer *ai, vr_result::ApplicationsWrapper &wrap)
+void app_lookup_perf_test(ApplicationsIndexer *ai, vr_result::ApplicationsWrapper *wrap)
 {
 	int counter = 0;
 	ai->update_presence_and_size(wrap);
@@ -115,7 +115,7 @@ static void overlay_reader(OverlayIndexer *ai)
 #endif
 }
 
-static void overlay_updater(OverlayIndexer *ai, vr_result::OverlayWrapper &wrap)
+static void overlay_updater(OverlayIndexer *ai, vr_result::OverlayWrapper *wrap)
 {
 	//while (!overlay_reader_done)
 	{
@@ -123,7 +123,7 @@ static void overlay_updater(OverlayIndexer *ai, vr_result::OverlayWrapper &wrap)
 	}
 }
 
-void overlay_test_multi_threading(OverlayIndexer *ai, vr_result::OverlayWrapper &wrap)
+void overlay_test_multi_threading(OverlayIndexer *ai, vr_result::OverlayWrapper *wrap)
 {
 	auto a = std::thread(overlay_reader, ai);
 	auto b = std::thread(overlay_updater, ai, wrap);
@@ -139,15 +139,15 @@ void TEST_INDEXERS()
 	{
 		OverlayIndexer oi;
 		vr_result::OverlayWrapper wrap(context.vr_interfaces().ovi);
-		overlay_test_multi_threading(&oi, wrap);
+		overlay_test_multi_threading(&oi, &wrap);
 	}
 	
 
 
 	vr_result::ApplicationsWrapper wrap(context.vr_interfaces().appi);
 	ApplicationsIndexer ai;
-	app_lookup_perf_test(&ai, wrap);
-	app_test_multi_threading(&ai, wrap);
+	app_lookup_perf_test(&ai, &wrap);
+	app_test_multi_threading(&ai, &wrap);
 
 	
 

@@ -259,7 +259,13 @@ public:
 
 	void add_segment()
 	{
-		m_segment_container.emplace_back(get_allocator().allocate(SegmentSize));
+		T* segment = get_allocator().allocate(SegmentSize);
+		if (!segment)
+		{
+			printf("alloc failed");
+			getchar();
+		}
+		m_segment_container.emplace_back(segment);
 	}
 
 	void grow_if_necessary()

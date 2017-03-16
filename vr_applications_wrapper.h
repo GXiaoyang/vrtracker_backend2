@@ -85,6 +85,4 @@ namespace vr_result
 
 		IVRApplications *appi;
 	};
-
-	
 }

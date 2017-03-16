@@ -16,7 +16,7 @@ public:
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
 
-	void update_presence_and_size(vr_result::ApplicationsWrapper &ow);
+	void update_presence_and_size(vr_result::ApplicationsWrapper *ow);
 	
 	// number of applications ever seen
 	volatile int get_num_applications() { return m_string_indexer.size(); }
