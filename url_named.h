@@ -6,6 +6,8 @@ namespace base
 {
 	struct URL
 	{
+		const static URL& EMPTY_URL;
+
 		URL() = default;
 
 		URL(const URL &rhs)

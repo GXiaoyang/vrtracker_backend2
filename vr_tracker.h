@@ -16,7 +16,6 @@ struct tracker_save_summary
 	char date_string[64];
 };
 
-template <typename Allocator>
 struct vr_tracker
 {
 	static const int LARGE_SEGMENT_SIZE = 5400;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
@@ -42,7 +41,7 @@ struct vr_tracker
 	// up to date in the history walk.  though it should be made cheap to check
 	// when the structure does change.
 
-	std::forward_list<FrameNumberedEvent, Allocator>  m_events;
+	std::forward_list<FrameNumberedEvent, VRAllocatorTemplate<FrameNumberedEvent>>  m_events;
 	segmented_list<time_stamp_t, LARGE_SEGMENT_SIZE, slab_allocator<time_stamp_t>>  m_time_stamps;
 
 	time_index_t get_closest_time_index(time_stamp_t val)
@@ -62,7 +61,6 @@ struct vr_tracker
 		non_blocking_update_calls(0),
 		s2(base::URL("vr", "/vr")),
 		m_state(base::URL("vr", "/vr")),
-		m_events(m_allocator),
 		m_time_stamps(slab_allocator<time_stamp_t>())
 	{
 		memset(&save_info, 0, sizeof(save_info));

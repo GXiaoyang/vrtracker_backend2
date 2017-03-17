@@ -13,6 +13,9 @@
 
 using FrameNumberedEvent = time_indexed<vr::VREvent_t>;
 
+template <typename T>
+using VRForwardList = std::forward_list<T, VRAllocatorTemplate<T>>;
+
 namespace vr
 {
 	// a couple synthetic ones

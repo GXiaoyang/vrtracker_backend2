@@ -311,6 +311,9 @@ struct segmented_list_iterator : std::iterator<std::random_access_iterator_tag, 
 	size_type				 _segment_index;		// 0..n-1 segment index
 	size_type				 _listwide_index;				// index into the entire list
 
+	segmented_list_iterator()
+	{}
+
 	segmented_list_iterator(const SegmentContainerIterator &segment, size_type segment_index, size_type listwide_index)
 		: _segment(segment), _segment_index(segment_index), _listwide_index(listwide_index)
 	{}
@@ -321,6 +324,14 @@ struct segmented_list_iterator : std::iterator<std::random_access_iterator_tag, 
 	}
 
 	segmented_list_iterator& operator=(const segmented_list_iterator &rhs)
+	{
+		_segment = rhs._segment;
+		_segment_index = rhs._segment_index;
+		_listwide_index = rhs._listwide_index;
+		return *this;
+	}
+
+	segmented_list_iterator& operator=(segmented_list_iterator &&rhs)
 	{
 		_segment = rhs._segment;
 		_segment_index = rhs._segment_index;

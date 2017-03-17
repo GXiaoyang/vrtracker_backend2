@@ -50,6 +50,7 @@ I first_item_greater_than_or_equal_to(I begin, I end, time_index_t val, _Pr pr)
 	return it;
 }
 
+// r points to a range of time indexed values
 template <typename R, class _Pr>
 R range_intersect(const R &r, time_index_t min_val, time_index_t max_val, _Pr pr)  // [min_val and max_val) are not inclusive
 {

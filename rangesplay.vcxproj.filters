@@ -37,6 +37,9 @@
     <Filter Include="Source Files\time_containers">
       <UniqueIdentifier>{6cd4378b-1a97-421e-a6b1-fd251c23ab8f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\y cursor">
+      <UniqueIdentifier>{1a6e52d6-3b04-418a-a142-e0748e97d5fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -186,6 +189,24 @@
     <ClInclude Include="vr_string_indexer.h">
       <Filter>Source Files\vr keys</Filter>
     </ClInclude>
+    <ClInclude Include="openvr_cppstub.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Source Files\base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_system_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_cursor_context.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_cursor_common.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_applications_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -277,6 +298,21 @@
     </ClCompile>
     <ClCompile Include="vr_string_indexer.cpp">
       <Filter>Source Files\vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="openvr_cppstub.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Source Files\base</Filter>
+    </ClCompile>
+    <ClCompile Include="url_named.cpp">
+      <Filter>Source Files\base</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_system_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_applications_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

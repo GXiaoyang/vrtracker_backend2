@@ -14,7 +14,7 @@ private:
 	tmp_vector_pool<VRTMPSize> m_tmp_pool;
 	
 	TrackerConfig *m_config;
-	vr_tracker<slab_allocator<char>> *m_tracker;
+	vr_tracker *m_tracker;
 	openvr_broker::open_vr_interfaces *m_interfaces;
 
 public:
@@ -50,11 +50,11 @@ public:
 		}
 		return *m_config;
 	}
-	vr_tracker<slab_allocator<char>>& tracker()
+	vr_tracker& tracker()
 	{
 		if (!m_tracker)
 		{
-			m_tracker = new vr_tracker<slab_allocator<char>>(&s);
+			m_tracker = new vr_tracker(&s);
 			m_tracker->keys.Init(config());
 		}
 		return *m_tracker;

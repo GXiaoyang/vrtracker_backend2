@@ -157,7 +157,9 @@
   <ItemGroup>
     <ClInclude Include="base_serialization.h" />
     <ClInclude Include="history.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="openvr_broker.h" />
+    <ClInclude Include="openvr_cppstub.h" />
     <ClInclude Include="openvr_serialization.h" />
     <ClInclude Include="platform.h" />
     <ClInclude Include="range.h" />
@@ -174,6 +176,7 @@
     <ClInclude Include="tracker_config.h" />
     <ClInclude Include="traverse_graph.h" />
     <ClInclude Include="unit_tests\test_context.h" />
+    <ClInclude Include="vr_applications_cursor.h" />
     <ClInclude Include="vr_applications_indexer.h" />
     <ClInclude Include="vr_applications_properties_indexer.h" />
     <ClInclude Include="vr_applications_wrapper.h" />
@@ -181,6 +184,8 @@
     <ClInclude Include="vr_chaperone_wrapper.h" />
     <ClInclude Include="vr_compositor_wrapper.h" />
     <ClInclude Include="vr_constants.h" />
+    <ClInclude Include="vr_cursor_common.h" />
+    <ClInclude Include="vr_cursor_context.h" />
     <ClInclude Include="vr_device_properties_indexer.h" />
     <ClInclude Include="vr_extended_display_wrapper.h" />
     <ClInclude Include="vr_mime_types_indexer.h" />
@@ -193,6 +198,7 @@
     <ClInclude Include="vr_settings_indexer.h" />
     <ClInclude Include="vr_settings_wrapper.h" />
     <ClInclude Include="vr_string_indexer.h" />
+    <ClInclude Include="vr_system_cursor.h" />
     <ClInclude Include="vr_tmp_vector.h" />
     <ClInclude Include="vr_tracked_camera_wrapper.h" />
     <ClInclude Include="vr_tracker.h" />
@@ -211,8 +217,10 @@
     <ClCompile Include="design_goal.cpp" />
     <ClCompile Include="design_goal2.cpp" />
     <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openvr_broker.cpp" />
+    <ClCompile Include="openvr_cppstub.cpp" />
     <ClCompile Include="rangesplay.cpp" />
     <ClCompile Include="slab_allocator.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -230,6 +238,8 @@
     <ClCompile Include="unit_tests\test_time_containers.cpp" />
     <ClCompile Include="unit_tests\UPDATE.cpp" />
     <ClCompile Include="update_history_visitor.h" />
+    <ClCompile Include="url_named.cpp" />
+    <ClCompile Include="vr_applications_cursor.cpp" />
     <ClCompile Include="vr_applications_indexer.cpp" />
     <ClCompile Include="vr_applications_properties_indexer.cpp" />
     <ClCompile Include="vr_device_properties_indexer.cpp" />
@@ -239,6 +249,7 @@
     <ClCompile Include="vr_resources_indexer.cpp" />
     <ClCompile Include="vr_settings_indexer.cpp" />
     <ClCompile Include="vr_string_indexer.cpp" />
+    <ClCompile Include="vr_system_cursor.cpp" />
     <ClCompile Include="vr_tmp_vector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

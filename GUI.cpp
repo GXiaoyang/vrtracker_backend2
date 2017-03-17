@@ -16,7 +16,7 @@ void GUI_USE_CASE()
 	slab s(1024 * 1024);
 	slab_allocator<char> allocator;
 	slab_allocator<char>::m_temp_slab = &s;
-	vr_tracker<slab_allocator<char>> tracker(&s);
+	vr_tracker tracker(&s);
 
 	auto &system = tracker.m_state.system_node;
 	auto &controllers = tracker.m_state.system_node.controllers;
@@ -48,6 +48,14 @@ void GUI_USE_CASE()
 
 	time_index_t t = a.get_time_index();	// returns an int
 	time_stamp_t ts = tracker.get_time_stamp(a.get_time_index()); // returns a time
+
+	
+
+	// for the cursor use-case make sure I can assign iterators from system state
+	vr_iterator iterators;
+	iterators.system_node.recommended_target_size = tracker.m_state.system_node.recommended_target_size.container.begin();
+
+
 
 												  // IV: return a range
 	auto pose_range = controllers[0].raw_tracking_pose.get_range();

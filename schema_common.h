@@ -20,14 +20,32 @@ struct schema<true>
 };
 
 //
-// Iterator node
+// Iterator node is whatever the 'iterator type' is for the time_indexed_vector
 //
 template <typename ResultType, template <typename, typename> class ContainerType, bool IsIterator, 
 	template <typename> typename Allocator>
 struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocator>::iterator
 {
-	time_node(const base::URL &name = base::URL()) {}
-	base::URL make_url_for_child(const char *child) { return base::URL(); }
+	time_node(const base::URL &name = base::URL()) 
+	{}
+	base::URL make_url_for_child(const char *child) { return base::EMPTY_URL(); }
+
+	time_node(const time_node &rhs) 
+		: time_indexed_vector<ResultType, ContainerType, Allocator>::iterator(rhs)
+	{}
+
+	time_node &operator =(const time_node &rhs)
+	{
+		time_indexed_vector<ResultType, ContainerType, Allocator>::iterator::operator=(rhs);
+		return *this;
+	}
+
+	// important - let the node in a tree be assigned to it's base iterator.
+	time_node &operator =(const typename time_indexed_vector<ResultType, ContainerType, Allocator>::iterator &rhs)
+	{
+		time_indexed_vector<ResultType, ContainerType, Allocator>::iterator::operator=(rhs);
+		return *this;
+	}
 };
 
 //

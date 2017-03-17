@@ -25,8 +25,16 @@ inline uint64_t rdtsc() {
 	return __rdtsc();
 }
 
-
 #define TBL_SIZE(t) (sizeof(t)/sizeof(t[0]))
+
+inline int CLAMP(int min, int max, int sample)
+{
+	if (sample < min)
+		return min;
+	if (sample > max)
+		return max;
+	return sample;
+}
 
 template <typename T>
 constexpr int size_as_int(const T &size_in) {

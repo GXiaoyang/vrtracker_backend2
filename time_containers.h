@@ -34,6 +34,8 @@ private:
 	T value;
 };
 
+// time_indexed_vector:  a container of items wrapped in time_indexed<T>
+//                       a pretty thin layer
 template <	typename T,
 	template <typename, typename> class Container,
 	template <typename> typename A>
@@ -71,6 +73,17 @@ template <	typename T,
 	std::range<iterator> get_range()
 	{
 		return std::range<iterator>(container.begin(), container.end());
+	}
+
+	iterator get_blankiter()
+	{
+		return iterator();
+	}
+
+	iterator last_item_less_than_or_equal_to_time(time_index_t a)
+	{
+		return last_item_less_than_or_equal_to(container.begin(), container.end(), 0,
+			[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 	}
 
 	template<typename... Args>

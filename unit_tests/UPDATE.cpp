@@ -43,7 +43,7 @@ public:
 
 template <typename visitor_fn>
 static void traverse_history_graph_threaded(visitor_fn &visitor,
-	vr_tracker<slab_allocator<char>> *outer_state,
+	vr_tracker *outer_state,
 	openvr_broker::open_vr_interfaces &interfaces) 
 {
 	SystemWrapper			system_wrapper(interfaces.sysi);
@@ -118,7 +118,7 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 
 template <typename visitor_fn>
 static void traverse_history_graph_sequential(visitor_fn &visitor, 
-	vr_tracker<slab_allocator<char>> *outer_state,
+	vr_tracker *outer_state,
 	openvr_broker::open_vr_interfaces &interfaces)
 {
 	SystemWrapper			system_wrapper(interfaces.sysi);
@@ -282,11 +282,6 @@ void UPDATE_USE_CASE()
 	context.vr_interfaces();
 
 
-	//parallel_overlay_test(context.vr_interfaces().ovi);
-
-
-
-
 	// 
 	// Sequential visit 
 	//
@@ -312,13 +307,8 @@ void UPDATE_USE_CASE()
 	}
 
 	
-
 	update_visitor.m_frame_number++;
 	{
-		
-		
-
-
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 		traverse_history_graph_threaded(update_visitor, &context.tracker(), context.vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
