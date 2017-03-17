@@ -36,6 +36,26 @@ struct ValidReturnCode<vr::EVRSettingsError>
 };
 
 template <>
+struct ValidReturnCode<vr::EVRCompositorError>
+{
+	static const vr::EVRCompositorError return_code = vr::VRCompositorError_None;
+};
+
+template <>
+struct ValidReturnCode<vr::EVRRenderModelError>
+{
+	static const vr::EVRRenderModelError return_code = vr::VRRenderModelError_None;
+};
+
+template <>
+struct ValidReturnCode<vr::EVRTrackedCameraError>
+{
+	static const vr::EVRTrackedCameraError return_code = vr::VRTrackedCameraError_None;
+};
+
+
+
+template <>
 struct ValidReturnCode<bool>
 {
 	static const bool return_code = true;

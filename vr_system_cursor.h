@@ -1,6 +1,7 @@
 #pragma once
 #include "openvr_cppstub.h"
 #include "vr_cursor_context.h"
+
 class VRSystemCursor : public VRSystemCppStub
 {
 public:

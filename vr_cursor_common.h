@@ -1,4 +1,6 @@
 #pragma once
+#include "platform.h"
+#include <algorithm>
 
 //
 // macro to ensure that the cursor is up to date with it's state
@@ -57,7 +59,7 @@ inline bool util_vector_to_return_buf_rc(
 	if (pRet && unBufferCount > 0 && required_count > 0)
 	{
 		uint32_t bytes_to_write = std::min(unBufferCount, required_count) * sizeof(T);
-		memcpy(pRet, &p->at(0), bytes_to_write);
+		memcpy(pRet, p->data(), bytes_to_write);
 		if (unBufferCount >= required_count)
 		{
 			big_enough = true;
@@ -114,7 +116,7 @@ inline bool util_vector_to_return_buf_rc(
 		typename std::enable_if<std::is_same<T, char>::value, void>::type *a = nullptr)
 	
 	{
-		assert(p->size() == 0 || p->at(p->size() - 1) == 0); // (proof that p always has the trailing null)
+		assert(p->size() == 0 || p->at(p->size() - 1) == 0); // (proof that p always has the trailing null (to make sure size is consistent for all strings))
 
 		return util_char_to_return_buf_rc(p->data(), (uint32_t)p->size(), pRet, unBufferCount, rc);
 	}

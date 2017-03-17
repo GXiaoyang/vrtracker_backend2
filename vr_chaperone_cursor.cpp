@@ -16,6 +16,7 @@ void VRChaperoneCursor::SynchronizeChildVectors()
 {
 }
 
+
 vr::ChaperoneCalibrationState VRChaperoneCursor::GetCalibrationState()
 {
 	LOG_ENTRY("CppStubGetCalibrationState");

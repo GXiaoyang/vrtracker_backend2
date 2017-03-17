@@ -216,6 +216,36 @@
     <ClInclude Include="vr_render_models_wrapper.h">
       <Filter>Source Files\vr_wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="vr_compositor_cursor.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_overlay_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_render_models_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="openvr_softcompare.h">
+      <Filter>Source Files\vr base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_extended_display_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_screenshots_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_resources_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_notifications_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_tracked_camera_cursor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -330,6 +360,27 @@
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
     <ClCompile Include="vr_chaperone_setup_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_compositor_cursor.cpp">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_overlay_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_render_models_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_extended_display_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_tracked_camera_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_resources_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_cursor.cpp">
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
   </ItemGroup>

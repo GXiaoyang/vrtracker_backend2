@@ -641,4 +641,23 @@ namespace vr_result
 
 	using chaperone_setup_state		= vr_state::chaperone_setup_schema;
 	using chaperone_setup_iterator  = vr_iterator::chaperone_setup_schema;
+
+	using compositor_state       = vr_state::compositor_schema;
+	using compositor_iterator = vr_iterator::compositor_schema;
+
+	using overlay_state       = vr_state::overlay_schema;
+	using overlay_iterator = vr_iterator::overlay_schema;
+
+	using render_models_state       = vr_state::render_models_schema;
+	using render_models_iterator = vr_iterator::render_models_schema;
+
+	using extended_display_state       = vr_state::extended_display_schema;
+	using extended_display_iterator = vr_iterator::extended_display_schema;
+
+	using tracked_camera_state       = vr_state::tracked_camera_schema;
+	using tracked_camera_iterator = vr_iterator::tracked_camera_schema;
+
+	using resources_state       = vr_state::resources_schema;
+	using resources_iterator = vr_iterator::resources_schema;
+
 }

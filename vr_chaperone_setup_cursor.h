@@ -7,7 +7,7 @@ class VRChaperoneSetupCursor : public VRChaperoneSetupCppStub
 	CursorContext *m_context;
 	vr_result::chaperone_setup_state &state_ref;
 	vr_result::chaperone_setup_iterator &iter_ref;
-
+public:
 	VRChaperoneSetupCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
