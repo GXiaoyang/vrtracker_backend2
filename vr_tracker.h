@@ -18,12 +18,23 @@ struct tracker_save_summary
 
 struct vr_tracker
 {
+private:
+	time_index_t m_last_updated_frame_number;
+	time_index_t m_currently_updating_frame_number;
+public:
+
+	time_index_t get_last_updated_frame() const { return m_last_updated_frame_number; }
+	time_index_t get_hot_frame_number()   const { return m_currently_updating_frame_number; }
+
 	static const int LARGE_SEGMENT_SIZE = 5400;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
 
 	slab *m_slab;
 	slab_allocator<char> m_allocator;
 	tmp_vector_pool<VRTMPSize> m_string_pool;
+
+
 	time_index_t m_frame_number;
+
 	std::chrono::time_point<std::chrono::steady_clock> start_time;
 
 	std::mutex update_mutex;
@@ -33,15 +44,9 @@ struct vr_tracker
 	vr_keys keys;
 
 	vr_result::vr_schema<false, std::allocator> s2;
-
 	vr_result::vr_state m_state;
-	// cursors are responsible for detecting changes in m_state on their own
-	// should TreeNodeIF do the same?
-	// the principle is that updates to m_state are not blocked so they should be kept 
-	// up to date in the history walk.  though it should be made cheap to check
-	// when the structure does change.
 
-	std::forward_list<FrameNumberedEvent, VRAllocatorTemplate<FrameNumberedEvent>>  m_events;
+	VRForwardList<FrameNumberedEvent>  m_events;
 	segmented_list<time_stamp_t, LARGE_SEGMENT_SIZE, slab_allocator<time_stamp_t>>  m_time_stamps;
 
 	time_index_t get_closest_time_index(time_stamp_t val)

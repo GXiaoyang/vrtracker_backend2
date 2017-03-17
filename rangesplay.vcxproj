@@ -176,7 +176,7 @@
     <ClInclude Include="tmp_vector.h" />
     <ClInclude Include="tracker_config.h" />
     <ClInclude Include="traverse_graph.h" />
-    <ClInclude Include="unit_tests\test_context.h" />
+    <ClInclude Include="unit_tests\tracker_test_context.h" />
     <ClInclude Include="vr_applications_cursor.h" />
     <ClInclude Include="vr_applications_indexer.h" />
     <ClInclude Include="vr_applications_properties_indexer.h" />
@@ -243,12 +243,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="tracker_config.cpp" />
+    <ClCompile Include="unit_tests\test_cursors.cpp" />
     <ClCompile Include="unit_tests\test_indexers.cpp" />
     <ClCompile Include="unit_tests\test_result.cpp" />
     <ClCompile Include="unit_tests\test_schema_common.cpp" />
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />
     <ClCompile Include="unit_tests\test_slab_allocator.cpp" />
     <ClCompile Include="unit_tests\test_time_containers.cpp" />
+    <ClCompile Include="unit_tests\tracker_test_context.cpp" />
     <ClCompile Include="unit_tests\UPDATE.cpp" />
     <ClCompile Include="update_history_visitor.h" />
     <ClCompile Include="url_named.cpp" />
@@ -259,6 +261,7 @@
     <ClCompile Include="vr_chaperone_setup_cursor.cpp" />
     <ClCompile Include="vr_compositor_cursor.cpp" />
     <ClCompile Include="vr_cursor.cpp" />
+    <ClCompile Include="vr_cursor_context.cpp" />
     <ClCompile Include="vr_device_properties_indexer.cpp" />
     <ClCompile Include="vr_extended_display_cursor.cpp" />
     <ClCompile Include="vr_mime_types_indexer.cpp" />

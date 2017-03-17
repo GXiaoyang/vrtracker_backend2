@@ -1,5 +1,5 @@
 #include "vr_applications_indexer.h"
-#include "test_context.h"
+#include "tracker_test_context.h"
 #include <thread>
 #include "vr_applications_wrapper.h"
 #include <iostream>
@@ -134,17 +134,17 @@ void overlay_test_multi_threading(OverlayIndexer *ai, vr_result::OverlayWrapper 
 
 void TEST_INDEXERS()
 {
-	test_context context;
+	tracker_test_context context;
 
 	{
 		OverlayIndexer oi;
-		vr_result::OverlayWrapper wrap(context.vr_interfaces().ovi);
+		vr_result::OverlayWrapper wrap(context.raw_vr_interfaces().ovi);
 		overlay_test_multi_threading(&oi, &wrap);
 	}
 	
 
 
-	vr_result::ApplicationsWrapper wrap(context.vr_interfaces().appi);
+	vr_result::ApplicationsWrapper wrap(context.raw_vr_interfaces().appi);
 	ApplicationsIndexer ai;
 	app_lookup_perf_test(&ai, &wrap);
 	app_test_multi_threading(&ai, &wrap);

@@ -13,9 +13,11 @@ extern void TEST_SCHEMA_COMMON();
 
 extern void TEST_SLAB_ALLOCATOR();
 extern void TEST_INDEXERS();
+extern void TEST_SYSTEM_CURSOR();
 
 void unit_tests()
 {
+	TEST_SYSTEM_CURSOR();
 	TEST_INDEXERS();
 	TEST_SLAB_ALLOCATOR();
 

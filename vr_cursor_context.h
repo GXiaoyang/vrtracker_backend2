@@ -4,30 +4,28 @@
 #include "vr_keys.h"
 #include "vr_constants.h"
 
+//
+// CursorContext: hold the shared internal state required by the vr_xxxx_cursor objects.
+//
+
+struct vr_tracker;
+
 struct CursorContext
 {
-	CursorContext(
-		time_index_t my_current_frame,
-		vr_result::vr_iterator *my_iterators,
-		vr_result::vr_state *my_state,
-		VRForwardList<FrameNumberedEvent>  *my_events,
-		vr_keys *resource_keys)
-		:
-		last_event_frame_returned(my_current_frame - 1),
-		current_frame(my_current_frame),
-		iterators(my_iterators),
-		state(my_state),
-		m_events(my_events),
-		m_resource_keys(resource_keys)
-	{}
+	CursorContext();
+	~CursorContext();
 
-	int last_event_frame_returned;
-	time_index_t current_frame;
-	vr_result::vr_iterator *iterators;
+	void Init(vr_tracker *);
 
-	vr_result::vr_state *state;
-	VRForwardList<FrameNumberedEvent> *m_events;	// reference into the tracker event. used so iterators
-																// for it can be created
+	time_index_t get_current_frame() const { return m_current_frame;  }
 
+	vr_result::vr_iterator *get_iterators() { return m_iterators;  }
+
+private:
+	time_index_t m_current_frame;
+	time_index_t m_last_event_frame_returned;
+	vr_result::vr_iterator *m_iterators;
+	vr_result::vr_state *m_state;
+	VRForwardList<FrameNumberedEvent> *m_events;
 	vr_keys *m_resource_keys;
 };

@@ -180,9 +180,6 @@
     <ClInclude Include="result.h">
       <Filter>Source Files\base</Filter>
     </ClInclude>
-    <ClInclude Include="unit_tests\test_context.h">
-      <Filter>Source Files\unit tests</Filter>
-    </ClInclude>
     <ClInclude Include="vr_string_indexer.h">
       <Filter>Source Files\vr keys</Filter>
     </ClInclude>
@@ -245,6 +242,9 @@
     </ClInclude>
     <ClInclude Include="vr_tracked_camera_cursor.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unit_tests\tracker_test_context.h">
+      <Filter>Source Files\unit tests</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -381,6 +381,15 @@
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
     <ClCompile Include="vr_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_cursors.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\tracker_test_context.cpp">
+      <Filter>Source Files\unit tests</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_cursor_context.cpp">
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
   </ItemGroup>

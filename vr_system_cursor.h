@@ -4,7 +4,15 @@
 
 class VRSystemCursor : public VRSystemCppStub
 {
+	CursorContext *m_context;
+	vr_result::system_state &state_ref;
+	vr_result::system_iterator &iter_ref;
+	DevicePropertiesIndexer *m_property_indexer;
+
 public:
+	VRSystemCursor(CursorContext *context);
+	void VRSystemCursor::SynchronizeChildVectors();
+
 	void GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight) override;
 	struct vr::HmdMatrix44_t GetProjectionMatrix(vr::EVREye eEye, float fNearZ, float fFarZ) override;
 	void GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * pfRight, float * pfTop, float * pfBottom) override;
@@ -40,14 +48,6 @@ public:
 	const char * GetButtonIdNameFromEnum(vr::EVRButtonId eButtonId) override;
 	const char * GetControllerAxisTypeNameFromEnum(vr::EVRControllerAxisType eAxisType) override;
 	bool IsInputFocusCapturedByAnotherProcess() override;
-
-	CursorContext *m_context;
-	vr_result::system_state &state_ref;
-	vr_result::system_iterator &iter_ref;
-	DevicePropertiesIndexer *m_property_indexer;
-
-	VRSystemCursor(CursorContext *context);
-	void VRSystemCursor::SynchronizeChildVectors();
 
 	bool IsValidDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex);
 	bool lookup_property_index(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop_enum,

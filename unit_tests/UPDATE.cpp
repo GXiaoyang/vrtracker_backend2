@@ -1,7 +1,7 @@
 // rangesplay.cpp : Defines the entry point for the console application.
 //
 
-#include "test_context.h"
+#include "tracker_test_context.h"
 #include "update_history_visitor.h"
 #include "vr_system_wrapper.h"
 #include "traverse_graph.h"
@@ -276,10 +276,7 @@ void UPDATE_USE_CASE()
 	using namespace vr_result;
 	using std::range;
 
-	test_context context;
-
-	&context.tracker();
-	context.vr_interfaces();
+	tracker_test_context context;
 
 
 	// 
@@ -290,7 +287,7 @@ void UPDATE_USE_CASE()
 
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_sequential(update_visitor, &context.tracker(), context.vr_interfaces());
+		traverse_history_graph_sequential(update_visitor, &context.get_tracker(), context.raw_vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "first sequential visit took "
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
@@ -299,7 +296,7 @@ void UPDATE_USE_CASE()
 	
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_sequential(update_visitor, &context.tracker(), context.vr_interfaces());
+		traverse_history_graph_sequential(update_visitor, &context.get_tracker(), context.raw_vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "second sequential visit took "
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
@@ -310,7 +307,7 @@ void UPDATE_USE_CASE()
 	update_visitor.m_frame_number++;
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_threaded(update_visitor, &context.tracker(), context.vr_interfaces());
+		traverse_history_graph_threaded(update_visitor, &context.get_tracker(), context.raw_vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "threaded visit took "
 			<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
@@ -325,7 +322,7 @@ void UPDATE_USE_CASE()
 		
 			update_visitor.m_frame_number++;
 			std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-			traverse_history_graph_threaded(update_visitor, &context.tracker(), context.vr_interfaces());
+			traverse_history_graph_threaded(update_visitor, &context.get_tracker(), context.raw_vr_interfaces());
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 			std::cout 
@@ -338,7 +335,7 @@ void UPDATE_USE_CASE()
 
 	{
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		traverse_history_graph_sequential(update_visitor, &context.tracker(), context.vr_interfaces());
+		traverse_history_graph_sequential(update_visitor, &context.get_tracker(), context.raw_vr_interfaces());
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		std::cout << "final sequential visit took "
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
@@ -350,14 +347,14 @@ void UPDATE_USE_CASE()
 	//
 	// test the read only visitor
 	//
-	int allocs_before = context.tmp_pool()->get_num_alloc_one_calls();
-	int frees_before = context.tmp_pool()->get_num_free_one_calls();
+	int allocs_before = context.get_tmp_pool()->get_num_alloc_one_calls();
+	int frees_before = context.get_tmp_pool()->get_num_free_one_calls();
 	read_only_visitor read_visitor;
-	traverse_history_graph_sequential(read_visitor, &context.tracker(), context.vr_interfaces());
+	traverse_history_graph_sequential(read_visitor, &context.get_tracker(), context.raw_vr_interfaces());
 
 	// see if the read only allocated any temporaries
-	assert(allocs_before == context.tmp_pool()->get_num_alloc_one_calls());
-	assert(frees_before == context.tmp_pool()->get_num_free_one_calls());
+	assert(allocs_before == context.get_tmp_pool()->get_num_alloc_one_calls());
+	assert(frees_before == context.get_tmp_pool()->get_num_free_one_calls());
 
 }
 
