@@ -4,6 +4,7 @@
 #include <atomic>
 #include <thread>
 #include <assert.h>
+#include "log.h"
 
 
 template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>> struct segmented_list;
@@ -262,8 +263,7 @@ public:
 		T* segment = get_allocator().allocate(SegmentSize);
 		if (!segment)
 		{
-			printf("alloc failed");
-			getchar();
+			ABORT("alloc failed");
 		}
 		m_segment_container.emplace_back(segment);
 	}

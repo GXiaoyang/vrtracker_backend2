@@ -3,9 +3,9 @@
 
 #include "vr_tracker_updater.h"
 #include "url_named.h"
+#include "log.h"
 #include <thread>
 #include "tracker_test_context.h"
-#include <iostream>
 
 using namespace vr;
 
@@ -31,11 +31,11 @@ void load_one_overlay_image(const char *overlay_name, vr::IVROverlay *ovi)
 				EVROverlayError err3 = ovi->GetOverlayImageData(handle, buf, required_size, &width, &height);
 				if (err3 == VROverlayError_None)
 				{
-					printf("success\n");
+					log_printf("success\n");
 				}
 				else
 				{
-					printf("failed\n");
+					log_printf("failed\n");
 				}
 				free(buf);
 			}

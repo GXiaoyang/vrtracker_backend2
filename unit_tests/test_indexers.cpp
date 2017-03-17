@@ -2,8 +2,6 @@
 #include "tracker_test_context.h"
 #include <thread>
 #include "vr_applications_wrapper.h"
-#include <iostream>
-
 std::atomic<int> app_reader_done;
 
 static void app_reader(ApplicationsIndexer *ai)
@@ -70,11 +68,8 @@ void app_lookup_perf_test(ApplicationsIndexer *ai, vr_result::ApplicationsWrappe
 		}
 	}
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	std::cout << "lookups took " 
-		<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-		<< "ms.\n";
-
-	printf("%d\n", counter);
+	log_printf("lookups took %lld ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
+	log_printf("%d\n", counter);
 }
 
 

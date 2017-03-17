@@ -5,7 +5,7 @@
 #include <Windows.h>
 
 static bool g_bPrintf = true;
-static bool g_log_to_file = true;
+static bool g_log_to_file = false;
 
 static bool file_opened;
 static FILE *pf;

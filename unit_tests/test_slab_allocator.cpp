@@ -3,9 +3,9 @@
 //
 
 #include "slab_allocator.h"
+#include "log.h"
 #include <vector>
 #include <thread>
-#include <iostream>
 
 void allocator(slab* s, int num_allocs, int alloc_size, char my_id)
 {
@@ -61,10 +61,8 @@ void TEST_SLAB_ALLOCATOR()
 		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 		allocate_from_multiple_threads();
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-		std::cout << "multi threaded allocations took "
-			<< std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-			<< "ms.\n";
-	
+		log_printf("multi threaded allocations took %lld ms.\n",
+			std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
 	
 }
 

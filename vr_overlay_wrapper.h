@@ -81,7 +81,7 @@ namespace vr_result
 				}
 				else
 				{
-					//printf("%p %p %d\n", ovi, ptr, size);
+					//log_printf("%p %p %d\n", ovi, ptr, size);
 					vr::EVROverlayError err2 = ovi->GetOverlayImageData(ulOverlayHandle, ptr, size, &width_query, &height_query);
 					if (err2 != vr::VROverlayError_None)
 					{

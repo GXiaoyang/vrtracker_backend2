@@ -97,7 +97,7 @@ struct xResult
 	template <typename ResultType2>
 	xResult(const ResultType2 &rhs)
 	{
-		printf("hoo hoo");
+		log_printf("hoo hoo");
 	}
 
 };
@@ -126,7 +126,7 @@ void UPDATE_USE_CASE()
 	update_history_visitor visitor(1);
 	if (state.system_node.seconds_since_last_vsync.empty())
 	{
-		printf("bla");
+		log_printf("bla");
 	}
 	visitor.start_group_node(state.system_node.get_url(), 0);
 
@@ -138,8 +138,8 @@ void UPDATE_USE_CASE()
 #endif
 
 
-	printf("%d", state.system_node.controllers[0].activity_level.latest().get_value().val);
-	printf("%d", state.system_node.controllers[0].bool_props[0].latest().get_value().val);
+	log_printf("%d", state.system_node.controllers[0].activity_level.latest().get_value().val);
+	log_printf("%d", state.system_node.controllers[0].bool_props[0].latest().get_value().val);
 	
 	
 

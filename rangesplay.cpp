@@ -221,7 +221,7 @@ void range_test()
 	assert(*result.begin() == 10);
 	assert(result.end() == a.end());
 
-printf("bla");
+log_printf("bla");
 }
 
 
@@ -273,7 +273,7 @@ void result_test()
 	}
 
 	std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
-	printf("v1 took %lld us\n", std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count());
+	log_printf("v1 took %lld us\n", std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count());
 
 	getchar();
 //	av1 = av3;
@@ -524,7 +524,7 @@ int main()
 	}
 
 	std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
-	printf("v1 took %lld us\n", std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count());
+	log_printf("v1 took %lld us\n", std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count());
 
 	// one step - way faster
 	{

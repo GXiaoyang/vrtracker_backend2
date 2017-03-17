@@ -9,11 +9,7 @@
 #include "update_history_visitor.h"
 #include "vr_tracker.h"
 
-
-#include <iostream>
-
 using namespace vr_result;
-
 
 class named_task_group : public tbb::task_group
 {
@@ -34,7 +30,7 @@ public:
 		uint64_t start = rdtsc();
 		t();
 		uint64_t end = rdtsc();
-		//printf("%s %lld\n", name, end - start);
+		//log_printf("%s %lld\n", name, end - start);
 	}
 	void wait() {}
 };
@@ -133,9 +129,8 @@ void vr_tracker_updater::update_tracker_parallel(vr_tracker *tracker, openvr_bro
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	traverse_history_graph<named_task_group>(&update_visitor, tracker, interfaces);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	std::cout << "parallel update took "
-		<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
-		<< "us.\n";
+	log_printf("parallel update took %lld us.\n",
+		std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
 
 	tracker->m_last_updated_frame_number = last_updated + 1;
 }
@@ -148,8 +143,8 @@ void vr_tracker_updater::update_tracker_sequential(vr_tracker *tracker, openvr_b
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	traverse_history_graph<ExecuteImmediatelyTaskGroup>(&update_visitor, tracker, interfaces);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	std::cout << "sequential visit took "
-		<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
-		<< "us.\n";
+	log_printf("sequential update took %lld us.\n",
+		std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+	
 	tracker->m_last_updated_frame_number = last_updated + 1;
 }

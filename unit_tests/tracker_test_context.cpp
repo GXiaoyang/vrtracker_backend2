@@ -65,7 +65,7 @@ openvr_broker::open_vr_interfaces &tracker_test_context::raw_vr_interfaces()
 		bool acquired = openvr_broker::acquire_interfaces("raw", m_interfaces, &error);
 		if (!acquired)
 		{
-			printf("error! %s", error);
+			log_printf("error! %s", error);
 			exit(1);
 		}
 	}

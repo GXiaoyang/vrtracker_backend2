@@ -104,14 +104,14 @@ void read_ordering_test_int()
 
 	for (int fast_writer = 0; fast_writer < 2; fast_writer++)
 	{
-		for (int num_readers = 1; num_readers < 10; num_readers++)
+		for (int num_readers = 1; num_readers < 3; num_readers++)
 		{
 			SimpleAllocator<int> ss;
 			typedef segmented_list<int, SegmentSize, SimpleAllocator<int>> list_t;
 			//typedef std::list<int, SimpleAllocator<int>> list_t;
 			list_t shared_list(ss);
 			std::vector<std::thread*> threads;
-			printf("threading test. SegmentSize: %d starting with fast: %d num_readers %d\n", SegmentSize, fast_writer, num_readers);
+			log_printf("threading test. SegmentSize: %d starting with fast: %d num_readers %d\n", SegmentSize, fast_writer, num_readers);
 			for (int i = 0; i < num_readers; i++)
 			{
 				std::thread *t = new std::thread(reader<list_t>, NUM_WRITES, expected_value, termination_value, &shared_list);
@@ -124,7 +124,7 @@ void read_ordering_test_int()
 			{
 				(*iter)->join();
 				num_joined++;
-				printf("joined: %d\n", num_joined);
+				log_printf("joined: %d\n", num_joined);
 				delete *iter;
 			}
 		}	
@@ -241,10 +241,8 @@ template<typename T, size_t N>
 void binary_search_test()
 {
 	{
-		int randomish_size = 1024 + (rand() % 50) - 25;
 		std::vector<int> ref;
-		ref.reserve(randomish_size);
-		for (int i = 0; i < randomish_size; i++)
+		for (int i = 0; i < 30; i++)
 		{
 			T val = rand();
 			ref.emplace_back(val);
@@ -258,7 +256,7 @@ void binary_search_test()
 		
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 
-		for (int i = 0; i < 1024; i++)
+		for (int i = 0; i < 30; i++)
 		{
 			T val = rand();
 			auto ref_first = first_item_greater_than_or_equal_to(ref.begin(), ref.end(), val);
@@ -361,7 +359,7 @@ void test_random_access_iterators()
 {
 	segmented_list<T, N> segmented_list0;
 	std::vector<T> ref;
-	for (int i = 0; i < 1024; i++)
+	for (int i = 0; i < 30; i++)
 	{
 		segmented_list0.emplace_back(i);
 		ref.emplace_back(i);
@@ -371,7 +369,7 @@ void test_random_access_iterators()
 	auto iter2 = segmented_list0.begin();
 	auto iter_ref = ref.begin();
 	assert(iter1 == iter2);
-	for (int i = 0; i < 1024; i++)
+	for (int i = 0; i < 30; i++)
 	{
 		assert(*iter1 == *iter2);
 		assert(*iter_ref == *iter1);
@@ -386,7 +384,7 @@ void test_random_access_iterators()
 	{
 		auto iter1 = segmented_list0.begin();	// check that incrementing by 1 is the same as ++
 		auto iter_ref = ref.begin();
-		for (int i = 0; i < 512; i++)
+		for (int i = 0; i < 15; i++)
 		{
 			assert(*iter_ref == *iter1);
 			iter1 += 2;
@@ -397,13 +395,13 @@ void test_random_access_iterators()
 
 	// check walking backwards 1 at a time
 	{
-		segmented_list<T, N> segmented_list0(1024);
-		std::vector<T> ref(1024);
+		segmented_list<T, N> segmented_list0(30);
+		std::vector<T> ref(30);
 		std::iota(segmented_list0.begin(), segmented_list0.end(), 1);
 		std::iota(ref.begin(), ref.end(), 1);
 		auto iter1 = segmented_list0.end();	// check that incrementing by 1 is the same as ++
 		auto iter_ref = ref.end();
-		for (int i = 0; i < 1024; i++)
+		for (int i = 0; i < 30; i++)
 		{
 			iter1--;
 			iter_ref--;
@@ -416,13 +414,13 @@ void test_random_access_iterators()
 	// check walking backwards 2 at a time, 
 	
 	{
-		segmented_list<T, N> segmented_list0(1024);
-		std::vector<T> ref(1024);
+		segmented_list<T, N> segmented_list0(30);
+		std::vector<T> ref(30);
 		std::iota(segmented_list0.begin(), segmented_list0.end(), 1);
 		std::iota(ref.begin(), ref.end(), 1);
 		auto iter1 = segmented_list0.end();	// check that incrementing by 1 is the same as ++
 		auto iter_ref = ref.end();
-		for (int i = 0; i < 512; i++)
+		for (int i = 0; i < 15; i++)
 		{
 			iter1-=2;
 			iter_ref-=2;
@@ -434,13 +432,13 @@ void test_random_access_iterators()
 	
 	// check walking backwards 2 at a time using + negative values
 	{
-		segmented_list<T, N> segmented_list0(1024);
-		std::vector<T> ref(1024);
+		segmented_list<T, N> segmented_list0(30);
+		std::vector<T> ref(30);
 		std::iota(segmented_list0.begin(), segmented_list0.end(), 1);
 		std::iota(ref.begin(), ref.end(), 1);
 		auto iter1 = segmented_list0.end();	// check that incrementing by 1 is the same as ++
 		auto iter_ref = ref.end();
-		for (int i = 0; i < 512; i++)
+		for (int i = 0; i < 15; i++)
 		{
 			iter1 += -2;
 			iter_ref += -2;
@@ -452,13 +450,13 @@ void test_random_access_iterators()
 
 	// check - operator on iterators
 	{
-		segmented_list<T, N> segmented_list0(1024);
-		std::vector<T> ref(1024);
+		segmented_list<T, N> segmented_list0(30);
+		std::vector<T> ref(30);
 		std::iota(segmented_list0.begin(), segmented_list0.end(), 1);
 		std::iota(ref.begin(), ref.end(), 1);
 		auto iter1 = segmented_list0.end();	// check that incrementing by 1 is the same as ++
 		auto iter_ref = ref.end();
-		for (int i = 0; i < 512; i++)
+		for (int i = 0; i < 15; i++)
 		{
 			auto tmp1 = iter1 - 2;
 			auto tmpref = iter_ref - 2;
@@ -470,11 +468,11 @@ void test_random_access_iterators()
 
 	// [] operator
 	{
-		segmented_list<T, N> segmented_list0(1024);
-		std::vector<T> ref(1024);
+		segmented_list<T, N> segmented_list0(30);
+		std::vector<T> ref(30);
 		std::iota(segmented_list0.begin(), segmented_list0.end(), 1);
 		std::iota(ref.begin(), ref.end(), 1);
-		for (int i = 0; i < 1024; i++)
+		for (int i = 0; i < 30; i++)
 		{
 			T &a = segmented_list0.begin()[i];
 			T &b = ref.begin()[i];
@@ -485,11 +483,11 @@ void test_random_access_iterators()
 	// ordering relations
 	// a < b
 	{
-		segmented_list<T, N> segmented_list0(1024);
-		std::vector<T> ref(1024);
+		segmented_list<T, N> segmented_list0(30);
+		std::vector<T> ref(30);
 		std::iota(segmented_list0.begin(), segmented_list0.end(), 1);
 		std::iota(ref.begin(), ref.end(), 1);
-		for (int i = 0; i < 1024; i++)
+		for (int i = 0; i < 30; i++)
 		{
 			assert(segmented_list0.begin() < segmented_list0.end());
 			assert(ref.begin() < ref.end());
@@ -500,7 +498,7 @@ void test_random_access_iterators()
 			assert(segmented_list0.end() >= segmented_list0.begin());
 			assert(ref.end() >= ref.begin());
 
-			if (i < 1023)
+			if (i < 29)
 			{
 				assert(segmented_list0.begin()[i] < segmented_list0.begin()[i + 1]);
 				assert(segmented_list0.begin()[i] <= segmented_list0.begin()[i + 1]);
@@ -526,7 +524,7 @@ void compare_against_ref()
 	segmented_list<T, N> segmented_list_empty1; // empty after every insert
 	segmented_list<T, N> segmented_list_empty10; // empty after every 10 insert
 	
-	for (int i = 0; i < 1024; i++)
+	for (int i = 0; i < 30; i++)
 	{
 		// emplace
 		segmented_list0.emplace_back(i);
@@ -679,31 +677,30 @@ static void basic_behaviour_test()
 {
 	const_test<10>();
 
-	printf("compare segmented list vs vector constructor\n");
+	log_printf("compare segmented list vs vector constructor\n");
 	initializer_test_iter_constructor<1>();
 	initializer_test_iter_constructor<2>();
 	initializer_test_iter_constructor<5>();
 
-	printf("compare segmented list vs vector initializer where the element_type is string\n");
+	log_printf("compare segmented list vs vector initializer where the element_type is string\n");
 	initializer_test_string<1>();
 	initializer_test_string<2>();
 	initializer_test_string<5>();
 
-	printf("compare segmented list vs vector initializer where the element_type is int\n");
+	log_printf("compare segmented list vs vector initializer where the element_type is int\n");
 	initializer_test<1>();
 	initializer_test<2>();
 	initializer_test<5>();
 
-	printf("binary search test of segmented list vs vector\n");
+	log_printf("binary search test of segmented list vs vector\n");
 	binary_search_test<int, 1>();
 	binary_search_test<int, 2>();
-	binary_search_test<int, 1022>();
-	binary_search_test<int, 1023>();
-	binary_search_test<int, 1024>();
-	binary_search_test<int, 1025>();
+	binary_search_test<int, 29>();
+	binary_search_test<int, 30>();
+	binary_search_test<int, 31>();
 
 	// sort test of segmented list vs vector
-	printf("sort test of segmented list vs vector\n");
+	log_printf("sort test of segmented list vs vector\n");
 	sort_test<int, 1>();
 	sort_test<int, 2>();
 	sort_test<int, 3>();
@@ -715,14 +712,14 @@ static void basic_behaviour_test()
 	sort_test<int, 2048>();
 
 
-	printf("catchall test of segmented list vs vector\n");
+	log_printf("catchall test of segmented list vs vector\n");
 	compare_against_ref<int, 1>();
 	compare_against_ref<int, 2>();
-	compare_against_ref<int, 1023>();
-	compare_against_ref<int, 1024>();
-	compare_against_ref<int, 1025>();
+	compare_against_ref<int, 29>();
+	compare_against_ref<int, 30>();
+	compare_against_ref<int, 31>();
 
-	printf("random access test of segmented list vs vector\n");
+	log_printf("random access test of segmented list vs vector\n");
 	test_random_access_iterators<int, 1>();
 	test_random_access_iterators<int, 2>();
 	test_random_access_iterators<int, 3>();
@@ -732,7 +729,7 @@ static void basic_behaviour_test()
 	test_random_access_iterators<int, 1024>();
 	test_random_access_iterators<int, 1025>();
 
-	printf("emplace back tests\n");
+	log_printf("emplace back tests\n");
 	segmented_list<int, 1> l1;
 	for (int i = 0; i < 1024; i++)
 	{
@@ -758,7 +755,7 @@ static void basic_behaviour_test()
 
 	//160 bytes in debug
 	// 8 bytes in release
-	printf("sizeof iterator %d", sizeof(s));
+	log_printf("sizeof iterator %d", sizeof(s));
 }
 
 static void segmented_list_allocators()
