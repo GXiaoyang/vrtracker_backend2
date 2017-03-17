@@ -297,9 +297,9 @@ namespace vr_result
 			TIMENODE<HmdColor<>>					camera_color;
 		};
 
-		struct chaperonesetup_schema : schema<is_iterator>
+		struct chaperone_setup_schema : schema<is_iterator>
 		{
-			chaperonesetup_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
+			chaperone_setup_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(working_play_area_size),
 				INIT(working_play_area_rect),
@@ -506,9 +506,9 @@ namespace vr_result
 			VECTOR_OF_SCHEMAS<rendermodel_component_schema> components;
 		};
 
-		struct rendermodels_schema : schema<is_iterator>
+		struct render_models_schema : schema<is_iterator>
 		{
-			rendermodels_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
+			render_models_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(models),
 				structure_version(-1)
@@ -546,9 +546,9 @@ namespace vr_result
 			VECTOR_OF_SCHEMAS<cameraframetype_schema> cameraframetypes;
 		};
 
-		struct trackedcamera_schema : schema<is_iterator>
+		struct tracked_camera_schema : schema<is_iterator>
 		{
-			trackedcamera_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
+			tracked_camera_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(controllers)
 			{}
@@ -556,9 +556,9 @@ namespace vr_result
 			VECTOR_OF_SCHEMAS<controller_camera_schema> controllers;
 		};
 
-		struct extendeddisplay_schema : schema<is_iterator>
+		struct extended_display_schema : schema<is_iterator>
 		{
-			extendeddisplay_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
+			extended_display_schema(const base::URL &name = base::URL::EMPTY_URL ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(window_bounds),
 				INIT(left_output_viewport),
@@ -605,9 +605,9 @@ namespace vr_result
 			INIT(chaperone_setup_node),
 			INIT(compositor_node),
 			INIT(overlay_node),
-			INIT(rendermodels_node),
-			INIT(extendeddisplay_node),
-			INIT(trackedcamera_node),
+			INIT(render_models_node),
+			INIT(extended_display_node),
+			INIT(tracked_camera_node),
 			INIT(resources_node)
 		{}
 
@@ -615,12 +615,12 @@ namespace vr_result
 		applications_schema		applications_node;
 		settings_schema			settings_node;
 		chaperone_schema		chaperone_node;
-		chaperonesetup_schema	chaperone_setup_node;
+		chaperone_setup_schema	chaperone_setup_node;
 		compositor_schema		compositor_node;
 		overlay_schema			overlay_node;
-		rendermodels_schema		rendermodels_node;
-		extendeddisplay_schema	extendeddisplay_node;
-		trackedcamera_schema	trackedcamera_node;
+		render_models_schema	render_models_node;
+		extended_display_schema	extended_display_node;
+		tracked_camera_schema	tracked_camera_node;
 		resources_schema        resources_node;
 	};
 	
@@ -632,5 +632,13 @@ namespace vr_result
 
 	using applications_state       = vr_state::applications_schema;
 	using applications_iterator = vr_iterator::applications_schema;
+
+	using settings_state    =    vr_state::settings_schema;
+	using settings_iterator = vr_iterator::settings_schema;
 	
+	using chaperone_state       = vr_state::chaperone_schema;
+	using chaperone_iterator = vr_iterator::chaperone_schema;
+
+	using chaperone_setup_state		= vr_state::chaperone_setup_schema;
+	using chaperone_setup_iterator  = vr_iterator::chaperone_setup_schema;
 }

@@ -180,6 +180,8 @@
     <ClInclude Include="vr_applications_indexer.h" />
     <ClInclude Include="vr_applications_properties_indexer.h" />
     <ClInclude Include="vr_applications_wrapper.h" />
+    <ClInclude Include="vr_chaperone_cursor.h" />
+    <ClInclude Include="vr_chaperone_setup_cursor.h" />
     <ClInclude Include="vr_chaperone_setup_wrapper.h" />
     <ClInclude Include="vr_chaperone_wrapper.h" />
     <ClInclude Include="vr_compositor_wrapper.h" />
@@ -192,9 +194,10 @@
     <ClInclude Include="vr_overlay_indexer.h" />
     <ClInclude Include="vr_overlay_wrapper.h" />
     <ClInclude Include="vr_properties_indexer.h" />
-    <ClInclude Include="vr_render_model_wrapper.h" />
+    <ClInclude Include="vr_render_models_wrapper.h" />
     <ClInclude Include="vr_resources_indexer.h" />
     <ClInclude Include="vr_resources_wrapper.h" />
+    <ClInclude Include="vr_settings_cursor.h" />
     <ClInclude Include="vr_settings_indexer.h" />
     <ClInclude Include="vr_settings_wrapper.h" />
     <ClInclude Include="vr_string_indexer.h" />
@@ -242,11 +245,14 @@
     <ClCompile Include="vr_applications_cursor.cpp" />
     <ClCompile Include="vr_applications_indexer.cpp" />
     <ClCompile Include="vr_applications_properties_indexer.cpp" />
+    <ClCompile Include="vr_chaperone_cursor.cpp" />
+    <ClCompile Include="vr_chaperone_setup_cursor.cpp" />
     <ClCompile Include="vr_device_properties_indexer.cpp" />
     <ClCompile Include="vr_mime_types_indexer.cpp" />
     <ClCompile Include="vr_overlay_indexer.cpp" />
     <ClCompile Include="vr_properties_indexer.cpp" />
     <ClCompile Include="vr_resources_indexer.cpp" />
+    <ClCompile Include="vr_settings_cursor.cpp" />
     <ClCompile Include="vr_settings_indexer.cpp" />
     <ClCompile Include="vr_string_indexer.cpp" />
     <ClCompile Include="vr_system_cursor.cpp" />

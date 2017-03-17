@@ -9,9 +9,9 @@ namespace vr_result
 {
 	using namespace vr;
 
-	struct RenderModelWrapper
+	struct RenderModelsWrapper
 	{
-		RenderModelWrapper(IVRRenderModels *remi_in)
+		RenderModelsWrapper(IVRRenderModels *remi_in)
 			: remi(remi_in)
 		{}
 

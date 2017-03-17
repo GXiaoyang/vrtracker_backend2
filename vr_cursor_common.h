@@ -1,5 +1,19 @@
 #pragma once
 
+//
+// macro to ensure that the cursor is up to date with it's state
+// also defines a 'local_name' which holds a pointer to the result
+//
+#define CURSOR_ITER_NAME(local_name) local_name ## _iter	// temporary variable
+#define CURSOR_SYNC_STATE(local_name, variable_name) \
+SynchronizeChildVectors();\
+auto CURSOR_ITER_NAME(local_name) = iter_ref.variable_name;\
+update_iter(CURSOR_ITER_NAME(local_name),\
+	state_ref.variable_name,\
+	m_context->current_frame);\
+auto *local_name = &CURSOR_ITER_NAME(local_name)->get_value();
+
+
 // align the iterator node to the closest, rounding down , value in the history node for cursor_frame
 template <typename T, typename U>
 static void update_iter(T& cached_iterator, U &history_node, time_index_t cursor_frame)

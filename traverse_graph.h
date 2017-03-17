@@ -4,7 +4,7 @@
 #include "vr_schema.h"
 
 #include "vr_system_wrapper.h"
-#include "vr_render_model_wrapper.h"
+#include "vr_render_models_wrapper.h"
 #include "vr_applications_wrapper.h"
 #include "vr_settings_wrapper.h"
 #include "vr_chaperone_wrapper.h"
@@ -121,7 +121,7 @@ static void visit_eye_state(visitor_fn &visitor,
 
 template <typename visitor_fn>
 static void visit_component_on_controller_schema(
-	visitor_fn &visitor, vr_state::component_on_controller_schema *ss, RenderModelWrapper *wrap,
+	visitor_fn &visitor, vr_state::component_on_controller_schema *ss, RenderModelsWrapper *wrap,
 	const char *render_model_name,
 	ControllerState<bool> &controller_state,
 	uint32_t component_index)
@@ -231,7 +231,7 @@ template <typename visitor_fn>
 static void visit_controller_state(visitor_fn &visitor,
 	vr_state::system_controller_schema *ss,
 	vr_state::system_schema *system_ss,
-	SystemWrapper *wrap, RenderModelWrapper *rmw,
+	SystemWrapper *wrap, RenderModelsWrapper *rmw,
 	int controller_index,
 	PropertiesIndexer *indexer)
 {
@@ -339,7 +339,7 @@ static void visit_system_node(
 	visitor_fn &visitor,
 	vr_state::system_schema *ss,
 	IVRSystem *sysi, SystemWrapper *sysw,
-	RenderModelWrapper *rmw,
+	RenderModelsWrapper *rmw,
 	vr_keys *keys,
 	task_group &g)
 {
@@ -958,7 +958,7 @@ static void visit_chaperone_node(
 
 
 template <typename visitor_fn>
-static void visit_chaperone_setup_node(visitor_fn &visitor, vr_state::chaperonesetup_schema *ss, ChaperoneSetupWrapper *wrap)
+static void visit_chaperone_setup_node(visitor_fn &visitor, vr_state::chaperone_setup_schema *ss, ChaperoneSetupWrapper *wrap)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	VISIT(working_play_area_size, wrap->GetWorkingPlayAreaSize());
@@ -1054,7 +1054,7 @@ template <typename visitor_fn>
 static void visit_permodelcomponent(
 	visitor_fn &visitor,
 	vr_state::rendermodel_component_schema *ss,
-	RenderModelWrapper *wrap,
+	RenderModelsWrapper *wrap,
 	const char *pchRenderModelName, uint32_t component_index)
 {
 	visitor.start_group_node(ss->get_url(), component_index);
@@ -1079,7 +1079,7 @@ template <typename visitor_fn>
 static void visit_rendermodel(visitor_fn &visitor,
 	vr_state::rendermodel_schema *ss,
 	int *structure_version,
-	RenderModelWrapper *wrap,
+	RenderModelsWrapper *wrap,
 	uint32_t unRenderModelIndex)
 {
 	const char *render_model_name = ss->get_name().c_str();
@@ -1381,8 +1381,8 @@ static void visit_overlay_state(visitor_fn &visitor, vr_state::overlay_schema *s
 }
 
 template <typename visitor_fn, typename TaskGroup>
-static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_schema *ss, 
-	RenderModelWrapper *wrap, TaskGroup &g)
+static void visit_rendermodel_state(visitor_fn &visitor, vr_state::render_models_schema *ss, 
+	RenderModelsWrapper *wrap, TaskGroup &g)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 
@@ -1422,7 +1422,7 @@ static void visit_rendermodel_state(visitor_fn &visitor, vr_state::rendermodels_
 
 
 template <typename visitor_fn>
-static void visit_extended_display_state(visitor_fn &visitor, vr_state::extendeddisplay_schema *ss, ExtendedDisplayWrapper *wrap)
+static void visit_extended_display_state(visitor_fn &visitor, vr_state::extended_display_schema *ss, ExtendedDisplayWrapper *wrap)
 {
 	visitor.start_group_node(ss->get_url(), -1);
 	VISIT(window_bounds, wrap->GetWindowBounds());
@@ -1500,7 +1500,7 @@ static void visit_per_controller_state(visitor_fn &visitor,
 
 template <typename visitor_fn>
 static void visit_trackedcamera_state(visitor_fn &visitor,
-	vr_state::trackedcamera_schema *ss, TrackedCameraWrapper *wrap,
+	vr_state::tracked_camera_schema *ss, TrackedCameraWrapper *wrap,
 	vr_keys *keys
 	)
 {

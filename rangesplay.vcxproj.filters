@@ -90,9 +90,6 @@
     <ClInclude Include="vr_system_wrapper.h">
       <Filter>Source Files\vr_wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="vr_render_model_wrapper.h">
-      <Filter>Source Files\vr_wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="platform.h">
       <Filter>Source Files\base</Filter>
     </ClInclude>
@@ -207,6 +204,18 @@
     <ClInclude Include="vr_applications_cursor.h">
       <Filter>Source Files\y cursor</Filter>
     </ClInclude>
+    <ClInclude Include="vr_settings_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_chaperone_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_chaperone_setup_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_render_models_wrapper.h">
+      <Filter>Source Files\vr_wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -312,6 +321,15 @@
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
     <ClCompile Include="vr_applications_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_settings_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_chaperone_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_chaperone_setup_cursor.cpp">
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
   </ItemGroup>

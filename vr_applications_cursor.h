@@ -11,7 +11,6 @@ struct VRApplicationsCursor : public VRApplicationsCppStub
 	ApplicationsIndexer *m_applications_indexer;
 	ApplicationsPropertiesIndexer *m_property_indexer;
 
-
 	VRApplicationsCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 	bool IsApplicationInstalled(const char * pchAppKey) override;

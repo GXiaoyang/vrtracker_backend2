@@ -30,6 +30,12 @@ struct ValidReturnCode<vr::EVROverlayError>
 };
 
 template <>
+struct ValidReturnCode<vr::EVRSettingsError>
+{
+	static const vr::EVRSettingsError return_code = vr::VRSettingsError_None;
+};
+
+template <>
 struct ValidReturnCode<bool>
 {
 	static const bool return_code = true;

@@ -53,7 +53,7 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 	ChaperoneSetupWrapper	chaperone_setup_wrapper(interfaces.chapsi);
 	CompositorWrapper		compositor_wrapper(interfaces.compi);
 	OverlayWrapper			overlay_wrapper(interfaces.ovi);
-	RenderModelWrapper		rendermodel_wrapper(interfaces.remi);
+	RenderModelsWrapper		rendermodel_wrapper(interfaces.remi);
 	ExtendedDisplayWrapper	extended_display_wrapper(interfaces.exdi);
 	TrackedCameraWrapper	tracked_camera_wrapper(interfaces.taci);
 	ResourcesWrapper		resources_wrapper(interfaces.resi);
@@ -98,15 +98,15 @@ static void traverse_history_graph_threaded(visitor_fn &visitor,
 		visit_overlay_state(visitor, &s->overlay_node, &overlay_wrapper, keys, g);
 	});
 
-	visit_rendermodel_state(visitor, &s->rendermodels_node, &rendermodel_wrapper, g);
+	visit_rendermodel_state(visitor, &s->render_models_node, &rendermodel_wrapper, g);
 	
 	g.run("visit_extended_display_state",
 		[&] {
-		visit_extended_display_state(visitor, &s->extendeddisplay_node, &extended_display_wrapper);
+		visit_extended_display_state(visitor, &s->extended_display_node, &extended_display_wrapper);
 	});
 	g.run("visit_tracked_camera_state",
 		[&] {
-		visit_trackedcamera_state(visitor, &s->trackedcamera_node, &tracked_camera_wrapper, keys);
+		visit_trackedcamera_state(visitor, &s->tracked_camera_node, &tracked_camera_wrapper, keys);
 	});
 	g.run("visit_resources_state",
 		[&] {
@@ -128,7 +128,7 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 	ChaperoneSetupWrapper	chaperone_setup_wrapper(interfaces.chapsi);
 	CompositorWrapper		compositor_wrapper(interfaces.compi);
 	OverlayWrapper			overlay_wrapper(interfaces.ovi);
-	RenderModelWrapper		rendermodel_wrapper(interfaces.remi);
+	RenderModelsWrapper		rendermodel_wrapper(interfaces.remi);
 	ExtendedDisplayWrapper	extended_display_wrapper(interfaces.exdi);
 	TrackedCameraWrapper	tracked_camera_wrapper(interfaces.taci);
 	ResourcesWrapper		resources_wrapper(interfaces.resi);
@@ -159,11 +159,11 @@ static void traverse_history_graph_sequential(visitor_fn &visitor,
 	tbb::tick_count t6 = tbb::tick_count::now();
 	visit_overlay_state(visitor, &s->overlay_node, &overlay_wrapper, keys, dummy);
 	tbb::tick_count t7 = tbb::tick_count::now();
-	visit_rendermodel_state(visitor, &s->rendermodels_node, &rendermodel_wrapper, dummy);
+	visit_rendermodel_state(visitor, &s->render_models_node, &rendermodel_wrapper, dummy);
 	tbb::tick_count t8 = tbb::tick_count::now();
-	visit_extended_display_state(visitor, &s->extendeddisplay_node, &extended_display_wrapper);
+	visit_extended_display_state(visitor, &s->extended_display_node, &extended_display_wrapper);
 	tbb::tick_count t9 = tbb::tick_count::now();
-	visit_trackedcamera_state(visitor, &s->trackedcamera_node, &tracked_camera_wrapper,
+	visit_trackedcamera_state(visitor, &s->tracked_camera_node, &tracked_camera_wrapper,
 			keys);
 	tbb::tick_count t10 = tbb::tick_count::now();
 	visit_resources_state(visitor, &s->resources_node, &resources_wrapper, keys);
