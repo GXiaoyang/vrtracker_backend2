@@ -160,7 +160,7 @@ bool not_equals(const Result<ElementType, ReturnCode> &a, const Result<ResultTyp
 {
 	if (return_code_not_equals(a,b))
 		return true;
-	if (a.val != b.val)
+	if (a.is_present() && a.val != b.val)
 		return true;
 	return false;
 }
@@ -178,10 +178,13 @@ bool not_equals(
 
 	if (return_code_not_equals(a, b))
 		return true;
-	if (a.val.size() != b.val.size())
-		return true;
-	if (memcmp(a.val.data(), b.val.data(), b.val.size() * sizeof(a.val[0])) != 0)
-		return true;
+	if (a.is_present())
+	{
+		if (a.val.size() != b.val.size())
+			return true;
+		if (memcmp(a.val.data(), b.val.data(), b.val.size() * sizeof(a.val[0])) != 0)
+			return true;
+	}
 	return false;
 }
 

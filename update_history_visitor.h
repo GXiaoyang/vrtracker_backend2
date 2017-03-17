@@ -40,6 +40,8 @@ struct update_history_visitor
 	template <typename HistoryVectorType, typename ResultType>
 	void visit_node(HistoryVectorType &history,  ResultType &latest_result)
 	{
+		// add the entry if its new,
+		// or the presence has changed
 		if (history.empty() || not_equals(history.latest().get_value(), latest_result))
 		{
 			history.emplace_back(m_frame_number, latest_result);

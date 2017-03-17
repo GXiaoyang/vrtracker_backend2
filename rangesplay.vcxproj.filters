@@ -247,7 +247,7 @@
       <Filter>Source Files\unit tests</Filter>
     </ClInclude>
     <ClInclude Include="vr_tracker_updater.h">
-      <Filter>Source Files\w tracker</Filter>
+      <Filter>Source Files\x vr visitors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -396,7 +396,7 @@
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
     <ClCompile Include="vr_tracker_updater.cpp">
-      <Filter>Source Files\w tracker</Filter>
+      <Filter>Source Files\x vr visitors</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
