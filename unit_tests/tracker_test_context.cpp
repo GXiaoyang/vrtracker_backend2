@@ -14,7 +14,8 @@ tracker_test_context::tracker_test_context()
 	m_tracker(nullptr),
 	m_interfaces(nullptr)
 {
-
+	slab_allocator_base::m_temp_slab = &s;
+	vr_tmp_vector_base::m_global_pool = &m_tmp_pool;
 }
 
 tracker_test_context::~tracker_test_context()

@@ -20,6 +20,10 @@ auto *local_name = &CURSOR_ITER_NAME(local_name)->get_value();
 template <typename T, typename U>
 static void update_iter(T& cached_iterator, U &history_node, time_index_t cursor_frame)
 {
+	if (history_node.empty())
+	{
+		ABORT("error node is empty. this should happen to the cursor interfaces");
+	}
 	cached_iterator = history_node.last_item_less_than_or_equal_to_time(cursor_frame);
 }
 

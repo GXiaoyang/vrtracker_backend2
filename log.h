@@ -2,6 +2,8 @@
 
 void log_printf(const char *fmt, ...);
 
+void ABORT(const char *fmt, ...);
+
 inline void log_entry(const char *fn)
 {
 	log_printf("> %s\n", fn);

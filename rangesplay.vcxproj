@@ -218,6 +218,7 @@
     <ClInclude Include="typehelper.h" />
     <ClInclude Include="url_named.h" />
     <ClInclude Include="vr_keys.h" />
+    <ClInclude Include="vr_tracker_updater.h" />
     <ClInclude Include="vr_types.h" />
     <ClInclude Include="vr_schema.h" />
     <ClInclude Include="vr_system_wrapper.h" />
@@ -277,6 +278,7 @@
     <ClCompile Include="vr_system_cursor.cpp" />
     <ClCompile Include="vr_tmp_vector.cpp" />
     <ClCompile Include="vr_tracked_camera_cursor.cpp" />
+    <ClCompile Include="vr_tracker_updater.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

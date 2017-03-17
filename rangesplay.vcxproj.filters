@@ -246,6 +246,9 @@
     <ClInclude Include="unit_tests\tracker_test_context.h">
       <Filter>Source Files\unit tests</Filter>
     </ClInclude>
+    <ClInclude Include="vr_tracker_updater.h">
+      <Filter>Source Files\w tracker</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -391,6 +394,9 @@
     </ClCompile>
     <ClCompile Include="vr_cursor_context.cpp">
       <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_tracker_updater.cpp">
+      <Filter>Source Files\w tracker</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

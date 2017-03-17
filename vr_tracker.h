@@ -32,7 +32,6 @@ public:
 	slab_allocator<char> m_allocator;
 	tmp_vector_pool<VRTMPSize> m_string_pool;
 
-
 	time_index_t m_frame_number;
 
 	std::chrono::time_point<std::chrono::steady_clock> start_time;
