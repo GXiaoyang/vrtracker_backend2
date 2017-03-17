@@ -7,8 +7,8 @@
 VRCompositorCursor::VRCompositorCursor(CursorContext *context)
 	:
 	m_context(context),
-	state_ref(m_context->state->compositor_node),
-	iter_ref(m_context->iterators->compositor_node)
+	state_ref(m_context->get_state()->compositor_node),
+	iter_ref(m_context->get_iterators()->compositor_node)
 {
 }
 
@@ -43,7 +43,7 @@ vr::EVRCompositorError VRCompositorCursor::GetLastPoses(
 	// rebuild the arrays from the controllers
 	for (int i = 0;
 		(i < (int)unRenderPoseArrayCount) || (i < (int)unGamePoseArrayCount) &&
-		i < (int)m_context->iterators->compositor_node.controllers.size();
+		i < (int)m_context->get_iterators()->compositor_node.controllers.size();
 		i++)
 	{
 		if (i < (int)unRenderPoseArrayCount)
@@ -86,7 +86,7 @@ vr::EVRCompositorError VRCompositorCursor::GetLastPoseForTrackedDeviceIndex(
 
 	vr::EVRCompositorError rc = vr::VRCompositorError_None;
 	SynchronizeChildVectors();
-	if (unDeviceIndex >= m_context->iterators->compositor_node.controllers.size())
+	if (unDeviceIndex >= m_context->get_iterators()->compositor_node.controllers.size())
 	{
 		rc = vr::VRCompositorError_IndexOutOfRange;
 	}

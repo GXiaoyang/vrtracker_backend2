@@ -17,7 +17,7 @@ struct VRCursor
 
 	void Init(vr_tracker *tracker);
 
-	void SetFrame(time_index_t framenumber);
+	void SeekToFrame(time_index_t framenumber);
 	time_index_t GetFrame() const;
 
 	openvr_broker::open_vr_interfaces& interfaces() { return m_interfaces; }

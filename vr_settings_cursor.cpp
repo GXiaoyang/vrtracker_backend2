@@ -13,7 +13,7 @@ if (m_settings_indexer->GetIndexes(pchSection, setting_type, pchSettingsKey, &se
 {\
 	auto iter = iter_ref.sections[section_index].settings_field_name[subsection_index];\
 	auto state =state_ref.sections[section_index].settings_field_name[subsection_index];\
-	update_iter(iter, state, m_context->current_frame);\
+	update_iter(iter, state, m_context->GetCurrentFrame());\
 \
 	settings_error = iter->get_value().return_code;\
 		\
@@ -30,9 +30,9 @@ if (pError)\
 VRSettingsCursor::VRSettingsCursor(CursorContext *context)
 		:
 		m_context(context),
-		iter_ref(context->iterators->settings_node),
-		state_ref(context->state->settings_node),
-		m_settings_indexer(&context->m_resource_keys->GetSettingsIndexer())
+		iter_ref(context->get_iterators()->settings_node),
+		state_ref(context->get_state()->settings_node),
+		m_settings_indexer(&context->get_keys()->GetSettingsIndexer())
 {}
 
 void VRSettingsCursor::SynchronizeChildVectors()
@@ -98,7 +98,7 @@ void VRSettingsCursor::GetString(const char * pchSection, const char * pchSettin
 	{
 		auto iter = iter_ref.sections[section_index].string_settings[subsection_index];
 		auto state = state_ref.sections[section_index].string_settings[subsection_index];
-		update_iter(iter, state, m_context->current_frame);
+		update_iter(iter, state, m_context->GetCurrentFrame());
 
 		if (pError)
 		{

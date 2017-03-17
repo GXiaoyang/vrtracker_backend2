@@ -4,11 +4,10 @@
 
 class VRRenderModelsCursor : public VRRenderModelsCppStub
 {
-public:
 	CursorContext *m_context;
 	vr_result::render_models_state &state_ref;
 	vr_result::render_models_iterator &iter_ref;
-
+public:
 	VRRenderModelsCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 

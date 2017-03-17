@@ -10,8 +10,8 @@ using namespace vr;
 VRRenderModelsCursor::VRRenderModelsCursor(CursorContext *context)
 	:
 	m_context(context),
-	iter_ref(context->iterators->render_models_node),
-	state_ref(context->state->render_models_node)
+	iter_ref(context->get_iterators()->render_models_node),
+	state_ref(context->get_state()->render_models_node)
 {}
 
 void VRRenderModelsCursor::SynchronizeChildVectors()
@@ -297,20 +297,20 @@ uint32_t VRRenderModelsCursor::GetComponentRenderModelName(
 
 // let the render model cursor poke at the system state cursors
 #define REMI_SYNC_SYSTEM_STATE(local_name, variable_name) \
-auto local_name ## iter = m_context->iterators->system_node.variable_name;\
+auto local_name ## iter = m_context->get_iterators()->system_node.variable_name;\
 update_iter(local_name ## iter,\
-	m_context->state->system_node.variable_name,\
-	m_context->current_frame);\
+	m_context->get_state()->system_node.variable_name,\
+	m_context->GetCurrentFrame());\
 auto & local_name = local_name ## iter;
 
 void VRRenderModelsCursor::GetControllerIndicesMatchingRenderModel(
 	const char *pchRenderModelName,
 	std::vector<int> *controller_indices)
 {
-	auto &system_iter = m_context->iterators->system_node;
+	auto &system_iter = m_context->get_iterators()->system_node;
 	int prop_index;
 
-	if (m_context->m_resource_keys->GetDevicePropertiesIndexer().GetIndexForEnum(
+	if (m_context->get_keys()->GetDevicePropertiesIndexer().GetIndexForEnum(
 		PropertiesIndexer::PROP_STRING, Prop_RenderModelName_String, &prop_index))
 	{
 		for (int i = 0; i < size_as_int(system_iter.controllers.size()); i++)

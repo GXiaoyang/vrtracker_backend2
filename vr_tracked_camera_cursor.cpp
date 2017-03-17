@@ -8,8 +8,8 @@ using namespace vr;
 VRTrackedCameraCursor::VRTrackedCameraCursor(CursorContext *context)
 	:
 	m_context(context),
-	iter_ref(context->iterators->tracked_camera_node),
-	state_ref(context->state->tracked_camera_node)
+	iter_ref(context->get_iterators()->tracked_camera_node),
+	state_ref(context->get_state()->tracked_camera_node)
 {}
 
 void VRTrackedCameraCursor::SynchronizeChildVectors()

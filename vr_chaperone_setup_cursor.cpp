@@ -29,8 +29,8 @@ if (param_name->is_present())\
 VRChaperoneSetupCursor::VRChaperoneSetupCursor(CursorContext *context)
 	:
 	m_context(context),
-	state_ref(m_context->state->chaperone_setup_node),
-	iter_ref(m_context->iterators->chaperone_setup_node)
+	state_ref(m_context->get_state()->chaperone_setup_node),
+	iter_ref(m_context->get_iterators()->chaperone_setup_node)
 {
 }
 

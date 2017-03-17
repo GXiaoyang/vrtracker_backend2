@@ -4,27 +4,14 @@
 #include "vr_cursor_common.h"
 #include "openvr_string.h"
 
-// make sure the cursor structures match the source
-// make sure the cursor is in the correct position in the source
-//
-#define ITER_NAME(local_name) local_name ## _iter
-#define SYNC_SYSTEM_STATE(local_name, variable_name) \
-SynchronizeChildVectors();\
-auto ITER_NAME(local_name) = iter_ref.variable_name;\
-update_iter(ITER_NAME(local_name),\
-	state_ref.variable_name,\
-	m_context->current_frame);\
-auto *local_name = &ITER_NAME(local_name)->get_value();
-
-
 using namespace vr;
 
 VRSystemCursor::VRSystemCursor(CursorContext *context)
 	:
 	m_context(context),
-	state_ref(m_context->state->system_node),
-	iter_ref(m_context->iterators->system_node),
-	m_property_indexer(&m_context->m_resource_keys->GetDevicePropertiesIndexer())
+	state_ref(m_context->get_state()->system_node),
+	iter_ref(m_context->get_iterators()->system_node),
+	m_property_indexer(&m_context->get_keys()->GetDevicePropertiesIndexer())
 {
 	SynchronizeChildVectors();
 }
@@ -58,7 +45,7 @@ void VRSystemCursor::SynchronizeChildVectors()
 
 bool VRSystemCursor::IsValidDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex)
 {
-	if (unDeviceIndex <= m_context->state->system_node.controllers.size())
+	if (unDeviceIndex <= m_context->get_state()->system_node.controllers.size())
 		return true;
 	else
 		return false;
@@ -68,7 +55,7 @@ void VRSystemCursor::GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t
 {
 	LOG_ENTRY("CppStubGetRecommendedRenderTargetSize");
 
-	SYNC_SYSTEM_STATE(size, recommended_target_size);
+	CURSOR_SYNC_STATE(size, recommended_target_size);
 
 	*pnWidth = iter_ref.recommended_target_size->get_value().val.width;
 	*pnHeight = iter_ref.recommended_target_size->get_value().val.height;
@@ -81,7 +68,7 @@ struct vr::HmdMatrix44_t VRSystemCursor::GetProjectionMatrix(vr::EVREye eEye, fl
 {
 	LOG_ENTRY("CppStubGetProjectionMatrix");
 
-	SYNC_SYSTEM_STATE(proj, eyes[int(eEye)].projection);
+	CURSOR_SYNC_STATE(proj, eyes[int(eEye)].projection);
 
 	LOG_EXIT_RC(proj->val, "CppStubGetProjectionMatrix");
 }
@@ -90,7 +77,7 @@ void VRSystemCursor::GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * p
 {
 	LOG_ENTRY("CppStubGetProjectionRaw");
 
-	SYNC_SYSTEM_STATE(v4, eyes[int(eEye)].projection_raw);
+	CURSOR_SYNC_STATE(v4, eyes[int(eEye)].projection_raw);
 
 	*pfLeft = v4->val.v[0];
 	*pfRight = v4->val.v[1];
@@ -103,12 +90,12 @@ void VRSystemCursor::GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * p
 bool VRSystemCursor::ComputeDistortion(vr::EVREye eEye, float fU, float fV, struct vr::DistortionCoordinates_t * pDistortionCoordinates)
 {
 	LOG_ENTRY("CppStubComputeDistortion");
-	SYNC_SYSTEM_STATE(distortion, eyes[int(eEye)].distortion);
+	CURSOR_SYNC_STATE(distortion, eyes[int(eEye)].distortion);
 	if (distortion->is_present() && pDistortionCoordinates)
 	{
 
-		int sample_width = m_context->m_resource_keys->GetDistortionSampleWidth();
-		int sample_height = m_context->m_resource_keys->GetDistortionSampleHeight();
+		int sample_width = m_context->get_keys()->GetDistortionSampleWidth();
+		int sample_height = m_context->get_keys()->GetDistortionSampleHeight();
 		int offset_x = CLAMP(0, sample_width - 1, (int)(fU * sample_width));
 		int offset_y = CLAMP(0, sample_height - 1, (int)(fV * sample_height));
 
@@ -121,7 +108,7 @@ bool VRSystemCursor::ComputeDistortion(vr::EVREye eEye, float fU, float fV, stru
 struct vr::HmdMatrix34_t VRSystemCursor::GetEyeToHeadTransform(vr::EVREye eEye)
 {
 	LOG_ENTRY("CppStubGetEyeToHeadTransform");
-	SYNC_SYSTEM_STATE(tx, eyes[int(eEye)].eye2head);
+	CURSOR_SYNC_STATE(tx, eyes[int(eEye)].eye2head);
 	LOG_EXIT_RC(tx->val, "CppStubGetEyeToHeadTransform");
 }
 
@@ -129,38 +116,35 @@ bool VRSystemCursor::GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint
 {
 	LOG_ENTRY("CppStubGetTimeSinceLastVsync");
 
-	auto iter1 = m_context->iterators->system_node.seconds_since_last_vsync;
-	update_iter(iter1, m_context->state->system_node.seconds_since_last_vsync, m_context->current_frame);
+	CURSOR_SYNC_STATE(seconds_since_last_vsync, seconds_since_last_vsync);
+	CURSOR_SYNC_STATE(frame_counter_since_last_vsync, frame_counter_since_last_vsync);
 
-	auto iter2 = m_context->iterators->system_node.frame_counter_since_last_vsync;
-	update_iter(iter2, m_context->state->system_node.frame_counter_since_last_vsync, m_context->current_frame);
-
-	if (iter1->get_value().is_present())
+	if (seconds_since_last_vsync->is_present())
 	{
 		if (pfSecondsSinceLastVsync)
 		{
-			*pfSecondsSinceLastVsync = iter1->get_value().val;
+			*pfSecondsSinceLastVsync = seconds_since_last_vsync->val;
 		}
 		if (pulFrameCounter)
 		{
-			*pulFrameCounter = iter2->get_value().val;
+			*pulFrameCounter = frame_counter_since_last_vsync->val;
 		}
 	}
 
-	LOG_EXIT_RC(iter1->get_value().return_code, "CppStubGetTimeSinceLastVsync");
+	LOG_EXIT_RC(seconds_since_last_vsync->return_code, "CppStubGetTimeSinceLastVsync");
 }
 
 int32_t VRSystemCursor::GetD3D9AdapterIndex()
 {
 	LOG_ENTRY("CppStubGetD3D9AdapterIndex");
-	SYNC_SYSTEM_STATE(d3d9_adapter_index, d3d9_adapter_index);
+	CURSOR_SYNC_STATE(d3d9_adapter_index, d3d9_adapter_index);
 	LOG_EXIT_RC(d3d9_adapter_index->val, "CppStubGetD3D9AdapterIndex");
 }
 
 void VRSystemCursor::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
 {
 	LOG_ENTRY("CppStubGetDXGIOutputInfo");
-	SYNC_SYSTEM_STATE(dxgi_output_info, dxgi_output_info);
+	CURSOR_SYNC_STATE(dxgi_output_info, dxgi_output_info);
 	if (pnAdapterIndex)
 	{
 		*pnAdapterIndex = dxgi_output_info->val;
@@ -171,7 +155,7 @@ void VRSystemCursor::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
 bool VRSystemCursor::IsDisplayOnDesktop()
 {
 	LOG_ENTRY("CppStubIsDisplayOnDesktop");
-	SYNC_SYSTEM_STATE(is_display_on_desktop, is_display_on_desktop);
+	CURSOR_SYNC_STATE(is_display_on_desktop, is_display_on_desktop);
 	LOG_EXIT_RC(is_display_on_desktop->val, "CppStubIsDisplayOnDesktop");
 }
 
@@ -184,13 +168,13 @@ void VRSystemCursor::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin
 	assert(fPredictedSecondsToPhotonsFromNow == 0);
 
 	unTrackedDevicePoseArrayCount = std::max(unTrackedDevicePoseArrayCount, vr::k_unMaxTrackedDeviceCount);
-	unTrackedDevicePoseArrayCount = std::max(unTrackedDevicePoseArrayCount, (uint32_t)m_context->state->system_node.controllers.size());
+	unTrackedDevicePoseArrayCount = std::max(unTrackedDevicePoseArrayCount, (uint32_t)m_context->get_state()->system_node.controllers.size());
 
 	if (eOrigin == vr::TrackingUniverseSeated)
 	{
 		for (int i = 0; i < (int)unTrackedDevicePoseArrayCount; i++)
 		{
-			SYNC_SYSTEM_STATE(seated_tracking_pose, controllers[i].seated_tracking_pose);
+			CURSOR_SYNC_STATE(seated_tracking_pose, controllers[i].seated_tracking_pose);
 			pTrackedDevicePoseArray[i] = seated_tracking_pose->val;
 		}
 	}
@@ -198,7 +182,7 @@ void VRSystemCursor::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin
 	{
 		for (int i = 0; i < (int)unTrackedDevicePoseArrayCount; i++)
 		{
-			SYNC_SYSTEM_STATE(standing_tracking_pose, controllers[i].standing_tracking_pose);
+			CURSOR_SYNC_STATE(standing_tracking_pose, controllers[i].standing_tracking_pose);
 			pTrackedDevicePoseArray[i] = standing_tracking_pose->val;
 		}
 	}
@@ -206,7 +190,7 @@ void VRSystemCursor::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin
 	{
 		for (int i = 0; i < (int)unTrackedDevicePoseArrayCount; i++)
 		{
-			SYNC_SYSTEM_STATE(raw_tracking_pose, controllers[i].raw_tracking_pose);
+			CURSOR_SYNC_STATE(raw_tracking_pose, controllers[i].raw_tracking_pose);
 			pTrackedDevicePoseArray[i] = raw_tracking_pose->val;
 		}
 	}
@@ -217,14 +201,14 @@ void VRSystemCursor::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin
 struct vr::HmdMatrix34_t VRSystemCursor::GetSeatedZeroPoseToStandingAbsoluteTrackingPose()
 {
 	LOG_ENTRY("CppStubGetSeatedZeroPoseToStandingAbsoluteTrackingPose");
-	SYNC_SYSTEM_STATE(seated2standing, seated2standing)
+	CURSOR_SYNC_STATE(seated2standing, seated2standing)
 		LOG_EXIT_RC(seated2standing->val, "CppStubGetSeatedZeroPoseToStandingAbsoluteTrackingPose");
 }
 
 struct vr::HmdMatrix34_t VRSystemCursor::GetRawZeroPoseToStandingAbsoluteTrackingPose()
 {
 	LOG_ENTRY("CppStubGetRawZeroPoseToStandingAbsoluteTrackingPose");
-	SYNC_SYSTEM_STATE(raw2standing, raw2standing);
+	CURSOR_SYNC_STATE(raw2standing, raw2standing);
 	LOG_EXIT_RC(raw2standing->val, "CppStubGetRawZeroPoseToStandingAbsoluteTrackingPose");
 }
 
@@ -246,28 +230,28 @@ uint32_t VRSystemCursor::GetSortedTrackedDeviceIndicesOfClass(
 		break;
 	case TrackedDeviceClass_HMD:
 	{
-		SYNC_SYSTEM_STATE(hmds_sorted, spatial_sorts[spatial_sort_index].hmds_sorted);
+		CURSOR_SYNC_STATE(hmds_sorted, spatial_sorts[spatial_sort_index].hmds_sorted);
 		util_vector_to_return_buf_rc(&hmds_sorted->val, punTrackedDeviceIndexArray, unTrackedDeviceIndexArrayCount, &count);
 	}
 	break;
 
 	case TrackedDeviceClass_Controller:
 	{
-		SYNC_SYSTEM_STATE(controllers_sorted, spatial_sorts[spatial_sort_index].controllers_sorted);
+		CURSOR_SYNC_STATE(controllers_sorted, spatial_sorts[spatial_sort_index].controllers_sorted);
 		util_vector_to_return_buf_rc(&controllers_sorted->val, punTrackedDeviceIndexArray, unTrackedDeviceIndexArrayCount, &count);
 	}
 	break;
 
 	case TrackedDeviceClass_GenericTracker:
 	{
-		SYNC_SYSTEM_STATE(trackers_sorted, spatial_sorts[spatial_sort_index].trackers_sorted);
+		CURSOR_SYNC_STATE(trackers_sorted, spatial_sorts[spatial_sort_index].trackers_sorted);
 		util_vector_to_return_buf_rc(&trackers_sorted->val, punTrackedDeviceIndexArray, unTrackedDeviceIndexArrayCount, &count);
 	}
 	break;
 
 	case TrackedDeviceClass_TrackingReference:
 	{
-		SYNC_SYSTEM_STATE(reference_sorted, spatial_sorts[spatial_sort_index].reference_sorted);
+		CURSOR_SYNC_STATE(reference_sorted, spatial_sorts[spatial_sort_index].reference_sorted);
 		util_vector_to_return_buf_rc(&reference_sorted->val, punTrackedDeviceIndexArray, unTrackedDeviceIndexArrayCount, &count);
 	}
 	break;
@@ -281,7 +265,7 @@ uint32_t VRSystemCursor::GetSortedTrackedDeviceIndicesOfClass(
 vr::EDeviceActivityLevel VRSystemCursor::GetTrackedDeviceActivityLevel(vr::TrackedDeviceIndex_t unDeviceId)
 {
 	LOG_ENTRY("CppStubGetTrackedDeviceActivityLevel");
-	SYNC_SYSTEM_STATE(activity_level, controllers[unDeviceId].activity_level);
+	CURSOR_SYNC_STATE(activity_level, controllers[unDeviceId].activity_level);
 	LOG_EXIT_RC(activity_level->val, "CppStubGetTrackedDeviceActivityLevel");
 }
 
@@ -350,9 +334,9 @@ vr::TrackedDeviceIndex_t VRSystemCursor::GetTrackedDeviceIndexForControllerRole(
 	LOG_ENTRY("CppStubGetTrackedDeviceIndexForControllerRole");
 
 	vr::TrackedDeviceIndex_t rc = k_unTrackedDeviceIndexInvalid;
-	for (unsigned int i = 0; i < m_context->state->system_node.controllers.size(); i++)
+	for (unsigned int i = 0; i < m_context->get_state()->system_node.controllers.size(); i++)
 	{
-		SYNC_SYSTEM_STATE(controller_role, controllers[i].controller_role);
+		CURSOR_SYNC_STATE(controller_role, controllers[i].controller_role);
 		if (controller_role->val == unDeviceType)
 		{
 			rc = i;
@@ -368,7 +352,7 @@ vr::ETrackedControllerRole VRSystemCursor::GetControllerRoleForTrackedDeviceInde
 	vr::ETrackedControllerRole rc = TrackedControllerRole_Invalid;
 	if (IsValidDeviceIndex(unDeviceIndex))
 	{
-		SYNC_SYSTEM_STATE(controller_role, controllers[unDeviceIndex].controller_role);
+		CURSOR_SYNC_STATE(controller_role, controllers[unDeviceIndex].controller_role);
 		rc = controller_role->val;
 	}
 	LOG_EXIT_RC(rc, "CppStubGetControllerRoleForTrackedDeviceIndex");
@@ -380,7 +364,7 @@ vr::ETrackedDeviceClass VRSystemCursor::GetTrackedDeviceClass(vr::TrackedDeviceI
 	vr::ETrackedDeviceClass rc = TrackedDeviceClass_Invalid;
 	if (IsValidDeviceIndex(unDeviceIndex))
 	{
-		SYNC_SYSTEM_STATE(device_class, controllers[unDeviceIndex].device_class);
+		CURSOR_SYNC_STATE(device_class, controllers[unDeviceIndex].device_class);
 		rc = device_class->val;
 	}
 	LOG_EXIT_RC(rc, "CppStubGetTrackedDeviceClass");
@@ -392,7 +376,7 @@ bool VRSystemCursor::IsTrackedDeviceConnected(vr::TrackedDeviceIndex_t unDeviceI
 	bool rc = false;
 	if (IsValidDeviceIndex(unDeviceIndex))
 	{
-		SYNC_SYSTEM_STATE(connected, controllers[unDeviceIndex].connected);
+		CURSOR_SYNC_STATE(connected, controllers[unDeviceIndex].connected);
 		rc = connected->val;
 	}
 	LOG_EXIT_RC(rc, "CppStubIsTrackedDeviceConnected");
@@ -439,7 +423,7 @@ bool VRSystemCursor::GetBoolTrackedDeviceProperty(
 	int property_index;
 	if (lookup_property_index(unDeviceIndex, prop_enum, PropertiesIndexer::PROP_BOOL, &property_index, pError))
 	{
-		SYNC_SYSTEM_STATE(prop, controllers[unDeviceIndex].bool_props[property_index]);
+		CURSOR_SYNC_STATE(prop, controllers[unDeviceIndex].bool_props[property_index]);
 		rc = prop->val;
 		if (pError)
 			*pError = prop->return_code;
@@ -459,7 +443,7 @@ float VRSystemCursor::GetFloatTrackedDeviceProperty(
 	int property_index;
 	if (lookup_property_index(unDeviceIndex, prop_enum, PropertiesIndexer::PROP_FLOAT, &property_index, pError))
 	{
-		SYNC_SYSTEM_STATE(prop, controllers[unDeviceIndex].float_props[property_index]);
+		CURSOR_SYNC_STATE(prop, controllers[unDeviceIndex].float_props[property_index]);
 		rc = prop->val;
 		if (pError)
 			*pError = prop->return_code;
@@ -477,7 +461,7 @@ int32_t VRSystemCursor::GetInt32TrackedDeviceProperty(vr::TrackedDeviceIndex_t u
 	int property_index;
 	if (lookup_property_index(unDeviceIndex, prop_enum, PropertiesIndexer::PROP_INT32, &property_index, pError))
 	{
-		SYNC_SYSTEM_STATE(prop, controllers[unDeviceIndex].int32_props[property_index]);
+		CURSOR_SYNC_STATE(prop, controllers[unDeviceIndex].int32_props[property_index]);
 		rc = prop->val;
 		if (pError)
 			*pError = prop->return_code;
@@ -496,7 +480,7 @@ uint64_t VRSystemCursor::GetUint64TrackedDeviceProperty(vr::TrackedDeviceIndex_t
 	int property_index;
 	if (lookup_property_index(unDeviceIndex, prop_enum, PropertiesIndexer::PROP_FLOAT, &property_index, pError))
 	{
-		SYNC_SYSTEM_STATE(prop, controllers[unDeviceIndex].uint64_props[property_index]);
+		CURSOR_SYNC_STATE(prop, controllers[unDeviceIndex].uint64_props[property_index]);
 		rc = prop->val;
 		if (pError)
 			*pError = prop->return_code;
@@ -515,7 +499,7 @@ struct vr::HmdMatrix34_t VRSystemCursor::GetMatrix34TrackedDeviceProperty(
 	int property_index;
 	if (lookup_property_index(unDeviceIndex, prop_enum, PropertiesIndexer::PROP_MAT34, &property_index, pError))
 	{
-		SYNC_SYSTEM_STATE(prop, controllers[unDeviceIndex].mat34_props[property_index]);
+		CURSOR_SYNC_STATE(prop, controllers[unDeviceIndex].mat34_props[property_index]);
 		rc = prop->val;
 		if (pError)
 			*pError = prop->return_code;
@@ -539,7 +523,7 @@ uint32_t VRSystemCursor::GetStringTrackedDeviceProperty(
 	int property_index;
 	if (lookup_property_index(unDeviceIndex, prop_enum, PropertiesIndexer::PROP_STRING, &property_index, pError))
 	{
-		SYNC_SYSTEM_STATE(prop, controllers[unDeviceIndex].string_props[property_index]);
+		CURSOR_SYNC_STATE(prop, controllers[unDeviceIndex].string_props[property_index]);
 		util_vector_to_return_buf_rc(&prop->val, pchValue, unBufferSize, &rc);
 		if (pError)
 		{
@@ -575,30 +559,7 @@ bool VRSystemCursor::PollNextEvent(struct vr::VREvent_t * pEvent, uint32_t uncbV
 {
 	LOG_ENTRY("CppStubPollNextEvent");
 	bool rc = false;
-	if (m_context->last_event_frame_returned < m_context->current_frame)
-	{
-		auto prev = m_context->m_events->end();
-		for (auto iter = m_context->m_events->begin(); iter != m_context->m_events->end(); iter++)
-		{
-			if (iter->get_time_index() < m_context->last_event_frame_returned)
-				break;
-			prev = iter;
-		}
-		// todo: this backwards search is stupid.  but alot of the cursor stuff has this sort of thing.
-		//       once behaviour demonstrates value, then decide if it's worth using a vector or double ended queue
-		if (prev != m_context->m_events->end() &&
-			prev->get_time_index() > m_context->last_event_frame_returned &&
-			prev->get_time_index() <= m_context->current_frame)
-		{
-			m_context->last_event_frame_returned = prev->get_time_index();
-			if (pEvent)
-			{
-				*pEvent = prev->get_value();
-			}
-			rc = true;
-		}
-	}
-
+	rc = m_context->PollNextEvent(pEvent);
 	LOG_EXIT_RC(rc, "CppStubPollNextEvent");
 }
 
@@ -625,8 +586,8 @@ struct vr::HiddenAreaMesh_t VRSystemCursor::GetHiddenAreaMesh(vr::EVREye eEye, v
 {
 	LOG_ENTRY("CppStubGetHiddenAreaMesh");
 
-	SYNC_SYSTEM_STATE(vertices, eyes[int(eEye)].hidden_meshes[(int)type].hidden_mesh_vertices);
-	SYNC_SYSTEM_STATE(triangle_count, eyes[int(eEye)].hidden_meshes[(int)type].hidden_mesh_triangle_count);
+	CURSOR_SYNC_STATE(vertices, eyes[int(eEye)].hidden_meshes[(int)type].hidden_mesh_vertices);
+	CURSOR_SYNC_STATE(triangle_count, eyes[int(eEye)].hidden_meshes[(int)type].hidden_mesh_triangle_count);
 
 	vr::HiddenAreaMesh_t ret;
 	ret.pVertexData = &vertices->val[0];
@@ -644,7 +605,7 @@ bool VRSystemCursor::GetControllerState(
 	bool rc = false;
 	if (IsValidDeviceIndex(unControllerDeviceIndex) && pControllerState)
 	{
-		SYNC_SYSTEM_STATE(controller_state, controllers[unControllerDeviceIndex].controller_state);
+		CURSOR_SYNC_STATE(controller_state, controllers[unControllerDeviceIndex].controller_state);
 		if (controller_state->is_present())
 		{
 			*pControllerState = controller_state->val;
@@ -671,7 +632,7 @@ bool VRSystemCursor::GetControllerStateWithPose(
 	bool rc = false;
 	if (IsValidDeviceIndex(unControllerDeviceIndex) && pControllerState)
 	{
-		SYNC_SYSTEM_STATE(controller_state, controllers[unControllerDeviceIndex].controller_state);
+		CURSOR_SYNC_STATE(controller_state, controllers[unControllerDeviceIndex].controller_state);
 		if (controller_state->is_present())
 		{
 			rc = true;
@@ -693,7 +654,7 @@ bool VRSystemCursor::GetControllerStateWithPose(
 			{
 			case TrackingUniverseSeated:
 			{
-				SYNC_SYSTEM_STATE(pose, controllers[unControllerDeviceIndex].synced_seated_pose);
+				CURSOR_SYNC_STATE(pose, controllers[unControllerDeviceIndex].synced_seated_pose);
 				if (pose->is_present())
 				{
 					*pTrackedDevicePose = pose->val;
@@ -706,7 +667,7 @@ bool VRSystemCursor::GetControllerStateWithPose(
 			}
 			case TrackingUniverseStanding:
 			{
-				SYNC_SYSTEM_STATE(pose, controllers[unControllerDeviceIndex].synced_standing_pose);
+				CURSOR_SYNC_STATE(pose, controllers[unControllerDeviceIndex].synced_standing_pose);
 				if (pose->is_present())
 				{
 					*pTrackedDevicePose = pose->val;
@@ -719,7 +680,7 @@ bool VRSystemCursor::GetControllerStateWithPose(
 			}
 			case TrackingUniverseRawAndUncalibrated:
 			{
-				SYNC_SYSTEM_STATE(pose, controllers[unControllerDeviceIndex].synced_raw_pose);
+				CURSOR_SYNC_STATE(pose, controllers[unControllerDeviceIndex].synced_raw_pose);
 				if (pose->is_present())
 				{
 					*pTrackedDevicePose = pose->val;
@@ -755,6 +716,6 @@ const char * VRSystemCursor::GetControllerAxisTypeNameFromEnum(vr::EVRController
 bool VRSystemCursor::IsInputFocusCapturedByAnotherProcess()
 {
 	LOG_ENTRY("CppStubIsInputFocusCapturedByAnotherProcess");
-	SYNC_SYSTEM_STATE(input_focus_captured_by_other, input_focus_captured_by_other);
+	CURSOR_SYNC_STATE(input_focus_captured_by_other, input_focus_captured_by_other);
 	LOG_EXIT_RC(input_focus_captured_by_other->val, "CppStubIsInputFocusCapturedByAnotherProcess");
 }

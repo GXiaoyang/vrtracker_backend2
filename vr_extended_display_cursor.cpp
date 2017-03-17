@@ -8,8 +8,8 @@ using namespace vr;
 VRExtendedDisplayCursor::VRExtendedDisplayCursor(CursorContext *context)
 	:
 	m_context(context),
-	iter_ref(context->iterators->extended_display_node),
-	state_ref(context->state->extended_display_node)
+	iter_ref(context->get_iterators()->extended_display_node),
+	state_ref(context->get_state()->extended_display_node)
 {}
 
 

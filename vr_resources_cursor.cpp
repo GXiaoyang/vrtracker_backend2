@@ -6,8 +6,8 @@
 VRResourcesCursor::VRResourcesCursor(CursorContext *context)
 	:
 	m_context(context),
-	state_ref(m_context->state->resources_node),
-	iter_ref(m_context->iterators->resources_node)
+	state_ref(m_context->get_state()->resources_node),
+	iter_ref(m_context->get_iterators()->resources_node)
 {
 }
 

@@ -9,8 +9,8 @@ using namespace vr;
 VROverlayCursor::VROverlayCursor(CursorContext *context)
 	:
 	m_context(context),
-	iter_ref(context->iterators->overlay_node),
-	state_ref(context->state->overlay_node)
+	iter_ref(context->get_iterators()->overlay_node),
+	state_ref(context->get_state()->overlay_node)
 {}
 
 void VROverlayCursor::SynchronizeChildVectors()
@@ -40,7 +40,7 @@ bool VROverlayCursor::IsDashboardVisible()
 vr::EVROverlayError VROverlayCursor::FindOverlay(const char *pchOverlayKey, vr::VROverlayHandle_t * pOverlayHandle)
 {
 	vr::EVROverlayError rc = vr::VROverlayError_UnknownOverlay;
-	OverlayIndexer *h = &m_context->m_resource_keys->GetOverlayIndexer();
+	OverlayIndexer *h = &m_context->get_keys()->GetOverlayIndexer();
 
 	// regardless of result, pOverlayHandle return value is set 2/6/2017
 	if (pOverlayHandle)

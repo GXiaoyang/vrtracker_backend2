@@ -8,7 +8,7 @@ using namespace vr;
 #define MIME_LOOKUP(field_name)\
 bool rc; \
 int index;\
-if (m_context->m_resource_keys->GetMimeTypesIndexer().GetIndexForMimeType(pchMimeType, &index))\
+if (m_context->get_keys()->GetMimeTypesIndexer().GetIndexForMimeType(pchMimeType, &index))\
 {\
 	CURSOR_SYNC_STATE(default_application, mime_types[index].default_application);\
 	if (default_application->is_present())\
@@ -24,10 +24,10 @@ rc = false;
 VRApplicationsCursor::VRApplicationsCursor(CursorContext *context)
 		:
 		m_context(context),
-		state_ref(m_context->state->applications_node),
-		iter_ref(m_context->iterators->applications_node),
-		m_applications_indexer(&m_context->m_resource_keys->GetApplicationsIndexer()),
-		m_property_indexer(&m_context->m_resource_keys->GetApplicationsPropertiesIndexer())
+		state_ref(m_context->get_state()->applications_node),
+		iter_ref(m_context->get_iterators()->applications_node),
+		m_applications_indexer(&m_context->get_keys()->GetApplicationsIndexer()),
+		m_property_indexer(&m_context->get_keys()->GetApplicationsPropertiesIndexer())
 {
 	SynchronizeChildVectors();
 }
@@ -140,7 +140,7 @@ vr::EVRApplicationError VRApplicationsCursor::GetApplicationKeyByProcessId(
 	LOG_ENTRY("CppStubGetApplicationKeyByProcessId");
 
 	vr::EVRApplicationError rc = VRApplicationError_InvalidParameter;
-	for (int i = 0; i < (int)m_context->iterators->applications_node.applications.size(); i++)
+	for (int i = 0; i < (int)m_context->get_iterators()->applications_node.applications.size(); i++)
 	{
 		CURSOR_SYNC_STATE(app_key, applications[i].application_key);
 		CURSOR_SYNC_STATE(process_id, applications[i].process_id);

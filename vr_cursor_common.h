@@ -12,7 +12,7 @@ SynchronizeChildVectors();\
 auto CURSOR_ITER_NAME(local_name) = iter_ref.variable_name;\
 update_iter(CURSOR_ITER_NAME(local_name),\
 	state_ref.variable_name,\
-	m_context->current_frame);\
+	m_context->GetCurrentFrame());\
 auto *local_name = &CURSOR_ITER_NAME(local_name)->get_value();
 
 

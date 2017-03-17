@@ -23,8 +23,7 @@ struct VRCursor::VRCursorImpl
 {
 	VRCursorImpl(vr_tracker *tracker)
 		:
-		m_context(tracker->m_frame_number, &iterators, &tracker->m_state,
-			&tracker->m_events, &tracker->keys),
+		m_context(tracker),
 		m_system_cursor(&m_context),
 		m_applications_cursor(&m_context),
 		m_settings_cursor(&m_context),
@@ -71,13 +70,12 @@ void VRCursor::Init(vr_tracker *tracker)
 	pimpl = new VRCursor::VRCursorImpl(tracker);
 }
 
-void VRCursor::SetFrame(time_index_t framenumber)
+void VRCursor::SeekToFrame(time_index_t framenumber)
 {
-	pimpl->m_context.current_frame = framenumber;
-	pimpl->m_context.last_event_frame_returned = framenumber - 1;
+	pimpl->m_context.ChangeFrame(framenumber);
 }
 
 time_index_t VRCursor::GetFrame() const
 {
-	return pimpl->m_context.current_frame;
+	return pimpl->m_context.GetCurrentFrame();
 }

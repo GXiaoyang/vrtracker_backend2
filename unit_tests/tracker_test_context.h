@@ -19,8 +19,6 @@ public:
 	vr_tracker& get_tracker();
 	openvr_broker::open_vr_interfaces &raw_vr_interfaces();
 
-	VRCursorContext 
-
 private:
 	slab s;
 	tmp_vector_pool<VRTMPSize> m_tmp_pool;

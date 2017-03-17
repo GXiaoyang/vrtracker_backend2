@@ -7,8 +7,8 @@
 VRChaperoneCursor::VRChaperoneCursor(CursorContext *context)
 	:
 	m_context(context),
-	state_ref(m_context->state->chaperone_node),
-	iter_ref(m_context->iterators->chaperone_node)
+	state_ref(m_context->get_state()->chaperone_node),
+	iter_ref(m_context->get_iterators()->chaperone_node)
 {
 }
 
