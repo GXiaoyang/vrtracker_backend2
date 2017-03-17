@@ -14,7 +14,10 @@ struct CursorContext
 {
 	CursorContext(vr_tracker *);
 
-	void ChangeFrame(time_index_t new_frame);
+	// if new frame > then the greatest processed frame, the greatest processed
+	// frame is used
+	time_index_t ChangeFrame(time_index_t new_frame);
+
 	time_index_t GetCurrentFrame() const { return m_current_frame;  }
 
 	vr_result::vr_iterator *get_iterators() { return &m_iterators;  }

@@ -20,19 +20,15 @@ struct vr_tracker
 {
 private:
 	time_index_t m_last_updated_frame_number;
-	time_index_t m_currently_updating_frame_number;
+	friend struct vr_tracker_updater;
 public:
-
 	time_index_t get_last_updated_frame() const { return m_last_updated_frame_number; }
-	time_index_t get_hot_frame_number()   const { return m_currently_updating_frame_number; }
 
 	static const int LARGE_SEGMENT_SIZE = 5400;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
 
 	slab *m_slab;
 	slab_allocator<char> m_allocator;
 	tmp_vector_pool<VRTMPSize> m_string_pool;
-
-	time_index_t m_frame_number;
 
 	std::chrono::time_point<std::chrono::steady_clock> start_time;
 
@@ -60,7 +56,7 @@ public:
 		:
 		m_slab(slab),
 		m_allocator(slab),
-		m_frame_number(0),
+		m_last_updated_frame_number(-1),
 		blocking_update_calls(0),
 		non_blocking_update_calls(0),
 		s2(base::URL("vr", "/vr")),

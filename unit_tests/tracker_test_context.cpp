@@ -18,6 +18,12 @@ tracker_test_context::tracker_test_context()
 	vr_tmp_vector_base::m_global_pool = &m_tmp_pool;
 }
 
+void tracker_test_context::ForceInitAll()
+{
+	raw_vr_interfaces();
+	get_tracker();
+}
+
 tracker_test_context::~tracker_test_context()
 {
 	delete m_config;

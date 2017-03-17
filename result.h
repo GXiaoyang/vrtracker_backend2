@@ -180,9 +180,7 @@ bool not_equals(
 		return true;
 	if (a.val.size() != b.val.size())
 		return true;
-	if (a.val.size() == 0)
-		return true;
-	if (memcmp(&a.val[0], &b.val[0], b.val.size() * sizeof(a.val[0])) != 0)
+	if (memcmp(a.val.data(), b.val.data(), b.val.size() * sizeof(a.val[0])) != 0)
 		return true;
 	return false;
 }

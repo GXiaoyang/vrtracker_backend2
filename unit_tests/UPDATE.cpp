@@ -78,14 +78,13 @@ void UPDATE_USE_CASE()
 	// Sequential visit 
 	//
 	
-	tracker_updater u;
-
+	vr_tracker_updater u;
 	u.update_tracker_sequential(&context.get_tracker(), &context.raw_vr_interfaces());
 	u.update_tracker_sequential(&context.get_tracker(), &context.raw_vr_interfaces());
 	
 	u.update_tracker_parallel(&context.get_tracker(), &context.raw_vr_interfaces());
 
-	while (1)
+	for (int i = 0; i < 10; i++)
 	{
 		u.update_tracker_parallel(&context.get_tracker(), &context.raw_vr_interfaces());
 

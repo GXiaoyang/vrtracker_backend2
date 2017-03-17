@@ -13,16 +13,17 @@ CursorContext::CursorContext(vr_tracker *tracker)
 {
 }
 
-void CursorContext::ChangeFrame(time_index_t new_frame)
+time_index_t CursorContext::ChangeFrame(time_index_t new_frame)
 {
 	if (new_frame == m_current_frame)
-		return;
+		return m_current_frame;
 
 	if (new_frame > m_tracker->get_last_updated_frame())
 		new_frame = m_tracker->get_last_updated_frame();
 
 	m_current_frame = new_frame;
 	m_last_event_frame_returned = new_frame - 1;
+	return m_current_frame;
 }
 
 bool CursorContext::PollNextEvent(struct vr::VREvent_t * pEvent)

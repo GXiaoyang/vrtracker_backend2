@@ -1,4 +1,5 @@
 #include "slab_allocator.h"
+#include "log.h"
 
 slab my_heap(1024 * 1024);
 slab my_temp_heap(1024 * 1024);
@@ -33,4 +34,5 @@ int main()
 	unit_tests();
 	GUI_USE_CASE();
 	UPDATE_USE_CASE();
+	log_printf("all tests done");
 }

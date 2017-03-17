@@ -57,8 +57,8 @@ void VRSystemCursor::GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t
 
 	CURSOR_SYNC_STATE(size, recommended_target_size);
 
-	*pnWidth = iter_ref.recommended_target_size->get_value().val.width;
-	*pnHeight = iter_ref.recommended_target_size->get_value().val.height;
+	*pnWidth = size->val.width;
+	*pnHeight = size->val.height;
 
 	LOG_EXIT("CppStubGetRecommendedRenderTargetSize");
 }

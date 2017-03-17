@@ -34,7 +34,7 @@ public:
 		uint64_t start = rdtsc();
 		t();
 		uint64_t end = rdtsc();
-		printf("%s %lld\n", name, end - start);
+		//printf("%s %lld\n", name, end - start);
 	}
 	void wait() {}
 };
@@ -110,22 +110,22 @@ static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state,
 	g.wait();
 }
 
-struct tracker_updater::impl
+struct vr_tracker_updater::impl
 {
 
 };
 
-tracker_updater::tracker_updater()
+vr_tracker_updater::vr_tracker_updater()
 {
-	m_pimpl = new tracker_updater::impl;
+	m_pimpl = new vr_tracker_updater::impl;
 }
 
-tracker_updater::~tracker_updater()
+vr_tracker_updater::~vr_tracker_updater()
 {
 	delete m_pimpl;
 }
 
-void tracker_updater::update_tracker_parallel(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces)
+void vr_tracker_updater::update_tracker_parallel(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces)
 {
 	time_index_t last_updated = tracker->get_last_updated_frame();
 	update_history_visitor update_visitor(last_updated + 1);
@@ -137,10 +137,10 @@ void tracker_updater::update_tracker_parallel(vr_tracker *tracker, openvr_broker
 		<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
 		<< "us.\n";
 
-	tracker->m_frame_number = last_updated + 1;
+	tracker->m_last_updated_frame_number = last_updated + 1;
 }
 
-void tracker_updater::update_tracker_sequential(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces)
+void vr_tracker_updater::update_tracker_sequential(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces)
 {
 	time_index_t last_updated = tracker->get_last_updated_frame();
 	update_history_visitor update_visitor(last_updated + 1);
@@ -151,5 +151,5 @@ void tracker_updater::update_tracker_sequential(vr_tracker *tracker, openvr_brok
 	std::cout << "sequential visit took "
 		<< std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
 		<< "us.\n";
-	tracker->m_frame_number = last_updated + 1;
+	tracker->m_last_updated_frame_number = last_updated + 1;
 }

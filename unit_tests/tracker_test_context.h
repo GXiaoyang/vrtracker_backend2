@@ -14,6 +14,8 @@ public:
 	tracker_test_context();
 	~tracker_test_context();
 
+	void ForceInitAll();
+
 	const tmp_vector_pool<VRTMPSize> *get_tmp_pool() const;
 	TrackerConfig &get_config();
 	vr_tracker& get_tracker();
