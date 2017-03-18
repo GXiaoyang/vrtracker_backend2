@@ -91,6 +91,8 @@
       <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;d:\tbb\include</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,6 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;d:\tbb\include</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

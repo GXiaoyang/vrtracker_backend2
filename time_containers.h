@@ -62,7 +62,7 @@ template <	typename T,
 	const time_indexed<T>& latest() const { return container.back(); }
 	const time_indexed<T>& earliest() const { return container.front(); }
 
-	// [start and end)  (IE ARE NOT inclusive of end)
+	// [start and end)  (half open range)
 	std::range<iterator> get_range(time_index_t a, time_index_t b)
 	{
 		return range_intersect(get_range(), a, b,

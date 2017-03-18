@@ -11,12 +11,14 @@ static void do_read(tracker_test_context *test_context, int unique_reads)
 	CursorContext cursor_context(&test_context->get_tracker());
 	VRSystemCursor system(&cursor_context);
 
+	// wait until there is some data to read
 	while (cursor_context.GetCurrentFrame() != 0)
 	{
 		std::this_thread::yield();
 		cursor_context.ChangeFrame(0);
 	}
 
+	// keep reading until we've read unique_reads items:
 	uint32_t width;
 	uint32_t height;
 	std::set<int> unique_read_set;
@@ -118,10 +120,10 @@ static void test_seek_time(tracker_test_context *test_context)
 	}
 
 	float accum = 0;
-	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 0, 0);
-	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 500, 500);
-	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 200, 300);
-	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 0, 1000);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 0, 0);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 500, 500);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 200, 300);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 0, 1000);
 
 	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining2>(cursor_context, &compi, 0, 0);
 	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining2>(cursor_context, &compi, 500, 500);
@@ -136,10 +138,7 @@ static void test_seek_time(tracker_test_context *test_context)
 	//as far as the reader goes, I'm guessing the 500,500 testcase is the most important. alot of stuff doesnt change and so
 	//the queries are going to be choosing the same choice over and over
 	//the best cache for 500,500 case is where cache return if its an exact match or lower bound
-
-
 }
-
 
 
 void TEST_SYSTEM_CURSOR()
@@ -147,8 +146,6 @@ void TEST_SYSTEM_CURSOR()
 	tracker_test_context test_context;
 	test_context.ForceInitAll(); // make sure it's setup before splitting into separate threads
 
-	test_seek_time(&test_context);
+	test_seek_time(&test_context);   
 	test_simultaneous_cursors(&test_context);
-	
-	
 }

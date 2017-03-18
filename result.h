@@ -7,6 +7,8 @@
 #pragma once
 
 #include "typehelper.h"
+#include "platform.h"
+#include "base_serialization.h"
 
 // ResultValue
 // IsValueContainer()
@@ -33,6 +35,12 @@ template <typename ReturnCode>
 struct ValidReturnCode
 {
 	static const ReturnCode return_code;
+};
+
+template <>
+struct ValidReturnCode<bool>
+{
+	static const bool return_code = true;
 };
 
 template <typename ElementType> 
@@ -88,6 +96,20 @@ struct Result : ResultBase<ElementType>
 		assign(*this, rhs);
 		return *this;
 	}
+
+	// write the return code and then the value out to stream
+	void encode(EncodeStream &e) const
+	{
+		e.memcpy_out_to_stream(&return_code, sizeof(return_code));
+		val_encode(val, e);
+	}
+
+	// read the return code and then the value from the stream
+	void decode(EncodeStream &e) 
+	{
+		e.memcpy_from_stream(&return_code, sizeof(return_code));
+		val_decode(val, e);
+	}
 	
 	ReturnCode return_code;
 	ElementType val;
@@ -133,6 +155,18 @@ struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 
 		assign(*this, rhs);
 		return *this;
+	}
+
+	// write just the value out to the stream
+	void encode(EncodeStream &e) const
+	{
+		val_encode(val, e);
+	}
+
+	// read the value from the stream
+	void decode(EncodeStream &e) 
+	{
+		val_decode(val, e);
 	}
 
 	ElementType val;
@@ -200,6 +234,8 @@ bool operator == (const Result<ElementType, ReturnCode> &a, const Result<ResultT
 	return !not_equals(a, b);
 }
 
+
+// assign a return code if the type has a return code (a and b types are assumed to be similar)
 template <typename Result, typename Result2>
 void assign_return_code(Result &a, const Result2 &b,
 	typename std::enable_if<Result::has_return_code, int>::type* = 0)
@@ -207,12 +243,14 @@ void assign_return_code(Result &a, const Result2 &b,
 	a.return_code = b.return_code;
 }
 
+// do nothing if the type DOES not has a return code 
 template <typename Result, typename Result2>
 void assign_return_code(const Result &a, const Result2 &b,
 	typename std::enable_if<!Result::has_return_code, int>::type* = 0)
 {
 }
 
+// assign the result directly if it isn't a container
 template <typename ElementType, typename ReturnCode, typename ResultType2>
 void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<!Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0)
@@ -221,6 +259,7 @@ void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, Return
 	a.val = b.val;
 }
 
+// assign the size and then the contents if it IS a container
 template <typename ElementType, typename ReturnCode, typename ResultType2>
 void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0)
@@ -230,6 +269,44 @@ void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, Return
 	assert(a.val.size() == b.val.size());
 	memcpy(a.val.data(), b.val.data(), b.val.size() * sizeof(a.val[0]));
 }
+
+// encode when the element type is a container
+template <typename ElementType>
+void val_encode(const ElementType &e, EncodeStream &stream,
+	typename std::enable_if<detail::SupportsData<ElementType>::value, int>::type* = 0)
+{
+	int size = size_as_int(e.size());
+	stream.memcpy_out_to_stream(&size, sizeof(size));
+	stream.memcpy_out_to_stream(e.data(), size * sizeof(e[0]));
+}
+
+// encode when the element type is NOT container
+template <typename ElementType>
+void val_encode(const ElementType &e, EncodeStream &stream,
+	typename std::enable_if<!detail::SupportsData<ElementType>::value, int>::type* = 0)
+{
+	stream.memcpy_out_to_stream(&e, sizeof(e));
+}
+
+// encode when the element type is a container
+template <typename ElementType>
+void val_decode(ElementType &e, EncodeStream &stream,
+	typename std::enable_if<detail::SupportsData<ElementType>::value, int>::type* = 0)
+{
+	int size;
+	stream.memcpy_from_stream(&size, sizeof(size));
+	e.resize(size);
+	stream.memcpy_from_stream(e.data(), size * sizeof(e[0]));
+}
+
+// encode when the element type is NOT container
+template <typename ElementType>
+void val_decode(ElementType &e, EncodeStream &stream,
+	typename std::enable_if<!detail::SupportsData<ElementType>::value, int>::type* = 0)
+{
+	stream.memcpy_from_stream(&e, sizeof(e));
+}
+
 
 // utilities
 template <typename T, typename R>

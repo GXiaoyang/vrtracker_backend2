@@ -9,6 +9,74 @@
 #include <deque>
 #include <gsl.h>
 
+
+
+
+static void test_result_encoding()
+{
+	{
+		Result<std::vector<int>, NoReturnCode> a;
+		a.val = { 1,2,3 };
+
+		char buf[1024];
+		EncodeStream e(buf, sizeof(buf), false);
+		a.encode(e);
+		e.reset_buf_pos();
+		Result<std::vector<int>, NoReturnCode> b;
+		b.decode(e);
+		assert(a.val == b.val);
+		assert(a == b);
+	}
+
+	{
+		Result<std::vector<int>, bool> a;
+		a.return_code = true;
+		a.val = { 1,2,3 };
+
+		char buf[1024];
+		EncodeStream e(buf, sizeof(buf), false);
+		a.encode(e);
+		e.reset_buf_pos();
+		Result<std::vector<int>, bool> b;
+		b.decode(e);
+		assert(a.return_code == b.return_code);
+		assert(a.val == b.val);
+		assert(a == b);
+	}
+
+	{
+		Result<int, NoReturnCode> a;
+		a.val = 11;
+
+		char buf[1024];
+		EncodeStream e(buf, sizeof(buf), false);
+		a.encode(e);
+		e.reset_buf_pos();
+		Result<int, NoReturnCode> b;
+		b.decode(e);
+		assert(a.val == b.val);
+		assert(a == b);
+	}
+
+	{
+		Result<int, bool> a;
+		a.return_code = true;
+		a.val = 44;
+
+		char buf[1024];
+		EncodeStream e(buf, sizeof(buf), false);
+		a.encode(e);
+		e.reset_buf_pos();
+		Result<int, bool> b;
+		b.decode(e);
+		assert(a.return_code == b.return_code);
+		assert(a.val == b.val);
+		assert(a == b);
+	}
+	
+
+}
+
 static void test_type_checks()
 {
 	int a[11];
@@ -84,6 +152,7 @@ void test_copies()
 }
 void TEST_RESULT()
 {
+	test_result_encoding();
 	test_copies();
 	test_type_checks();
 }
