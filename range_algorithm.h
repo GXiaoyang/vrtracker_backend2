@@ -1,5 +1,6 @@
 #pragma once
 #include "platform.h"
+#include <algorithm>
 //
 // Utility functions to deal with ranges
 //
@@ -21,7 +22,7 @@ I last_item_less_than_or_equal_to(I begin, I end, ValType val)
 template <typename I, class _Pr>
 I last_item_less_than_or_equal_to(I begin, I end, time_index_t val, _Pr pr)
 {
-	I it = upper_bound(begin, end, val, pr);
+	I it = std::upper_bound(begin, end, val, pr);
 
 	if (it != begin) {
 		it--; // not at end of array so rewind to previous item

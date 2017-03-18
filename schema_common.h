@@ -26,17 +26,23 @@ template <typename ResultType, template <typename, typename> class ContainerType
 	template <typename> typename Allocator>
 struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocator>::iterator
 {
+	bool initialized;
 	time_node(const base::URL &name = base::URL()) 
+		: initialized(false)
 	{}
 	base::URL make_url_for_child(const char *child) { return base::EMPTY_URL(); }
 
 	time_node(const time_node &rhs) 
-		: time_indexed_vector<ResultType, ContainerType, Allocator>::iterator(rhs)
-	{}
+		: 
+		initialized(rhs.initialized),
+		time_indexed_vector<ResultType, ContainerType, Allocator>::iterator(rhs)
+	{
+	}
 
 	time_node &operator =(const time_node &rhs)
 	{
 		time_indexed_vector<ResultType, ContainerType, Allocator>::iterator::operator=(rhs);
+		initialized = rhs.initialized;
 		return *this;
 	}
 
@@ -44,6 +50,7 @@ struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocat
 	time_node &operator =(const typename time_indexed_vector<ResultType, ContainerType, Allocator>::iterator &rhs)
 	{
 		time_indexed_vector<ResultType, ContainerType, Allocator>::iterator::operator=(rhs);
+		initialized = true;
 		return *this;
 	}
 };
@@ -58,6 +65,7 @@ struct time_node<ResultType, ContainerType, false, Allocator> : public time_inde
 	time_node(const base::URL &name = base::URL())
 		: time_indexed_vector<ResultType, ContainerType, Allocator>(name)
 	{}
+	
 
 	base::URL make_url_for_child(const char *child) { return base::URL(); }
 };

@@ -3,7 +3,6 @@
 #include "url_named.h"
 #include "range.h"
 #include "range_algorithm.h"
-#include "result.h"
 
 template <typename T>
 struct time_indexed
@@ -75,16 +74,43 @@ template <	typename T,
 		return std::range<iterator>(container.begin(), container.end());
 	}
 
-	iterator get_blankiter()
+	iterator end()
 	{
-		return iterator();
+		return container.end();
 	}
 
 	iterator last_item_less_than_or_equal_to_time(time_index_t a)
 	{
-		return last_item_less_than_or_equal_to(container.begin(), container.end(), 0,
+		return last_item_less_than_or_equal_to(container.begin(), container.end(), a,
 			[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 	}
+
+	// check the hint iterator first before searching for it
+	iterator last_item_less_than_or_equal_to_time(time_index_t a, iterator &hint_iterator)
+	{
+		if (hint_iterator != end())
+		{
+			time_index_t hint_index = hint_iterator->get_time_index();
+			if (hint_index == a)
+			{
+				return hint_iterator;
+			}
+			else if (hint_index < a)
+			{
+				return last_item_less_than_or_equal_to(hint_iterator, container.end(), a,
+					[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
+			}
+			else // hint index > a
+			{
+				return last_item_less_than_or_equal_to(container.begin(), hint_iterator, a,
+					[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
+			}
+		}
+
+		return last_item_less_than_or_equal_to(container.begin(), container.end(), a,
+			[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
+	}
+
 
 	template<typename... Args>
 	void emplace_back(time_index_t time_index, Args&&... args)

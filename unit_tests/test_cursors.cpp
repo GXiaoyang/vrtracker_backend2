@@ -1,4 +1,5 @@
 #include "vr_system_cursor.h"
+#include "vr_compositor_cursor.h"
 #include "tracker_test_context.h"
 #include "vr_cursor_context.h"
 #include "vr_tracker_updater.h"
@@ -66,13 +67,88 @@ static void launch_readers(tracker_test_context *test_context, int unique_reads)
 }
 
 // test that multiple cursors can run simultaneously
+static void test_simultaneous_cursors(tracker_test_context *test_context)
+{
+	std::thread writer(writer_thread, test_context, true);
+	launch_readers(test_context, 10);
+	writer.join();
+}
+
+
+template <typename TOwner, float(TOwner::*func)()>
+float time_seek(
+	CursorContext &cursor_context, 
+	TOwner *p,
+	time_index_t from_index, time_index_t to_index
+	)
+{
+	float accum = 0;
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+	for (int i = 0; i < 1000; i++)
+	{
+		cursor_context.ChangeFrame(from_index);
+		accum += (p->*func)();
+		cursor_context.ChangeFrame(to_index);
+		accum += (p->*func)();
+	}
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	log_printf("seek to and from indexes %d, %d took %lld us.\n", from_index, to_index,
+		std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+	return accum;
+}
+
 // test that seek time is linear or better
+static void test_seek_time(tracker_test_context *test_context)
+{
+	// update 1000 frames
+	// measure time from 0->10
+	// measure time from 0->100
+	// measure time from 0->1000
+
+	CursorContext cursor_context(&test_context->get_tracker());
+	VRCompositorCursor compi(&cursor_context);
+	vr_tracker_updater u;
+	log_printf("collecting frames\n");
+
+	int target_number_of_frames = 1000;
+	while (cursor_context.GetCurrentFrame() < target_number_of_frames)
+	{
+		u.update_tracker_parallel(&test_context->get_tracker(), &test_context->raw_vr_interfaces());
+		cursor_context.ChangeFrame(target_number_of_frames);
+	}
+
+	float accum = 0;
+	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 0, 0);
+	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 500, 500);
+	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 200, 300);
+	accum += time_seek<VRCompositorCursor,&VRCompositorCursor::GetFrameTimeRemaining>(cursor_context, &compi, 0, 1000);
+
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining2>(cursor_context, &compi, 0, 0);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining2>(cursor_context, &compi, 500, 500);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining2>(cursor_context, &compi, 200, 300);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining2>(cursor_context, &compi, 0, 1000);
+
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining3>(cursor_context, &compi, 0, 0);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining3>(cursor_context, &compi, 500, 500);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining3>(cursor_context, &compi, 200, 300);
+	accum += time_seek<VRCompositorCursor, &VRCompositorCursor::GetFrameTimeRemaining3>(cursor_context, &compi, 0, 1000);
+
+	//as far as the reader goes, I'm guessing the 500,500 testcase is the most important. alot of stuff doesnt change and so
+	//the queries are going to be choosing the same choice over and over
+	//the best cache for 500,500 case is where cache return if its an exact match or lower bound
+
+
+}
+
+
+
 void TEST_SYSTEM_CURSOR()
 {
 	tracker_test_context test_context;
 	test_context.ForceInitAll(); // make sure it's setup before splitting into separate threads
-	std::thread writer(writer_thread, &test_context, true);
-	launch_readers(&test_context, 10);
-	writer.join();
+
+	test_seek_time(&test_context);
+	test_simultaneous_cursors(&test_context);
+	
 	
 }

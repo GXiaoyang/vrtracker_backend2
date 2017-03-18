@@ -1,5 +1,6 @@
 #include "time_containers.h"
 #include "segmented_list.h"
+#include "result.h"
 
 template <template <typename, typename> class Container>
 void test_ops_on_container()
@@ -35,7 +36,31 @@ void test_ops_on_container()
 
 }
 
+template <template <typename, typename> class Container>
+void test_last_item_query_cache()
+{
+	// see that cached results return the same result as uncached results
+	time_indexed_vector<Result<int, bool>, Container, std::allocator> v;
+	for (time_index_t time_index = 0; time_index < 1000; ++time_index)
+	{
+		v.emplace_back(time_index, 1,true);
+	}
 
+	std::vector<time_index_t> tests = { 0,1,1000,1001, 1000, 1, 0 };
+	for (int i = 0; i < 50; i++)
+	{
+		tests.push_back(rand() % 1001);
+	}
+
+	auto cached_iter = v.end();
+	for (time_index_t test : tests)
+	{
+		auto uncached = v.last_item_less_than_or_equal_to_time(test);
+		cached_iter = v.last_item_less_than_or_equal_to_time(test, cached_iter);
+		assert(uncached->get_time_index() == cached_iter->get_time_index());
+	}
+
+}
 
 void TEST_TIME_CONTAINERS()
 {
@@ -47,4 +72,8 @@ void TEST_TIME_CONTAINERS()
 
 	test_ops_on_container<std::vector>();
 	test_ops_on_container<segmented_list_1024>();
+
+	test_last_item_query_cache<std::vector>();
+	test_last_item_query_cache<segmented_list_1024>();
+
 }

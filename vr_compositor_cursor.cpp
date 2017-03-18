@@ -156,6 +156,22 @@ float VRCompositorCursor::GetFrameTimeRemaining()
 	LOG_EXIT_RC(rc, "CppStubGetFrameTimeRemaining");
 }
 
+float VRCompositorCursor::GetFrameTimeRemaining2()
+{
+	LOG_ENTRY("CppStubGetFrameTimeRemaining");
+	CURSOR_SYNC_STATE(frame_time_remaining_seg, frame_time_remaining_seg);
+	float rc = frame_time_remaining_seg->val;
+	LOG_EXIT_RC(rc, "CppStubGetFrameTimeRemaining");
+}
+
+float VRCompositorCursor::GetFrameTimeRemaining3()
+{
+	LOG_ENTRY("CppStubGetFrameTimeRemaining");
+	CURSOR_SYNC_STATE(frame_time_remaining_conc, frame_time_remaining_conc);
+	float rc = frame_time_remaining_conc->val;
+	LOG_EXIT_RC(rc, "CppStubGetFrameTimeRemaining");
+}
+
 void VRCompositorCursor::GetCumulativeStats(struct vr::Compositor_CumulativeStats * pStats, uint32_t nStatsSizeInBytes)
 {
 	LOG_ENTRY("CppStubGetCumulativeStats");

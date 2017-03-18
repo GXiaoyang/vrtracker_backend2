@@ -3,7 +3,7 @@
 #include "time_containers.h"
 #include "schema_common.h"
 #include "segmented_list.h"
-#include <deque>
+//#include "tbb/concurrent_vector.h"
 
 #define INIT(var_name)			var_name(make_url_for_child( #var_name ))
 #define ALLOC_DECL
@@ -22,8 +22,13 @@ namespace vr_result
 	struct vr_schema : schema<is_iterator>
 	{
 		template <typename ResultType>
-		//using TIMENODE = time_node<ResultType, segmented_list_1024, is_iterator, AllocatorTemplate>;
-		using TIMENODE = time_node<ResultType, std::vector, is_iterator, AllocatorTemplate>;
+		using TIMENODE = time_node<ResultType, segmented_list_1024, is_iterator, AllocatorTemplate>;
+
+	//	template <typename ResultType>
+	//	using TIMENODE = time_node<ResultType, std::vector, is_iterator, AllocatorTemplate>;
+
+	//	template <typename ResultType>
+	//	using CONC_TIMENODE = time_node<ResultType, tbb::concurrent_vector, is_iterator, AllocatorTemplate>;
 
 		// two kinds of children.  
 		//	child is a vector of schemas
@@ -344,6 +349,7 @@ namespace vr_result
 				INIT(frame_timing),
 				INIT(frame_timings),
 				INIT(frame_time_remaining),
+				INIT(frame_time_remaining_seg),
 				INIT(cumulative_stats),
 				INIT(foreground_fade_color),
 				INIT(background_fade_color),
@@ -362,6 +368,8 @@ namespace vr_result
 			TIMENODE<CompositorFrameTiming<bool>> frame_timing;
 			TIMENODE<CompositorFrameTimingString<>> frame_timings;
 			TIMENODE<Float<>> frame_time_remaining;
+			TIMENODE<Float<>> frame_time_remaining_seg;
+			TIMENODE<Float<>> frame_time_remaining_conc;
 			TIMENODE<CompositorCumulativeStats<>> cumulative_stats;
 			TIMENODE<HmdColor<>> foreground_fade_color;
 			TIMENODE<HmdColor<>> background_fade_color;

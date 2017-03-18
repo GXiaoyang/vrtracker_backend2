@@ -129,8 +129,12 @@ void vr_tracker_updater::update_tracker_parallel(vr_tracker *tracker, openvr_bro
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	traverse_history_graph<named_task_group>(&update_visitor, tracker, interfaces);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	log_printf("parallel update took %lld us.\n",
-		std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+	bool quiet = true;
+	if (!quiet)
+	{
+		log_printf("parallel update took %lld us.\n",
+			std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+	}
 
 	tracker->m_last_updated_frame_number = last_updated + 1;
 }

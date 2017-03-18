@@ -156,7 +156,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base_serialization.h" />
-    <ClInclude Include="history.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="openvr_broker.h" />
     <ClInclude Include="openvr_cppstub.h" />
@@ -228,14 +227,11 @@
     <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp" />
     <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp" />
     <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp" />
-    <ClCompile Include="design_goal.cpp" />
-    <ClCompile Include="design_goal2.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openvr_broker.cpp" />
     <ClCompile Include="openvr_cppstub.cpp" />
-    <ClCompile Include="rangesplay.cpp" />
     <ClCompile Include="slab_allocator.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

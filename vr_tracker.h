@@ -26,9 +26,9 @@ public:
 
 	static const int LARGE_SEGMENT_SIZE = 5400;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
 
-	slab *m_slab;
-	slab_allocator<char> m_allocator;
-	tmp_vector_pool<VRTMPSize> m_string_pool;
+	//slab *m_slab;
+	//slab_allocator<char> m_allocator;
+	//tmp_vector_pool<VRTMPSize> m_string_pool;
 
 	std::chrono::time_point<std::chrono::steady_clock> start_time;
 
@@ -38,7 +38,6 @@ public:
 	tracker_save_summary save_info;
 	vr_keys keys;
 
-	vr_result::vr_schema<false, std::allocator> s2;
 	vr_result::vr_state m_state;
 
 	VRForwardList<FrameNumberedEvent>  m_events;
@@ -54,12 +53,11 @@ public:
 
 	vr_tracker(slab *slab)
 		:
-		m_slab(slab),
-		m_allocator(slab),
+		//m_slab(slab),
+		//m_allocator(slab),
 		m_last_updated_frame_number(-1),
 		blocking_update_calls(0),
 		non_blocking_update_calls(0),
-		s2(base::URL("vr", "/vr")),
 		m_state(base::URL("vr", "/vr")),
 		m_time_stamps(slab_allocator<time_stamp_t>())
 	{

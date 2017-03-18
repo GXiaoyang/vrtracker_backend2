@@ -51,9 +51,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="history.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="time_containers.h">
       <Filter>Source Files\time_containers</Filter>
     </ClInclude>
@@ -213,9 +210,6 @@
     <ClInclude Include="vr_render_models_wrapper.h">
       <Filter>Source Files\vr_wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="vr_compositor_cursor.h">
-      <Filter>Source Files\vr_wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="vr_overlay_cursor.h">
       <Filter>Source Files\y cursor</Filter>
     </ClInclude>
@@ -240,27 +234,21 @@
     <ClInclude Include="vr_notifications_cursor.h">
       <Filter>Source Files\y cursor</Filter>
     </ClInclude>
-    <ClInclude Include="vr_tracked_camera_cursor.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="unit_tests\tracker_test_context.h">
       <Filter>Source Files\unit tests</Filter>
     </ClInclude>
     <ClInclude Include="vr_tracker_updater.h">
       <Filter>Source Files\x vr visitors</Filter>
     </ClInclude>
+    <ClInclude Include="vr_compositor_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_tracked_camera_cursor.h">
+      <Filter>Source Files\y cursor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rangesplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="design_goal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="design_goal2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="slab_allocator.cpp">
@@ -365,9 +353,6 @@
     <ClCompile Include="vr_chaperone_setup_cursor.cpp">
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
-    <ClCompile Include="vr_compositor_cursor.cpp">
-      <Filter>Source Files\vr_wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="vr_overlay_cursor.cpp">
       <Filter>Source Files\y cursor</Filter>
     </ClCompile>
@@ -397,6 +382,9 @@
     </ClCompile>
     <ClCompile Include="vr_tracker_updater.cpp">
       <Filter>Source Files\x vr visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_compositor_cursor.cpp">
+      <Filter>Source Files\y cursor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@
 #define CURSOR_ITER_NAME(local_name) local_name ## _iter	// temporary variable
 #define CURSOR_SYNC_STATE(local_name, variable_name) \
 SynchronizeChildVectors();\
-auto CURSOR_ITER_NAME(local_name) = iter_ref.variable_name;\
+auto & CURSOR_ITER_NAME(local_name) = iter_ref.variable_name;\
 update_iter(CURSOR_ITER_NAME(local_name),\
 	state_ref.variable_name,\
 	m_context->GetCurrentFrame());\
@@ -24,7 +24,15 @@ static void update_iter(T& cached_iterator, U &history_node, time_index_t cursor
 	{
 		ABORT("error node is empty. this should happen to the cursor interfaces");
 	}
-	cached_iterator = history_node.last_item_less_than_or_equal_to_time(cursor_frame);
+	
+	if (cached_iterator.initialized)
+	{
+		cached_iterator = history_node.last_item_less_than_or_equal_to_time(cursor_frame, cached_iterator);
+	}
+	else
+	{
+		cached_iterator = history_node.last_item_less_than_or_equal_to_time(cursor_frame);
+	}
 }
 
 // strncmp for vector of char vs null terminated string

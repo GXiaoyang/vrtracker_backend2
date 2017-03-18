@@ -18,7 +18,11 @@ public:
 	vr::EVRCompositorError GetLastPoseForTrackedDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex, struct vr::TrackedDevicePose_t * pOutputPose, struct vr::TrackedDevicePose_t * pOutputGamePose) override;
 	bool GetFrameTiming(struct vr::Compositor_FrameTiming * pTiming, uint32_t unFramesAgo) override;
 	uint32_t GetFrameTimings(struct vr::Compositor_FrameTiming * pTiming, uint32_t nFrames) override;
+
 	float GetFrameTimeRemaining() override;
+	float GetFrameTimeRemaining2();
+	float GetFrameTimeRemaining3();
+
 	void GetCumulativeStats(struct vr::Compositor_CumulativeStats * pStats, uint32_t nStatsSizeInBytes) override;
 	struct vr::HmdColor_t GetCurrentFadeColor(bool bBackground) override;
 	float GetCurrentGridAlpha() override;

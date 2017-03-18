@@ -112,8 +112,13 @@ public:
 	}
 
 	// visual studio 2012 bug: https://connect.microsoft.com/VisualStudio/feedback/details/762094
-	template<typename X, typename Y>
-	struct rebind { using other = slab_allocator<T>; };
+	//template<typename X, typename Y>
+	//struct rebind { using other = slab_allocator<T>; };
+
+	template <typename U>
+	struct rebind {
+		using other = slab_allocator<U>;
+	};
 
 	~slab_allocator()
 	{

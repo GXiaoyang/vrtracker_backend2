@@ -1019,7 +1019,11 @@ static void visit_compositor_state(visitor_fn *visitor,
 	{
 		VISIT(tracking_space, wrap->GetTrackingSpace());
 		VISIT(frame_timing, wrap->GetFrameTiming(config->GetFrameTimingFramesAgo()));
+
 		VISIT(frame_time_remaining, wrap->GetFrameTimeRemaining());
+		VISIT(frame_time_remaining_seg, wrap->GetFrameTimeRemaining());
+		VISIT(frame_time_remaining_conc, wrap->GetFrameTimeRemaining());
+
 		VISIT(cumulative_stats, wrap->GetCumulativeStats());
 		VISIT(foreground_fade_color, wrap->GetForegroundFadeColor());
 		VISIT(background_fade_color, wrap->GetBackgroundFadeColor());
