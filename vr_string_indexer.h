@@ -26,7 +26,7 @@ public:
 		auto &ref = keys[app_index];
 		if (count)
 		{
-			*count = (int)ref.size() + 1;
+			*count = size_as_int(ref.size()) + 1;
 		}
 		return ref.c_str();
 	}

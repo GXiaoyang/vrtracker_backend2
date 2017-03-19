@@ -2,8 +2,6 @@
 #include "vr_applications_wrapper.h"
 #include "vr_string_indexer.h"
 
-struct vr_result::ApplicationsWrapper;
-
 
 // knows how to map indexes to application keys
 class ApplicationsIndexer

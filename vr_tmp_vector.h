@@ -35,6 +35,11 @@ struct vr_tmp_vector : tmp_vector<T, VRFinalAllocatorType, VRTMPSize>, vr_tmp_ve
 
 };
 
+//
+// vr_empty_vector allows a a temporary to be created without memory allocated
+//
+// the assignment operator will allow it to then be promoted to something with memory allocated
+// 
 template<typename T>
 struct vr_empty_vector : vr_tmp_vector<T>
 {
@@ -42,7 +47,7 @@ struct vr_empty_vector : vr_tmp_vector<T>
 		: vr_tmp_vector<T>(0)
 	{}
 
-	vr_empty_vector & operator = (vr_tmp_vector &&rhs)
+	vr_empty_vector & operator = (vr_tmp_vector<T> &&rhs)
 	{
 		vr_tmp_vector<T>::operator=(std::move(rhs));
 		return *this;

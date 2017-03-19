@@ -34,5 +34,5 @@ int main()
 	unit_tests();
 	GUI_USE_CASE();
 	UPDATE_USE_CASE();
-	log_printf("all tests done");
+	log_printf("all tests done\n");
 }

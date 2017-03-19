@@ -12,18 +12,18 @@ public:
 
 	const char *get_filename_for_index(int index, int *fname_size)
 	{
-		*fname_size = (int)m_resource_filenames[index].size() + 1;
+		*fname_size = size_as_int(m_resource_filenames[index].size()) + 1;
 		return m_resource_filenames[index].c_str();
 	}
 
 	const char * get_directoryname_for_index(int index, int *dname_size)
 	{
-		*dname_size = (int)m_resource_directories[index].size() + 1;
+		*dname_size = size_as_int(m_resource_directories[index].size()) + 1;
 		return m_resource_directories[index].c_str();
 	}
 
 	int get_num_resources() {
-		return (int)m_resource_filenames.size();
+		return size_as_int(m_resource_filenames.size());
 	}
 
 	std::vector<std::string> m_resource_directories;

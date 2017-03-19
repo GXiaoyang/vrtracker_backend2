@@ -55,7 +55,7 @@ public:
 
 	int GetNumSections()
 	{
-		return (int)sections.size();
+		return size_as_int(sections.size());
 	}
 
 	int GetNumFields(const char *section_name, SectionSettingType setting_type)

@@ -13,13 +13,18 @@ namespace plat
 {
 	static void sleep_ms(unsigned long ms)
 	{
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(1ms);
+		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 	}
 }
 
 typedef uint64_t time_stamp_t;
 typedef int time_index_t;
+
+
+template <typename T>
+constexpr int size_as_int(const T &size_in) {
+	return static_cast<int>(size_in);
+}
 
 inline uint64_t rdtsc() {
 	return __rdtsc();
@@ -27,7 +32,8 @@ inline uint64_t rdtsc() {
 
 #define TBL_SIZE(t) (sizeof(t)/sizeof(t[0]))
 
-inline int CLAMP(int min, int max, int sample)
+template <typename T>
+inline T CLAMP(T min, T max, T sample)
 {
 	if (sample < min)
 		return min;
@@ -36,8 +42,3 @@ inline int CLAMP(int min, int max, int sample)
 	return sample;
 }
 
-template <typename T>
-constexpr int size_as_int(const T &size_in) {
-	assert(size_in <= static_cast<std::size_t>(std::numeric_limits<int>::max()));
-	return static_cast<int>(size_in);
-}

@@ -42,11 +42,11 @@ vr::EVRCompositorError VRCompositorCursor::GetLastPoses(
 	SynchronizeChildVectors();
 	// rebuild the arrays from the controllers
 	for (int i = 0;
-		(i < (int)unRenderPoseArrayCount) || (i < (int)unGamePoseArrayCount) &&
-		i < (int)m_context->get_iterators()->compositor_node.controllers.size();
+		(i < size_as_int(unRenderPoseArrayCount)) || (i < size_as_int(unGamePoseArrayCount)) &&
+		i < size_as_int(m_context->get_iterators()->compositor_node.controllers.size());
 		i++)
 	{
-		if (i < (int)unRenderPoseArrayCount)
+		if (i < size_as_int(unRenderPoseArrayCount))
 		{
 			CURSOR_SYNC_STATE(last_render_pose, controllers[i].last_render_pose);
 			if (last_render_pose->is_present())
@@ -59,7 +59,7 @@ vr::EVRCompositorError VRCompositorCursor::GetLastPoses(
 				break;
 			}
 		}
-		if (i < (int)unGamePoseArrayCount)
+		if (i < size_as_int(unGamePoseArrayCount))
 		{
 			CURSOR_SYNC_STATE(last_game_pose, controllers[i].last_game_pose);
 			if (last_game_pose->is_present())

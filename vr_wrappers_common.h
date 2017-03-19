@@ -32,7 +32,7 @@ namespace vr_result
 	void query_vector_rccount(TMPString<> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
 	{
 		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), result->val.max_size()));
-		assert(result->val.size() < (int)result->val.max_size());
+		assert(result->val.size() < result->val.max_size());
 	}
 
 
@@ -51,7 +51,7 @@ namespace vr_result
 	{
 		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), result->val.max_size()));
 		result->return_code = result->val.size() != 0;
-		assert(result->val.size() < (int)result->val.max_size());
+		assert(result->val.size() < result->val.max_size());
 	}
 
 	// virtual EVRApplicationError GetApplicationKeyByIndex(uint32_t unApplicationIndex, VR_OUT_STRING() char *pchAppKeyBuffer, uint32_t unAppKeyBufferLen) = 0;

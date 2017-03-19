@@ -23,14 +23,14 @@ struct schema<true>
 // Iterator node is whatever the 'iterator type' is for the time_indexed_vector
 //
 template <typename ResultType, template <typename, typename> class ContainerType, bool IsIterator, 
-	template <typename> typename Allocator>
+	template <typename> class Allocator>
 struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocator>::iterator
 {
 	bool initialized;
 	time_node(const base::URL &name = base::URL()) 
 		: initialized(false)
 	{}
-	base::URL make_url_for_child(const char *child) { return base::EMPTY_URL(); }
+	base::URL make_url_for_child(const char *child) { return base::URL::EMPTY_URL; }
 
 	time_node(const time_node &rhs) 
 		: 
@@ -59,13 +59,12 @@ struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocat
 // State node
 //
 template <typename ResultType, template <typename, typename> class ContainerType, 
-	template <typename>  typename Allocator>
+	template <typename>  class Allocator>
 struct time_node<ResultType, ContainerType, false, Allocator> : public time_indexed_vector<ResultType, ContainerType, Allocator>
 {
 	time_node(const base::URL &name = base::URL())
 		: time_indexed_vector<ResultType, ContainerType, Allocator>(name)
 	{}
-	
 
 	base::URL make_url_for_child(const char *child) { return base::URL(); }
 };

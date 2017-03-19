@@ -38,7 +38,7 @@ bool VRResourcesCursor::GetIndexForResourceNameAndDirectory(
 {
 	bool rc = false;
 	SynchronizeChildVectors(); // dont erase this since this is a lookup 
-	for (int i = 0; i < (int)iter_ref.resources.size(); i++)
+	for (int i = 0; i < size_as_int(iter_ref.resources.size()); i++)
 	{
 		CURSOR_SYNC_STATE(name, resources[i].resource_name);
 		CURSOR_SYNC_STATE(directory, resources[i].resource_directory);
@@ -59,7 +59,7 @@ bool VRResourcesCursor::GetIndexForFullPath(const char *pchResourceName, int *in
 {
 	bool rc = false;
 	SynchronizeChildVectors();
-	for (int i = 0; i < (int)iter_ref.resources.size(); i++)
+	for (int i = 0; i < size_as_int(iter_ref.resources.size()); i++)
 	{
 		CURSOR_SYNC_STATE(full, resources[i].resource_full_path);
 

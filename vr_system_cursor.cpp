@@ -172,7 +172,7 @@ void VRSystemCursor::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin
 
 	if (eOrigin == vr::TrackingUniverseSeated)
 	{
-		for (int i = 0; i < (int)unTrackedDevicePoseArrayCount; i++)
+		for (int i = 0; i < size_as_int(unTrackedDevicePoseArrayCount); i++)
 		{
 			CURSOR_SYNC_STATE(seated_tracking_pose, controllers[i].seated_tracking_pose);
 			pTrackedDevicePoseArray[i] = seated_tracking_pose->val;
@@ -180,7 +180,7 @@ void VRSystemCursor::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin
 	}
 	else if (eOrigin == vr::TrackingUniverseStanding)
 	{
-		for (int i = 0; i < (int)unTrackedDevicePoseArrayCount; i++)
+		for (int i = 0; i < size_as_int(unTrackedDevicePoseArrayCount); i++)
 		{
 			CURSOR_SYNC_STATE(standing_tracking_pose, controllers[i].standing_tracking_pose);
 			pTrackedDevicePoseArray[i] = standing_tracking_pose->val;
@@ -188,7 +188,7 @@ void VRSystemCursor::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin
 	}
 	else
 	{
-		for (int i = 0; i < (int)unTrackedDevicePoseArrayCount; i++)
+		for (int i = 0; i < size_as_int(unTrackedDevicePoseArrayCount); i++)
 		{
 			CURSOR_SYNC_STATE(raw_tracking_pose, controllers[i].raw_tracking_pose);
 			pTrackedDevicePoseArray[i] = raw_tracking_pose->val;

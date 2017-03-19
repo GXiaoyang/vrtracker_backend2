@@ -140,7 +140,7 @@ vr::EVRApplicationError VRApplicationsCursor::GetApplicationKeyByProcessId(
 	LOG_ENTRY("CppStubGetApplicationKeyByProcessId");
 
 	vr::EVRApplicationError rc = VRApplicationError_InvalidParameter;
-	for (int i = 0; i < (int)m_context->get_iterators()->applications_node.applications.size(); i++)
+	for (int i = 0; i < size_as_int(m_context->get_iterators()->applications_node.applications.size()); i++)
 	{
 		CURSOR_SYNC_STATE(app_key, applications[i].application_key);
 		CURSOR_SYNC_STATE(process_id, applications[i].process_id);

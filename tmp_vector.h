@@ -49,7 +49,7 @@ struct tmp_vector_pool
 		pool_mutex.lock();
 		m_free_one_calls++;
 #ifdef _DEBUG
-		for (int i = 0; i < (int)string_pool.size(); i++)
+		for (int i = 0; i < size_as_int(string_pool.size()); i++)
 		{
 			// make sure duplicates don't appear back in the string pool
 			assert(string_pool[i] != (char *)s);

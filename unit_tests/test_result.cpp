@@ -9,9 +9,6 @@
 #include <deque>
 #include <gsl.h>
 
-
-
-
 static void test_result_encoding()
 {
 	{

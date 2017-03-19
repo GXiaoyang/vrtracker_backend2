@@ -40,6 +40,9 @@
     <Filter Include="Source Files\y cursor">
       <UniqueIdentifier>{1a6e52d6-3b04-418a-a142-e0748e97d5fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\base_unit_tests">
+      <UniqueIdentifier>{b0e7f34d-4fee-42b1-a08f-d651ed7a90bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -281,12 +284,6 @@
     <ClCompile Include="vr_tmp_vector.cpp">
       <Filter>Source Files\vr base</Filter>
     </ClCompile>
-    <ClCompile Include="unit_tests\test_segmented_list.cpp">
-      <Filter>Source Files\unit tests</Filter>
-    </ClCompile>
-    <ClCompile Include="unit_tests\test_result.cpp">
-      <Filter>Source Files\unit tests</Filter>
-    </ClCompile>
     <ClCompile Include="unit_tests\test_time_containers.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
@@ -385,6 +382,12 @@
     </ClCompile>
     <ClCompile Include="vr_compositor_cursor.cpp">
       <Filter>Source Files\y cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_result.cpp">
+      <Filter>Source Files\base_unit_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_segmented_list.cpp">
+      <Filter>Source Files\base_unit_tests</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

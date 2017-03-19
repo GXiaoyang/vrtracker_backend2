@@ -54,7 +54,7 @@ private:
 //                       a pretty thin layer
 template <	typename T,
 	template <typename, typename> class Container,
-	template <typename> typename A>
+	template <typename> class A>
 	struct time_indexed_vector : base::url_named
 {
 	typedef T									value_type;

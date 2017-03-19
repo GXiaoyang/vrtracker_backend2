@@ -139,7 +139,7 @@ vr::EVRRenderModelError VRRenderModelsCursor::LoadTexture_Async(
 	SynchronizeChildVectors();
 	vr::EVRRenderModelError rc;
 	int index = (int)textureId - 1000;
-	if (index >= 0 && index < (int)iter_ref.models.size())
+	if (index >= 0 && index < size_as_int(iter_ref.models.size()))
 	{
 		// build the return value from vertex and index data
 		CURSOR_SYNC_STATE(texture_width, models[index].texture_width);

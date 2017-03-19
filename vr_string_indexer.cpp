@@ -18,7 +18,7 @@ void StringIndexer::ReadFromStream(EncodeStream &s)
 	keys.clear();
 	keys2index.clear();
 	read_string_vector_from_stream(s, keys);
-	for (int i = 0; i < (int)keys.size(); i++)
+	for (int i = 0; i < size_as_int(keys.size()); i++)
 	{
 		keys2index.insert({ keys[i].c_str(), i });
 	}

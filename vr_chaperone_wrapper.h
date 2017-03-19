@@ -38,8 +38,8 @@ namespace vr_result
 			float fade_distance,
 			HmdColor<> *camera_color)
 		{
-			assert((int)colors->val.max_size() >= num_output_colors);
-			num_output_colors = std::min(num_output_colors, (int)colors->val.max_size());
+			assert(size_as_int(colors->val.max_size()) >= num_output_colors);
+			num_output_colors = std::min(num_output_colors, size_as_int(colors->val.max_size()));
 			chapi->GetBoundsColor(colors->val.data(), num_output_colors, fade_distance, &camera_color->val);
 			colors->val.resize(num_output_colors);
 		}

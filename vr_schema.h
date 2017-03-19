@@ -5,7 +5,7 @@
 #include "segmented_list.h"
 //#include "tbb/concurrent_vector.h"
 
-#define INIT(var_name)			var_name(make_url_for_child( #var_name ))
+#define INIT(var_name)			var_name(schema<is_iterator>::make_url_for_child( #var_name ))
 #define ALLOC_DECL
 
 namespace vr_result
@@ -18,7 +18,7 @@ namespace vr_result
 	// For individual nodes that are strings or vectors, the allocator is chosen by
 	// the ResultVector template in vr_types.h
 	//
-	template <bool is_iterator, template <typename> typename AllocatorTemplate>
+	template <bool is_iterator, template <typename> class AllocatorTemplate>
 	struct vr_schema : schema<is_iterator>
 	{
 		template <typename ResultType>

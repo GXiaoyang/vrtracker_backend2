@@ -113,9 +113,6 @@ namespace vr_result
 	using AbsoluteTransform = Result<vr::AbsoluteTransform, ReturnCode>;
 	
 	template <typename ReturnCode = NoReturnCode>
-	using AbsoluteTransform = Result<vr::AbsoluteTransform, ReturnCode>;
-
-	template <typename ReturnCode = NoReturnCode>
 	using TrackedDeviceRelativeTransform = Result<vr::TrackedDeviceRelativeTransform, ReturnCode>;
 
 	template <typename ReturnCode = NoReturnCode>
@@ -215,7 +212,7 @@ namespace vr_result
 
 	template <	typename T, 
 				typename ReturnCode = NoReturnCode>
-	using ResultVector = Result<std::vector<T, VRAllocatorTemplate<T>>, ReturnCode>;
+	using  ResultVector = Result<std::vector<T, VRAllocatorTemplate<T>>, ReturnCode>;
 
 
 	template <typename ReturnCode = NoReturnCode>
@@ -232,10 +229,10 @@ namespace vr_result
 	using TMPHMDColorString = Result<TMPHMDColorVectorOnly, ReturnCode>;
 
 	template <typename ReturnCode = NoReturnCode>
-	using Uint8String = ResultVector<vr::uint8_t, ReturnCode>;
+	using Uint8String = ResultVector<uint8_t, ReturnCode>;
 	
 	template <typename ReturnCode = NoReturnCode>
-	using Uint16String = ResultVector<vr::uint16_t, ReturnCode>;
+	using Uint16String = ResultVector<uint16_t, ReturnCode>;
 	
 	template <typename ReturnCode = NoReturnCode>
 	using RenderModelVertexString = ResultVector<vr::RenderModel_Vertex_t, ReturnCode>;

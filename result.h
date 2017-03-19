@@ -78,7 +78,8 @@ struct Result : ResultBase<ElementType>
 	explicit Result(Result<E, R> &rhs)
 	{
 		static_assert(
-			(value_is_pod && std::is_pod<E>::value) || (value_is_container && IsValueContainer<E>()),
+			(ResultBase<ElementType>::value_is_pod && std::is_pod<E>::value) || 
+			(ResultBase<ElementType>::value_is_container && IsValueContainer<E>()),
 			"source and target are not similar enough");
 		assign(*this, rhs);
 	}
@@ -89,10 +90,14 @@ struct Result : ResultBase<ElementType>
 		return *this;
 	}
 
-	template <typename ResultType2>
-	Result& operator = (const Result<ResultType2, ReturnCode> &rhs)
+	template <typename E, typename R>
+	Result& operator = (Result<E, R> &rhs)
 	{
-		static_assert(value_is_pod && std::is_pod<ResultType2>::value);
+		static_assert(
+			(ResultBase<ElementType>::value_is_pod && std::is_pod<E>::value) ||
+			(ResultBase<ElementType>::value_is_container && IsValueContainer<E>()),
+			"source and target are not similar enough");
+
 		assign(*this, rhs);
 		return *this;
 	}
@@ -140,7 +145,8 @@ struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 	explicit Result(Result<E, R> &rhs)
 	{
 		static_assert(
-			(value_is_pod && std::is_pod<E>::value) || (value_is_container && IsValueContainer<E>()),
+			(ResultBase<ElementType>::value_is_pod && std::is_pod<E>::value) ||
+			(ResultBase<ElementType>::value_is_container && IsValueContainer<E>()),
 			"source and target are not similar enough");
 
 		assign(*this, rhs);
@@ -150,7 +156,8 @@ struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 	Result& operator =(const Result<E, R> &rhs)
 	{
 		static_assert(
-			(value_is_pod && std::is_pod<E>::value) || (value_is_container && IsValueContainer<E>()),
+			(ResultBase<ElementType>::value_is_pod && std::is_pod<E>::value) ||
+			(ResultBase<ElementType>::value_is_container && IsValueContainer<E>()),
 			"source and target are not similar enough");
 
 		assign(*this, rhs);
@@ -206,8 +213,8 @@ bool not_equals(
 	const Result<ResultType2, ReturnCode> &b,
 	typename std::enable_if<Result<ElementType, ReturnCode>::value_is_container, int>::type* = 0) 
 {
-	static_assert(std::is_same<std::remove_cv<std::remove_reference<decltype(a.val[0])>::type>::type, 
-							   std::remove_cv<std::remove_reference<decltype(b.val[0])>::type>::type>::value, "a and b are not the same type");
+	static_assert(std::is_same<typename std::remove_cv<typename std::remove_reference<decltype(a.val[0])>::type>::type, 
+							   typename std::remove_cv<typename std::remove_reference<decltype(b.val[0])>::type>::type>::value, "a and b are not the same type");
 	static_assert(std::is_pod<typename ElementType::value_type>::value, "values are not pods.  the memcmp prob won't work");
 
 	if (return_code_not_equals(a, b))
@@ -275,9 +282,7 @@ template <typename ElementType>
 void val_encode(const ElementType &e, EncodeStream &stream,
 	typename std::enable_if<detail::SupportsData<ElementType>::value, int>::type* = 0)
 {
-	int size = size_as_int(e.size());
-	stream.memcpy_out_to_stream(&size, sizeof(size));
-	stream.memcpy_out_to_stream(e.data(), size * sizeof(e[0]));
+	stream.contiguous_container_out_to_stream(e);
 }
 
 // encode when the element type is NOT container
@@ -293,10 +298,7 @@ template <typename ElementType>
 void val_decode(ElementType &e, EncodeStream &stream,
 	typename std::enable_if<detail::SupportsData<ElementType>::value, int>::type* = 0)
 {
-	int size;
-	stream.memcpy_from_stream(&size, sizeof(size));
-	e.resize(size);
-	stream.memcpy_from_stream(e.data(), size * sizeof(e[0]));
+	stream.contiguous_container_from_stream(e);
 }
 
 // encode when the element type is NOT container
