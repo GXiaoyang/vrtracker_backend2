@@ -4,7 +4,6 @@
 #pragma once
 #include <memory.h>
 #include <assert.h>
-#include <vector>
 
 struct EncodeStream
 {
@@ -21,6 +20,27 @@ struct EncodeStream
 	void reset_buf_pos()
 	{
 		buf_pos = 0;
+	}
+
+	template <typename Container> 
+	void contiguous_container_out_to_stream(const Container &container)
+	{
+		int size = container.size();	// dont' use size_t because it's different on 32 vs 64 bit
+		memcpy_out_to_stream(&size, sizeof(size));
+		memcpy_out_to_stream(container.data(), size * sizeof(*container.data()));
+	}
+
+	template <typename Container>
+	void contiguous_container_from_stream(Container &container)
+	{
+		int size;
+		memcpy_from_stream(&size, sizeof(size));
+		container.resize(size);
+		// until c++17 basic_string doesn't have a non-const data().  so use at:
+		if (size > 0)
+		{
+			memcpy_from_stream(&container.at(0), size * sizeof(*container.data()));
+		}
 	}
 
 	// write value to buf and advance pointer

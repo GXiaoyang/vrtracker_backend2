@@ -62,8 +62,74 @@ void test_last_item_query_cache()
 
 }
 
+void test_serialization()
+{
+	{
+		// time indexed vector
+		typedef Result<std::vector<int>, NoReturnCode> int_result;
+		time_indexed<int_result> a;
+		a.set_time_index(11);
+
+		char buf[1024];
+		EncodeStream stream(buf, sizeof(buf), false);
+
+		a.encode(stream);
+		stream.reset_buf_pos();
+
+		time_indexed<int_result> b;
+		b.decode(stream);
+		assert(a.get_time_index() == b.get_time_index());
+		assert(a.get_value() == b.get_value());
+
+
+		{
+			time_indexed_vector<int_result, std::vector, std::allocator> veca;
+			veca.push_back(a);
+			stream.reset_buf_pos();
+			veca.encode(stream);
+			time_indexed_vector<int_result, std::vector, std::allocator> vecb;
+			stream.reset_buf_pos();
+			vecb.decode(stream);
+			assert(veca == vecb);
+		}
+		{
+			time_indexed_vector<int_result, segmented_list_1024, std::allocator> veca;
+
+			veca.push_back(a);
+			stream.reset_buf_pos();
+			veca.encode(stream);
+			time_indexed_vector<int_result, segmented_list_1024, std::allocator> vecb;
+			stream.reset_buf_pos();
+			vecb.decode(stream);
+			assert(veca == vecb);
+		}
+
+		// add a name
+		{
+			time_indexed_vector<int_result, segmented_list_1024, std::allocator> veca(base::URL("foo", "/root/foo"));
+
+			veca.push_back(a);
+			stream.reset_buf_pos();
+			veca.encode(stream);
+			time_indexed_vector<int_result, segmented_list_1024, std::allocator> vecb;
+			stream.reset_buf_pos();
+			vecb.decode(stream);
+			assert(veca == vecb);
+		}
+
+
+
+	}
+	
+
+	
+
+}
+
 void TEST_TIME_CONTAINERS()
 {
+	test_serialization();
+
 	time_indexed<std::string> a(3, "ha");
 	time_indexed<std::string> b;
 	b = a;

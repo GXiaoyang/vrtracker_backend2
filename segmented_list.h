@@ -150,10 +150,9 @@ public:
 		: m_segment_container(alloc)
 	{
 		size_type num_required_segments = count / SegmentSize + 1;
-		for (size_t i = 0; i < num_required_segments; i++)
+		for (size_t i = m_segment_container.size(); i < num_required_segments; i++)
 		{
-			T *buf = get_allocator().allocate(SegmentSize);
-			m_segment_container.push_back(buf);
+			add_segment();
 		}
 		m_size = count;
 	}
@@ -276,6 +275,16 @@ public:
 		}
 	}
 
+	
+	
+
+	void reserve(size_type new_cap)
+	{
+		// todo: support reserve.  can't do it because
+		// some code (like emplace back and pushback below)
+		// assume indices into the last container
+	}
+
 	template<typename... Args> 
 	void emplace_back(Args&&... args)
 	{
@@ -288,7 +297,8 @@ public:
 	void push_back(const T& value)
 	{
 		T* buf = &m_segment_container.back()[m_size % SegmentSize];
-		*buf = value;
+		new(buf) T(value);
+		//*buf = value;
 		grow_if_necessary();
 		m_size++;
 	}

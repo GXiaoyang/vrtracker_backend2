@@ -1,12 +1,11 @@
 ﻿#pragma once
 #include "openvr.h"
 #include "base_serialization.h"
-// don't define this or pay the price of crazy (implicit) encodings!
-template <typename T>
-static void encode(T v, EncodeStream &e);
+#include <string.h>
+#include <vector>
 
-#define ENCODE(type_name) template <> \
-void encode<type_name>(type_name v, EncodeStream &e) { e.memcpy_out_to_stream(&v, sizeof(v)); }
+#if 0
+// don't define this or pay the price of crazy (implicit) encodings!
 
 
 ENCODE(unsigned int);
@@ -21,7 +20,16 @@ ENCODE(vr::EVRSettingsError);
 ENCODE(uint64_t);
 ENCODE(vr::EVROverlayError);
 
+#endif
 
+template <typename T>
+static void encode(T v, EncodeStream &e);
+
+#define ENCODE(type_name) template <> \
+void encode<type_name>(type_name v, EncodeStream &e) { e.memcpy_out_to_stream(&v, sizeof(v)); }
+
+ENCODE(unsigned int);
+ENCODE(int);
 
 
 template <>
@@ -52,16 +60,6 @@ void decode(const char *&str, EncodeStream &e, U allocator)
 	str = buf;
 }
 
-inline void decode_str(char *str, EncodeStream &e)
-{
-	// read the size of the string
-	int size;
-	decode(size, e);
-
-	// read it into the string
-	e.memcpy_from_stream(str, size);
-}
-
 
 inline void decode(vr::HmdMatrix34_t &v, EncodeStream &e)
 {
@@ -86,11 +84,14 @@ inline void read_string_vector_from_stream(EncodeStream &s, StringVectorType &v)
 	uint32_t count;
 	decode(count, s);
 	v.reserve(count);
+
+	std::string tmp;
 	for (int i = 0; i < (int)count; i++)
 	{
-		char szBuf[256];
-		decode_str(szBuf, s);
-		v.emplace_back(szBuf);
+		s.contiguous_container_from_stream(tmp);
+		//char szBuf[256];
+		//decode_str(szBuf, s);
+		v.emplace_back(tmp);
 	}
 }
 

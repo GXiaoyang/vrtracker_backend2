@@ -3,6 +3,7 @@
 #include "url_named.h"
 #include "range.h"
 #include "range_algorithm.h"
+#include "base_serialization.h"
 
 template <typename T>
 struct time_indexed
@@ -27,6 +28,22 @@ struct time_indexed
 
 	const T& get_value() const { return value; }
 	time_index_t get_time_index() const { return time_index; }
+
+	void set_value(const T&v) { value = v; }
+	void set_time_index(time_index_t t) { time_index = t; }
+
+	// write just the value out to the stream
+	void encode(EncodeStream &e) const
+	{
+		e.memcpy_out_to_stream(&time_index, sizeof(time_index));
+		value.encode(e);
+	}
+
+	void decode(EncodeStream &e) 
+	{
+		e.memcpy_from_stream(&time_index, sizeof(time_index));
+		value.decode(e);
+	}
 
 private:
 	time_index_t time_index;
@@ -116,6 +133,49 @@ template <	typename T,
 	void emplace_back(time_index_t time_index, Args&&... args)
 	{
 		container.emplace_back(time_index, std::forward<Args>(args)...);
+	}
+
+	void push_back(const time_indexed_type &val)
+	{
+		container.push_back(val);
+	}
+
+	// write just the value out to the stream
+	void encode(EncodeStream &e) const
+	{
+		base::url_named::encode(e);
+		int size = container.size();
+		e.memcpy_out_to_stream(&size, sizeof(size));
+		
+		for (auto timeval: container)
+		{
+			timeval.encode(e);
+		}
+	}
+
+	// read the value from the stream
+	void decode(EncodeStream &e)
+	{
+		base::url_named::decode(e);
+
+		container.clear();
+		int size = container.size();
+		e.memcpy_from_stream(&size, sizeof(size));
+		container.reserve(size);
+		for (int i = 0; i < size; i++)
+		{
+			time_indexed_type time_val;
+			time_val.decode(e);
+			container.push_back(time_val);
+		}
+	}
+
+	bool operator==(const time_indexed_vector &rhs) const
+	{
+		bool same_url = base::url_named::operator==(rhs);
+		bool same_values = std::equal(container.begin(), container.end(), rhs.container.begin(), rhs.container.end());
+		return same_url && same_values;
+
 	}
 
 	container_type_t container;
