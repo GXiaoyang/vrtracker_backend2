@@ -4,10 +4,14 @@
 #include <atomic>
 #include <thread>
 #include <assert.h>
+#include <cstring>
 #include "log.h"
+#include "platform.h"
 
 
-template <typename T, uint32_t SegmentSize, typename A = std::allocator<T>> struct segmented_list;
+typedef uint32_t SegmentSizeType;
+
+template <typename T, SegmentSizeType SegmentSize, typename A = std::allocator<T>> struct segmented_list;
 
 template <typename T, typename A = std::allocator<T>>
 using segmented_list_1024 = segmented_list<T, 1024, A>;
@@ -16,7 +20,7 @@ using segmented_list_1024 = segmented_list<T, 1024, A>;
 template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A = std::allocator<T>>
 struct segmented_list_iterator;
 
-template <typename T, uint32_t SegmentSize, typename A>
+template <typename T, SegmentSizeType SegmentSize, typename A>
 struct segmented_list
 {
 public:
@@ -25,8 +29,8 @@ public:
 	typedef T&					reference;
 	typedef const value_type &	const_reference;
 	
-	typedef ptrdiff_t			difference_type;
-	typedef size_t				size_type;
+	typedef std::ptrdiff_t		difference_type;
+	typedef SegmentSizeType		size_type;
 
 	// internal:
 	typedef std::list<T*, A>	segment_container_type;
@@ -44,19 +48,14 @@ public:
 		{
 			auto iter_l = m_segment_container.begin();
 			auto iter_r = rhs.m_segment_container.begin();
-			size_t left_container_size = m_size;
-			for (size_type i = 0; rc && i < left_container_size; i++)
+			size_type items_left_to_compare = m_size;
+			while (items_left_to_compare && rc)
 			{
-				size_type num_values_to_compare;
-				if (i == left_container_size - 1)	// last container, compare only remaining elements
-				{
-					num_values_to_compare = (m_size-1) % SegmentSize + 1;
-				}
-				else
-				{
-					num_values_to_compare = SegmentSize;
-				}
-				rc = std::equal(*iter_l, *iter_l + num_values_to_compare, *iter_r);
+				size_type items_to_compare_in_this_container = std::min<size_type>(items_left_to_compare, SegmentSize);
+				items_left_to_compare -= items_to_compare_in_this_container;
+				rc = std::equal(*iter_l, *iter_l + items_to_compare_in_this_container, *iter_r);
+				++iter_l;
+				++iter_r;
 			}
 		}
 		
@@ -111,7 +110,7 @@ public:
 	{
 		// figuring out the end without locking the writer isn't that easy
 		// if i can grab the end use it. otherwise fall back to linear search
-		std::atomic<int> size_before;
+		std::atomic<size_type> size_before;
 		size_before.store(m_size);
 		auto the_end = m_segment_container.end();
 		
@@ -311,10 +310,10 @@ private:
 
 // difference type - a type that can hold the distance between two iterators
 template <typename T, typename SegmentContainerIterator, uint32_t SegmentSize, typename A>
-struct segmented_list_iterator : std::iterator<std::random_access_iterator_tag, T, ptrdiff_t>
+struct segmented_list_iterator : std::iterator<std::random_access_iterator_tag, T, std::ptrdiff_t>
 {
 	typedef size_t			size_type;
-	typedef ptrdiff_t		difference_type;
+	typedef std::ptrdiff_t		difference_type;
 	typedef T&				reference;
 
 	SegmentContainerIterator _segment;			// pointer to current segment

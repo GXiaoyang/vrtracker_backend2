@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <cstdarg>
 #include <assert.h>
+
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 
 static bool g_bPrintf = true;
 static bool g_log_to_file = false;
@@ -39,8 +42,9 @@ void log_printf(const char *fmt, ...)
 			fflush(pf);
 		}
 	}
-
+#ifdef _WIN32
 	OutputDebugStringA(buffer);
+#endif
 }
 
 void ABORT(const char *fmt, ...)

@@ -8,6 +8,8 @@
 #pragma once
 #include <assert.h>
 #include <forward_list>
+#include <cstring>
+#include <cstdlib>
 #include "tbb/spin_mutex.h"
 
 struct slab

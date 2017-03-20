@@ -4,6 +4,7 @@
 
 #include "slab_allocator.h"
 #include "log.h"
+#include <memory.h>
 #include <vector>
 #include <thread>
 

@@ -5,6 +5,7 @@
 #include "segmented_list.h"
 #include "slab_allocator.h"
 #include <assert.h>
+#include <cstring>
 
 // segmented list
 #include <thread>
@@ -52,6 +53,7 @@ void reader(int max_values, int expected_value, int termination_value,
 
 	while (1)
 	{
+		std::this_thread::sleep_for(std::chrono::microseconds(2));
 		for (auto iter = seg->begin(); iter != seg->end(); iter++)
 		{
 			int value = *iter;
@@ -71,7 +73,6 @@ template <typename ListT>
 void writer(int fast, int max_values, int expected_value, int termination_value, 
 	ListT *seg)
 {
-	using namespace std::chrono_literals;
 	for (int i = 0; i < max_values; i++)
 	{
 		if (i == max_values - 1)
@@ -84,7 +85,7 @@ void writer(int fast, int max_values, int expected_value, int termination_value,
 		}
 		else
 		{
-			std::this_thread::sleep_for(50us);
+			std::this_thread::sleep_for(std::chrono::microseconds(50));
 		}
 
 	}
@@ -111,7 +112,8 @@ void read_ordering_test_int()
 			//typedef std::list<int, SimpleAllocator<int>> list_t;
 			list_t shared_list(ss);
 			std::vector<std::thread*> threads;
-			log_printf("threading test. SegmentSize: %d starting with fast: %d num_readers %d\n", SegmentSize, fast_writer, num_readers);
+			printf("PRINTF %d %d %d\n", size_as_int(SegmentSize), fast_writer, num_readers);
+			log_printf("threading test. SegmentSize: %d starting with fast: %d num_readers %d\n", size_as_int(SegmentSize), fast_writer, num_readers);
 			for (int i = 0; i < num_readers; i++)
 			{
 				std::thread *t = new std::thread(reader<list_t>, NUM_WRITES, expected_value, termination_value, &shared_list);

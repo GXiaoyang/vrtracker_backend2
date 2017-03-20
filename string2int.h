@@ -1,9 +1,8 @@
 #pragma once
 #include <unordered_map>
 
-// needs to be tested  - ie I don't think it really needs to go though
-// the entire string to build a seed
-
+// genereate a hash from a c string.  this function came from some tbb sample code and beat out 
+// another stack overflow one
 struct hash_c_string
 {
 	size_t operator() (const char *s) const
@@ -15,19 +14,6 @@ struct hash_c_string
 	}
 };
 
-#if 0
-struct hash_c_string {
-	void hash_combine(uint32_t& seed, char v) const {
-		seed ^= v + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-	}
-	uint32_t operator() (const char * p) const {
-		uint32_t hash = 0;
-		for (; *p; ++p)
-			hash_combine(hash, *p);
-		return hash;
-	}
-};
-#endif
 struct comp_c_string {
 	bool operator()(const char * p1, const char * p2) const {
 		return strcmp(p1, p2) == 0;

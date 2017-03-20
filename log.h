@@ -1,4 +1,5 @@
 #pragma once
+#include "platform.h"
 
 void log_printf(const char *fmt, ...);
 

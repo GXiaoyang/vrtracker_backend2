@@ -93,6 +93,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -243,6 +244,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="tracker_config.cpp" />
+    <ClCompile Include="unit_tests\test_base_main.cpp" />
     <ClCompile Include="unit_tests\test_cursors.cpp" />
     <ClCompile Include="unit_tests\test_indexers.cpp" />
     <ClCompile Include="unit_tests\test_result.cpp" />
@@ -250,6 +252,7 @@
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />
     <ClCompile Include="unit_tests\test_slab_allocator.cpp" />
     <ClCompile Include="unit_tests\test_time_containers.cpp" />
+    <ClCompile Include="unit_tests\test_time_containers_main.cpp" />
     <ClCompile Include="unit_tests\tracker_test_context.cpp" />
     <ClCompile Include="unit_tests\UPDATE.cpp" />
     <ClCompile Include="update_history_visitor.h" />

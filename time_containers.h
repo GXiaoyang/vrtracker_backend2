@@ -173,7 +173,7 @@ template <	typename T,
 	bool operator==(const time_indexed_vector &rhs) const
 	{
 		bool same_url = base::url_named::operator==(rhs);
-		bool same_values = std::equal(container.begin(), container.end(), rhs.container.begin(), rhs.container.end());
+		bool same_values = std::equal(container.begin(), container.end(), rhs.container.begin());
 		return same_url && same_values;
 
 	}

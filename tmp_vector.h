@@ -7,8 +7,6 @@
 template <size_t FixedSizeBytes>
 struct tmp_vector_pool
 {
-	static const size_t FixedSizeBytes = FixedSizeBytes;
-
 	tmp_vector_pool()
 		: 
 		m_alloc_one_calls(0),
@@ -157,13 +155,6 @@ public:
 	{
 		m_s[m_count++] = ref;
 	}
-
-#if 0
-	template <typename A> 
-	explicit operator std::vector<T,A>() const {
-		return std::vector<T,A>(begin(), end(), m_final_allocator);
-	}
-#endif
 };
 
 
