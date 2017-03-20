@@ -17,27 +17,66 @@
 #include <chrono>
 #include <thread>
 
+struct SimpleHeap
+{
+	SimpleHeap()
+	{
+		allocations = 0;
+	}
+
+	size_t allocations;
+
+	void *allocate(size_t size)
+	{
+		void *ret = malloc(size);
+		memset(ret, 7, size);
+		allocations++;
+		return ret;
+	}
+
+	void deallocate(void *p)
+	{
+		free(p);
+	}
+
+
+};
+
+SimpleHeap default_heap;
+
 // fixed size allocator with memory filled with a known value
-// used by the threading test to detect for uninitialized memory read
+// meant to by the threading test to detect for uninitialized memory read
 template <class T>
 struct SimpleAllocator {
 	typedef T value_type;
-	SimpleAllocator(/*ctor args*/)
+	SimpleHeap *m_heap;
+
+	SimpleAllocator(SimpleHeap *h = &default_heap)
+		: m_heap(h)
 	{}
 
 	template <class U> SimpleAllocator(const SimpleAllocator<U>& other)
+		: m_heap(other.m_heap)
 	{
+
 	}
 
 	T* allocate(std::size_t n)
 	{
-		T* ret = (T*)malloc(sizeof(T) * n);
-		memset(ret, 7, sizeof(T) * n);
+		T* ret = (T*)m_heap->allocate(sizeof(T) * n);
 		return ret;
 	}
 	void deallocate(T* p, std::size_t n)
 	{
-		free(p);
+		m_heap->deallocate(p);
+	}
+	bool operator==(const SimpleAllocator &rhs) const 
+	{
+		return m_heap == rhs.m_heap;
+	}
+	bool operator!=(const SimpleAllocator &rhs) const
+	{
+		return m_heap != rhs.m_heap;
 	}
 };
 
@@ -781,10 +820,48 @@ static void segmented_list_allocators()
 	}
 }
 
+static void move_test()
+{
+
+	{
+		// no allocator specified
+		segmented_list<int, 1024, std::allocator<int>> segmented_list0(1024);
+		segmented_list<int, 1024, std::allocator<int>> segmened_list1(std::move(segmented_list0));
+	}
+
+	
+	// allocator specified
+	SimpleHeap heapa;
+	SimpleHeap heapb;
+	SimpleAllocator<int> allocatorA(&heapa);
+	SimpleAllocator<int> allocatorB(&heapb);
+
+	segmented_list<int, 1024, SimpleAllocator<int>> segmented_list0(1024, allocatorA);
+	
+
+	{
+		size_t heapb_before = heapb.allocations;
+		segmented_list<int, 1024, SimpleAllocator<int>> segmented_list2(
+				segmented_list<int, 1024, SimpleAllocator<int>>(1024, allocatorA), 
+				allocatorB);
+		assert(heapb.allocations > heapb_before); // check b did increase
+	}
+
+	{
+		//assignment operator
+	}
+	
+
+	
+
+}
 
 void TEST_SEGMENTED_LIST()
 {
+	log_printf("start testing segmented list");
+	move_test();
 	segmented_list_allocators();
 	basic_behaviour_test();
 	threading_tests();
+	log_printf("done testing segmented list");
 }

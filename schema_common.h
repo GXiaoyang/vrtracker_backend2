@@ -6,6 +6,7 @@
 template <bool is_iterator>
 struct schema : public base::url_named
 {
+	schema() {}
 	schema(const base::URL &name)
 		: url_named(name)
 	{}
@@ -15,6 +16,7 @@ struct schema : public base::url_named
 template <>
 struct schema<true>
 {
+	schema() {}
 	schema(const base::URL &name) {}
 	base::URL make_url_for_child(const char *child) { return base::URL(); }
 };
@@ -27,7 +29,7 @@ template <typename ResultType, template <typename, typename> class ContainerType
 struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocator>::iterator
 {
 	bool initialized;
-	time_node(const base::URL &name = base::URL()) 
+	explicit time_node(const base::URL &name = base::URL()) 
 		: initialized(false)
 	{}
 	base::URL make_url_for_child(const char *child) { return base::URL::EMPTY_URL; }

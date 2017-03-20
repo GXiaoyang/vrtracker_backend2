@@ -145,7 +145,7 @@ public:
 		add_segment();
 	}
   
-	explicit segmented_list(size_type count, A alloc = A())
+	explicit segmented_list(size_type count, const A& alloc = A())
 		: m_segment_container(alloc)
 	{
 		size_type num_required_segments = count / SegmentSize + 1;
@@ -156,11 +156,39 @@ public:
 		m_size = count;
 	}
 
-	segmented_list(segmented_list &rhs)
+	segmented_list(segmented_list &rhs)			// "select on container copy construction" is to choose the correct allocator to use
 		: m_segment_container(std::allocator_traits<A>::select_on_container_copy_construction(rhs.get_allocator()))
 	{
 		m_segment_container.clear();
-		copy_segments(*this, rhs);
+		copy_segments(*this, rhs); // copy_segments updates m_size
+	}
+
+	explicit segmented_list(segmented_list &rhs, const A& alloc)
+		: m_segment_container(alloc)
+	{
+		m_segment_container.clear();
+		copy_segments(*this, rhs); // copy_segments updates m_size
+	}
+
+	// If alloc is not provided, allocator is obtained by move - construction from the allocator belonging to other.
+	segmented_list(segmented_list &&rhs)			// "select on container copy construction" is to choose the correct allocator to use
+		: m_segment_container(std::move(rhs.m_segment_container))
+	{
+		size_type tmp = rhs.m_size;
+		m_size = tmp;
+		rhs.m_segment_container.clear();
+		rhs.m_size = 0;
+	}
+
+	segmented_list(segmented_list &&rhs, const A& alloc)
+		:
+		m_segment_container(rhs.m_segment_container, alloc)  
+	{
+		log_printf("the one i wanted to test");
+		size_type tmp = rhs.m_size;
+		m_size = tmp;
+		rhs.m_segment_container.clear();
+		rhs.m_size = 0;
 	}
 
 	template< class InputIt >
@@ -176,8 +204,8 @@ public:
 		}
 	}
 
-	segmented_list(std::initializer_list<T> l)
-		: segmented_list(l.begin(), l.end())
+	segmented_list(std::initializer_list<T> l, const A& alloc = A())
+		: segmented_list(l.begin(), l.end(), alloc)
 	{}
 
 	~segmented_list()
@@ -206,7 +234,6 @@ public:
 	void copy_segments(segmented_list& lhs, const segmented_list& rhs)
 	{
 		lhs.m_size.store(rhs.m_size);
-		
 
 		for (auto segment = rhs.m_segment_container.begin(); segment != rhs.m_segment_container.end(); segment++)
 		{

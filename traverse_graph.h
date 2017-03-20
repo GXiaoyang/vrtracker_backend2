@@ -1600,4 +1600,5 @@ static void visit_resources_state(visitor_fn *visitor,
 	visitor->end_group_node(ss->get_url(), -1);
 }
 
+
 } // end of namespace

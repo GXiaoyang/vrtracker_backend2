@@ -9,9 +9,7 @@ using VRFinalAllocatorType = slab_allocator<char>;
 template <typename T>
 using VRAllocatorTemplate = slab_allocator<T>;
 
-
 #include "result.h"
-
 
 template <>
 struct ValidReturnCode<vr::ETrackedPropertyError>
@@ -54,6 +52,4 @@ struct ValidReturnCode<vr::EVRTrackedCameraError>
 {
 	static const vr::EVRTrackedCameraError return_code = vr::VRTrackedCameraError_None;
 };
-
-
 

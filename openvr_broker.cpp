@@ -53,8 +53,7 @@ void strcpy_safe(char(&s)[count], const char* pSrc)
 
 
 #ifdef HAVE_OPEN_VR_RAW
-static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces,
-	char **error_message)
+static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces, char **error_message)
 {
 	vr::EVRInitError eError = vr::VRInitError_None;
 

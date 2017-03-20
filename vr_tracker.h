@@ -20,7 +20,7 @@ struct vr_tracker
 {
 private:
 	time_index_t m_last_updated_frame_number;
-	friend struct vr_tracker_updater;
+	friend struct vr_tracker_traverse;
 public:
 	time_index_t get_last_updated_frame() const { return m_last_updated_frame_number; }
 

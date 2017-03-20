@@ -12,8 +12,8 @@ namespace base
 		URL() = default;
 
 		URL(const URL &rhs)
-			: m_name(rhs.m_name),
-			m_full_path(rhs.m_full_path)
+			:	m_name(rhs.m_name),
+				m_full_path(rhs.m_full_path)
 		{}
 
 		URL(const char *name, const char *full_path)
@@ -60,8 +60,8 @@ namespace base
 
 	struct url_named
 	{
-		//url_named()
-		//{}
+		url_named()
+		{}
 
 		url_named(const URL &url)
 			: m_url(url)
@@ -86,11 +86,12 @@ namespace base
 		URL m_url;
 	};
 
-	template <typename T, class Allocator = std::allocator<char*>>
+	template <typename T, class Allocator = std::allocator<T>>
 	struct named_vector : url_named, std::vector<T, Allocator>
 	{
+		named_vector() {}
 		template<typename... Args>
-		named_vector(const URL &name, Args&&... args)
+		explicit named_vector(const URL &name, Args&&... args)
 			:
 			url_named(name),
 			std::vector<T, Allocator>(std::forward<Args>(args)...)

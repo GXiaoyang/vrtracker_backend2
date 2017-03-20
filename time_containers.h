@@ -52,7 +52,7 @@ private:
 
 // time_indexed_vector:  a container of items wrapped in time_indexed<T>
 //                       a pretty thin layer
-template <	typename T,
+template <typename T,
 	template <typename, typename> class Container,
 	template <typename> class A>
 	struct time_indexed_vector : base::url_named
@@ -62,11 +62,12 @@ template <	typename T,
 	typedef Container<time_indexed_type, A<time_indexed_type>>	container_type_t;
 	typedef typename container_type_t::iterator iterator;
 
-//	time_indexed_vector()
-//	{}
+	time_indexed_vector()
+		: container(A<time_indexed_type>())
+	{}
 
 	template<typename... Args>
-	time_indexed_vector(const base::URL &url = base::URL(), Args&&... args)
+	explicit time_indexed_vector(const base::URL &url, Args&&... args)
 		:
 		url_named(url),
 		container(std::forward<Args>(args)...)

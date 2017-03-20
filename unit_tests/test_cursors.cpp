@@ -2,7 +2,7 @@
 #include "vr_compositor_cursor.h"
 #include "tracker_test_context.h"
 #include "vr_cursor_context.h"
-#include "vr_tracker_updater.h"
+#include "vr_tracker_traverse.h"
 #include <set>
 
 static void do_read(tracker_test_context *test_context, int unique_reads)
@@ -36,7 +36,7 @@ static void do_read(tracker_test_context *test_context, int unique_reads)
 std::atomic<int> readers_done;
 static void writer_thread(tracker_test_context *test_context, bool parallel)
 {
-	vr_tracker_updater u;
+	vr_tracker_traverse u;
 	while (!readers_done)
 	{
 		if (parallel)
@@ -109,7 +109,7 @@ static void test_seek_time(tracker_test_context *test_context)
 
 	CursorContext cursor_context(&test_context->get_tracker());
 	VRCompositorCursor compi(&cursor_context);
-	vr_tracker_updater u;
+	vr_tracker_traverse u;
 	log_printf("collecting frames\n");
 
 	int target_number_of_frames = 1000;

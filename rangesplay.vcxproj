@@ -221,7 +221,7 @@
     <ClInclude Include="typehelper.h" />
     <ClInclude Include="url_named.h" />
     <ClInclude Include="vr_keys.h" />
-    <ClInclude Include="vr_tracker_updater.h" />
+    <ClInclude Include="vr_tracker_traverse.h" />
     <ClInclude Include="vr_types.h" />
     <ClInclude Include="vr_schema.h" />
     <ClInclude Include="vr_system_wrapper.h" />
@@ -231,7 +231,7 @@
     <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp" />
     <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp" />
     <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp" />
-    <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="gui_usecase_test.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openvr_broker.cpp" />
@@ -244,6 +244,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="tracker_config.cpp" />
+    <ClCompile Include="tracker_unit_test_main.cpp" />
     <ClCompile Include="unit_tests\test_base_main.cpp" />
     <ClCompile Include="unit_tests\test_cursors.cpp" />
     <ClCompile Include="unit_tests\test_indexers.cpp" />
@@ -281,7 +282,7 @@
     <ClCompile Include="vr_system_cursor.cpp" />
     <ClCompile Include="vr_tmp_vector.cpp" />
     <ClCompile Include="vr_tracked_camera_cursor.cpp" />
-    <ClCompile Include="vr_tracker_updater.cpp" />
+    <ClCompile Include="vr_tracker_traverse.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
