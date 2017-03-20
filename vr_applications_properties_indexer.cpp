@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vr_applications_properties_indexer.h"
 
 #define EXPANDO_APP_PROPERTY_UINT64O(x) { vr::VRApplicationProperty_ ## x ## _Uint64, #x }

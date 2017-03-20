@@ -34,7 +34,7 @@ bool openvr_broker::acquire_interfaces(const char *interface_type,
 	}
 	else
 	{
-		sprintf_s(s_error_message, sizeof(s_error_message), "broker error unrecognized interface type %s",interface_type);
+		snprintf(s_error_message, sizeof(s_error_message), "broker error unrecognized interface type %s",interface_type);
 		*error_message = s_error_message;
 		return false;
 	}
@@ -68,7 +68,7 @@ static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces
 	VR_Init(&eError, vr::VRApplication_Scene);
 	if (eError != vr::VRInitError_None)
 	{
-		sprintf_s(s_error_message, sizeof(s_error_message), "Unable to init VR runtime: %s",
+		snprintf(s_error_message, sizeof(s_error_message), "Unable to init VR runtime: %s",
 			openvr_string::to_string(eError).c_str());
 		*error_message = s_error_message;
 		return false;

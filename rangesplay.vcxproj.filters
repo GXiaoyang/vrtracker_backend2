@@ -46,6 +46,9 @@
     <Filter Include="Source Files\time_containers_unit_test">
       <UniqueIdentifier>{36487d94-c0d3-4648-9742-64df37fdb196}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\vr keys unit test">
+      <UniqueIdentifier>{0ac07d45-2135-4267-96fe-f3511496e326}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -311,9 +314,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
-    <ClCompile Include="unit_tests\test_indexers.cpp">
-      <Filter>Source Files\unit tests</Filter>
-    </ClCompile>
     <ClCompile Include="unit_tests\UPDATE.cpp">
       <Filter>Source Files\unit tests</Filter>
     </ClCompile>
@@ -397,6 +397,12 @@
     </ClCompile>
     <ClCompile Include="unit_tests\test_time_containers_main.cpp">
       <Filter>Source Files\time_containers_unit_test</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_indexers.cpp">
+      <Filter>Source Files\vr keys unit test</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_vr_keys_main.cpp">
+      <Filter>Source Files\vr keys unit test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,8 +1,6 @@
 // PropertiesIndexer -	
-//			BaseClass for device and application properties
-//			Provide table lookups
-//			Provide enumeration of values
-//
+//		BaseClass for device and application property names and enums
+//		Use with the wrapper classes to do the actual queries
 #pragma once
 #include <unordered_map>
 #include <vector>
@@ -23,12 +21,12 @@ public:
 	};
 
 	void AddCustomProperties(
-		int num_bool_properties, const char **bool_names, int *bool_values,
-		int num_string_properties, const char **string_names, int *string_values,
-		int num_uint64_properties, const char **uint64_names, int *uint64_values,
-		int num_int32_properties, const char **int32_names, int *int32_values,
-		int num_mat34_properties, const char **mat34_names, int *mat34_values,
-		int num_float_properties, const char **float_names, int *float_values
+		int num_bool_properties, const char **bool_names, int *bool_enum_values,
+		int num_string_properties, const char **string_names, int *string_enum_values,
+		int num_uint64_properties, const char **uint64_names, int *uint64_enum_values,
+		int num_int32_properties, const char **int32_names, int *int32_enum_values,
+		int num_mat34_properties, const char **mat34_names, int *mat34_enum_values,
+		int num_float_properties, const char **float_names, int *float_enum_values
 	);
 	void AddCustomProperty(PropertySettingType prop_type, const char *name, int val);
 
@@ -55,7 +53,7 @@ public:
 		if (index < default_property_table[setting_type].size)
 			return default_property_table[setting_type].rows[index].enum_val;
 		else
-			return custom_values[setting_type][index - default_property_table[setting_type].size];
+			return custom_enum_values[setting_type][index - default_property_table[setting_type].size];
 	}
 	
 	inline const char* GetName(PropertySettingType setting_type, int index)
@@ -68,7 +66,6 @@ public:
 
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
-
 
 	// configuration table
 	struct device_property_row
@@ -103,5 +100,5 @@ private:
 
 	std::unordered_map<int, int> enum2index[NUM_PROP_TYPES];
 	std::vector<std::string> custom_names[NUM_PROP_TYPES];
-	std::vector<int> custom_values[NUM_PROP_TYPES];
+	std::vector<int> custom_enum_values[NUM_PROP_TYPES];
 };

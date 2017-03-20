@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vr_device_properties_indexer.h"
 #include "platform.h"
 

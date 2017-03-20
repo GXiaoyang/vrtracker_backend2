@@ -253,6 +253,7 @@
     <ClCompile Include="unit_tests\test_slab_allocator.cpp" />
     <ClCompile Include="unit_tests\test_time_containers.cpp" />
     <ClCompile Include="unit_tests\test_time_containers_main.cpp" />
+    <ClCompile Include="unit_tests\test_vr_keys_main.cpp" />
     <ClCompile Include="unit_tests\tracker_test_context.cpp" />
     <ClCompile Include="unit_tests\UPDATE.cpp" />
     <ClCompile Include="update_history_visitor.h" />

@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <unordered_map>
 
 // genereate a hash from a c string.  this function came from some tbb sample code and beat out 

@@ -1,4 +1,8 @@
 #pragma once
+// MimeTypesIndexer
+//
+// MimeTypeName <-> index map
+//
 #include "platform.h"
 #include "string.h"
 

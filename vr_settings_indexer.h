@@ -1,4 +1,8 @@
 #pragma once
+// SettingsIndexer
+//
+// * maps sections to montonically increasing indexes
+// * maps settings to monotonically increasing indexes
 
 #include "string2int.h"
 #include "openvr_serialization.h"

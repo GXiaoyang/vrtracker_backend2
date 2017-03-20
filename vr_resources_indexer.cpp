@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vr_resources_indexer.h"
 
 void ResourcesIndexer::Init(const char **resource_filenames, const char **initial_resources_dirs, int num_names)

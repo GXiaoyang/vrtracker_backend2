@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vr_applications_indexer.h"
 #include "vr_applications_wrapper.h"
 #include "vr_tmp_vector.h"
@@ -19,7 +17,7 @@ void ApplicationsIndexer::update_presence_and_size(vr_result::ApplicationsWrappe
 {
 	auto count = wrap->GetApplicationCount();
 	int my_buf = 1;
-	present_indexes_tmp.clear();
+	working_indexes.clear();
 
 	for (int i = 0; i < size_as_int(count.val); i++)
 	{
@@ -28,10 +26,9 @@ void ApplicationsIndexer::update_presence_and_size(vr_result::ApplicationsWrappe
 		if (key.is_present())
 		{
 			int indexer_index = m_string_indexer.add_key_to_set(key.val.data()); // can increase size <--- 
-			present_indexes_tmp.push_back(indexer_index);
+			working_indexes.push_back(indexer_index);
 		}
 	}
-
-	m_string_indexer.maybe_swap_present_indexes(&present_indexes_tmp);
+	m_string_indexer.maybe_swap_present_indexes(&working_indexes);
 }
 

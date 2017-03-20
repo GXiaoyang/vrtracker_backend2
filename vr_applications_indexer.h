@@ -2,14 +2,14 @@
 #include "vr_applications_wrapper.h"
 #include "vr_string_indexer.h"
 
-
-// knows how to map indexes to application keys
+//
+// assigns and tracks monotonically increasing indexes<-> application keys
+//
 class ApplicationsIndexer
 {
 public:
 	ApplicationsIndexer()
-	{
-	}
+	{}
 
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
@@ -42,9 +42,8 @@ public:
 		m_string_indexer.read_unlock_present_indexes();
 	}
 
-
 private:
 	StringIndexer m_string_indexer;
-
-	std::vector<int> present_indexes_tmp;
+	std::vector<int> working_indexes;	// the published vector is in m_string_indexer. 
+										// this vector is just a working buffer
 };

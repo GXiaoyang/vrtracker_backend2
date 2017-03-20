@@ -1,5 +1,7 @@
 // OverlaysIndexer	
 //
+// monotonically increasing index<-> overlay key map
+//
 #pragma once
 #include "openvr_serialization.h"
 #include <unordered_map>

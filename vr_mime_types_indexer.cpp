@@ -3,8 +3,8 @@
 
 const char* mime_types[] =
 {
-	{ vr::k_pch_MimeType_HomeApp },
-	{ vr::k_pch_MimeType_GameTheater },
+	vr::k_pch_MimeType_HomeApp,
+	vr::k_pch_MimeType_GameTheater,
 };
 static const int mime_tbl_size = sizeof(mime_types) / sizeof(mime_types[0]);
 

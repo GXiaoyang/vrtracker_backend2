@@ -1,5 +1,8 @@
 #pragma once
-
+// StringIndexer
+// * Utility class to index strings to monotonically increasing indexes
+//   used by other classes (e.g. OverlayIndexer, ApplicationsIndexer)
+//
 #include <atomic>
 #include "openvr_serialization.h"
 #include "tbb/concurrent_vector.h"
@@ -7,14 +10,12 @@
 #include "tbb/spin_rw_mutex.h"
 #include "string2int.h"
 
-
 // knows how to map indexes to application keys
 class StringIndexer
 {
 public:
 	StringIndexer()
-	{
-	}
+	{}
 
 	void WriteToStream(EncodeStream &s);
 	void ReadFromStream(EncodeStream &s);
@@ -62,7 +63,6 @@ public:
 	// if v does not match the current set, lock and swap it
 	void maybe_swap_present_indexes(std::vector<int> * v);
 
-
 	// return an index.  if the key doesn't exist yet add it.
 	int add_key_to_set(const char *key)
 	{
@@ -84,7 +84,6 @@ public:
 	}
 
 	std::atomic<int> updated_size;
-
 	tbb::concurrent_vector<std::string> keys;
 	tbb::concurrent_unordered_map<
 		const char *,

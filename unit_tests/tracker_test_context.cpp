@@ -1,7 +1,5 @@
 // setting up the tracker requires a few steps. the purpose of this header
 // is to provide a central place for test programs to do that.
-
-#pragma once
 #include "slab_allocator.h"
 #include "vr_tmp_vector.h"
 #include "vr_tracker.h"

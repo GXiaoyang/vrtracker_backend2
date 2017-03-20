@@ -1,5 +1,9 @@
 #pragma once
-
+// vr_keys
+//
+// root node for a set of indexes that need to be tracked 
+// 
+//
 #include "tracker_config.h"
 #include "vr_device_properties_indexer.h"
 #include "vr_overlay_indexer.h"
@@ -9,18 +13,12 @@
 #include "vr_settings_indexer.h"
 #include "vr_mime_types_indexer.h"
 
-// vr_keys
-//
-// resources outside of the bare openvr interfaces that need to be 
-// tracked 
-//
 struct vr_keys
 {
 	vr_keys()
 	{}
 
 	vr_keys(const vr_keys &) = delete;
-
 
 	DevicePropertiesIndexer &GetDevicePropertiesIndexer() { return m_device_properties_indexer; }
 	OverlayIndexer	&GetOverlayIndexer() { return m_overlay_indexer; }

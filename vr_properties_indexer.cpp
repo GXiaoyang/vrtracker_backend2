@@ -57,7 +57,7 @@ void PropertiesIndexer::AddCustomProperty(PropertySettingType prop_type, const c
 {
 	assert(enum2index[prop_type].find(val) == enum2index[prop_type].end());
 	custom_names[prop_type].push_back(name);
-	custom_values[prop_type].push_back(val);
+	custom_enum_values[prop_type].push_back(val);
 	int index = enum2index[prop_type].size();
 	enum2index[prop_type].insert({ val, index });
 }
@@ -84,7 +84,7 @@ void PropertiesIndexer::WriteToStream(EncodeStream &s)
 	for (int i = 0; i < NUM_PROP_TYPES; i++)
 	{
 		write_string_vector_to_stream(s, custom_names[i]);
-		write_int_vector_to_stream(s, custom_values[i]);
+		write_int_vector_to_stream(s, custom_enum_values[i]);
 	}
 }
 
@@ -93,16 +93,16 @@ void PropertiesIndexer::ReadFromStream(EncodeStream &s)
 	for (int setting_type = 0; setting_type < NUM_PROP_TYPES; setting_type++)
 	{
 		assert(custom_names[setting_type].size() == 0); // assume init has been called and properties are empty - otherwise check load and init seq.
-		assert(custom_values[setting_type].size() == 0); // assume init has been called and properties are empty - otherwise check load and init seq.
+		assert(custom_enum_values[setting_type].size() == 0); // assume init has been called and properties are empty - otherwise check load and init seq.
 
 		read_string_vector_from_stream(s, custom_names[setting_type]);
-		read_int_vector_from_stream(s, custom_values[setting_type]);
+		read_int_vector_from_stream(s, custom_enum_values[setting_type]);
 
-		enum2index[setting_type].reserve(enum2index[setting_type].size() + custom_values[setting_type].size());
-		for (int i = 0; i < size_as_int(custom_values[setting_type].size()); i++)
+		enum2index[setting_type].reserve(enum2index[setting_type].size() + custom_enum_values[setting_type].size());
+		for (int i = 0; i < size_as_int(custom_enum_values[setting_type].size()); i++)
 		{
 			int index = enum2index[setting_type].size();
-			enum2index[setting_type].insert({ (int)custom_values[setting_type][i], index });
+			enum2index[setting_type].insert({ (int)custom_enum_values[setting_type][i], index });
 		}
 	}
 }

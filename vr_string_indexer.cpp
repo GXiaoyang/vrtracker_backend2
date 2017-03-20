@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vr_string_indexer.h"
 
 void StringIndexer::WriteToStream(EncodeStream &s)
