@@ -21,6 +21,12 @@
 namespace vr_result
 {
 
+	template <typename VectorOfTimeNodesType>
+	void structure_check(int *structure_version,
+		VectorOfTimeNodesType &vec,
+		PropertiesIndexer *indexer,
+		PropertiesIndexer::PropertySettingType prop_type);
+
 #define START_VECTOR(vector_name) \
 visitor->start_vector(ss->vector_name.get_url(), ss->vector_name)
 
@@ -519,10 +525,9 @@ static void visit_system_node(
 
 // structure check means to 
 // expand internal containers when required
-template <typename ResultType>
+template <typename VectorOfTimeNodesType>
 void structure_check(int *structure_version,
-	vr_state::VECTOR_OF_TIMENODES<ResultType> &vec,
-	//std::vector<HTYPE, PlaceHolderAllocator> &vec,
+	VectorOfTimeNodesType &vec,
 	PropertiesIndexer *indexer,
 	PropertiesIndexer::PropertySettingType prop_type)
 {
@@ -868,7 +873,7 @@ static void visit_section(
 template <typename visitor_fn, typename TaskGroup>
 static void visit_settings_node(
 	visitor_fn *visitor,
-	vr_state::settings_schema *ss,
+	settings_state *ss,
 	SettingsWrapper* wrap,
 	vr_keys *keys,
 	TaskGroup &g

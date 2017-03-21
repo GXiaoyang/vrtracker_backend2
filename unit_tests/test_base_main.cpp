@@ -5,7 +5,7 @@ extern void TEST_SEGMENTED_LIST();
 extern void TEST_RESULT();
 extern void TEST_SLAB_ALLOCATOR();
 
-void base_unit_tests()
+void test_base()
 {
 	TEST_RESULT();
 	TEST_SLAB_ALLOCATOR();
@@ -15,7 +15,7 @@ void base_unit_tests()
 #ifdef TEST_BASE_MAIN
 int main()
 {
-	base_unit_tests();
+	test_base();
 	log_printf("test_base_main tests done\n");
 }
 #endif

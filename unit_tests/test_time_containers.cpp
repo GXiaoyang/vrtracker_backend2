@@ -122,6 +122,20 @@ void test_serialization()
 void test_move_operators()
 {
 	time_indexed<std::string> a(time_indexed<std::string>(3, "ha"));
+	time_indexed<std::string> b(a);
+	const time_indexed<std::string> &c = b;
+	time_indexed<std::string> d(c);
+
+	const time_indexed <Result<int, bool>> e;
+	time_indexed <Result<int, bool>> f(e);
+
+	std::vector <time_indexed<Result<int, bool>>> s;
+	s.reserve(22);
+
+	//time_indexed < Result<int, bool>> g(e, );
+
+//	const time_indexed <Result<int, bool>> e;
+
 }
 
 void TEST_TIME_CONTAINERS()

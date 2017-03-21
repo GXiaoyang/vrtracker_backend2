@@ -68,14 +68,14 @@ struct Result : ResultBase<ElementType>
 		val(e)
 	{}
 
-	Result(const ElementType &&rhs)
+	Result(ElementType &&rhs)
 		:	return_code(rhs.return_code),
 			val(std::move(rhs))
 	{}
 
 	// perf 12,11,15
 	template <typename E, typename R>
-	explicit Result(Result<E, R> &rhs)
+	explicit Result(const Result<E, R> &rhs)
 	{
 		static_assert(
 			(ResultBase<ElementType>::value_is_pod && std::is_pod<E>::value) || 
@@ -91,7 +91,7 @@ struct Result : ResultBase<ElementType>
 	}
 
 	template <typename E, typename R>
-	Result& operator = (Result<E, R> &rhs)
+	Result& operator = (const Result<E, R> &rhs)
 	{
 		static_assert(
 			(ResultBase<ElementType>::value_is_pod && std::is_pod<E>::value) ||
@@ -142,7 +142,7 @@ struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 	{}
 
 	template <typename E, typename R>
-	explicit Result(Result<E, R> &rhs)
+	explicit Result(const Result<E, R> &rhs)
 	{
 		static_assert(
 			(ResultBase<ElementType>::value_is_pod && std::is_pod<E>::value) ||

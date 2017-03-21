@@ -33,7 +33,7 @@ struct update_history_visitor
 	inline void end_vector(const base::URL &vector_name, T &vec) {}
 
 	template <typename HistoryVectorType, typename ResultType>
-	void visit_node(HistoryVectorType &history,  ResultType &latest_result)
+	void visit_node(HistoryVectorType &history,  const ResultType &latest_result)
 	{
 		// add the entry if its new,
 		// or the presence has changed

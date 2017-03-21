@@ -34,28 +34,28 @@
     <Filter Include="Source Files\3 vr keys">
       <UniqueIdentifier>{b84fdd1e-9ead-46f1-9974-8afaa28238ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\3 vr keys unit test">
-      <UniqueIdentifier>{0ac07d45-2135-4267-96fe-f3511496e326}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\3 vr_wrappers">
       <UniqueIdentifier>{623f9db7-b5cb-444f-930b-62a2c6e71ed3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\4 tracker">
       <UniqueIdentifier>{50081c09-ad67-4649-ba99-89c295afc033}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\5 tracker traverse">
-      <UniqueIdentifier>{5f213dd7-4926-444e-a559-ae16253a5b45}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\6 cursor">
       <UniqueIdentifier>{1a6e52d6-3b04-418a-a142-e0748e97d5fb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\5 tracker_traverse_unit_test">
-      <UniqueIdentifier>{bb65b6d6-a7c2-42bf-a024-c1467c7c3ab8}</UniqueIdentifier>
+    <Filter Include="Source Files\5 traverse">
+      <UniqueIdentifier>{5f213dd7-4926-444e-a559-ae16253a5b45}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\4 tracker unit test">
+    <Filter Include="Source Files\3 vr keys test">
+      <UniqueIdentifier>{0ac07d45-2135-4267-96fe-f3511496e326}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\4 tracker test">
       <UniqueIdentifier>{e0bcd322-c486-43c8-b615-5e03b101469a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\6 cursor unit tests">
+    <Filter Include="Source Files\5 traverse test">
+      <UniqueIdentifier>{bb65b6d6-a7c2-42bf-a024-c1467c7c3ab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\6 cursor test">
       <UniqueIdentifier>{dbad0958-b406-4db7-811f-078209d9de20}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -94,7 +94,7 @@
       <Filter>Source Files\4 tracker</Filter>
     </ClInclude>
     <ClInclude Include="traverse_graph.h">
-      <Filter>Source Files\5 tracker traverse</Filter>
+      <Filter>Source Files\5 traverse</Filter>
     </ClInclude>
     <ClInclude Include="vr_types.h">
       <Filter>Source Files\3 vr base</Filter>
@@ -259,10 +259,10 @@
       <Filter>Source Files\6 cursor</Filter>
     </ClInclude>
     <ClInclude Include="vr_tracker_traverse.h">
-      <Filter>Source Files\5 tracker traverse</Filter>
+      <Filter>Source Files\5 traverse</Filter>
     </ClInclude>
     <ClInclude Include="unit_tests\tracker_test_context.h">
-      <Filter>Source Files\4 tracker unit test</Filter>
+      <Filter>Source Files\4 tracker test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -273,7 +273,7 @@
       <Filter>Source Files\1 base</Filter>
     </ClCompile>
     <ClCompile Include="update_history_visitor.h">
-      <Filter>Source Files\5 tracker traverse</Filter>
+      <Filter>Source Files\5 traverse</Filter>
     </ClCompile>
     <ClCompile Include="vr_properties_indexer.cpp">
       <Filter>Source Files\3 vr keys</Filter>
@@ -393,28 +393,31 @@
       <Filter>Source Files\2 time_containers_unit_test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_indexers.cpp">
-      <Filter>Source Files\3 vr keys unit test</Filter>
+      <Filter>Source Files\3 vr keys test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_vr_keys_main.cpp">
-      <Filter>Source Files\3 vr keys unit test</Filter>
+      <Filter>Source Files\3 vr keys test</Filter>
     </ClCompile>
     <ClCompile Include="vr_tracker_traverse.cpp">
-      <Filter>Source Files\5 tracker traverse</Filter>
+      <Filter>Source Files\5 traverse</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\UPDATE.cpp">
-      <Filter>Source Files\5 tracker_traverse_unit_test</Filter>
+      <Filter>Source Files\5 traverse test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\tracker_test_context.cpp">
-      <Filter>Source Files\4 tracker unit test</Filter>
+      <Filter>Source Files\4 tracker test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_cursors.cpp">
-      <Filter>Source Files\6 cursor unit tests</Filter>
+      <Filter>Source Files\6 cursor test</Filter>
     </ClCompile>
-    <ClCompile Include="gui_usecase_test.cpp">
-      <Filter>Source Files\4 tracker unit test</Filter>
+    <ClCompile Include="unit_tests\test_tracker_main.cpp">
+      <Filter>Source Files\4 tracker test</Filter>
     </ClCompile>
-    <ClCompile Include="tracker_unit_test_main.cpp">
-      <Filter>Source Files\4 tracker unit test</Filter>
+    <ClCompile Include="unit_tests\test_gui_usecase.cpp">
+      <Filter>Source Files\4 tracker test</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_traverse_main.cpp">
+      <Filter>Source Files\5 traverse test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

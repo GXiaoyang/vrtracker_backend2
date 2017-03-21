@@ -3,7 +3,7 @@
 extern void TEST_TIME_CONTAINERS();
 extern void TEST_SCHEMA_COMMON();
 
-void time_containers_unit_tests()
+void test_time_containers()
 {
 	TEST_TIME_CONTAINERS();
 	TEST_SCHEMA_COMMON();
@@ -12,7 +12,7 @@ void time_containers_unit_tests()
 #ifdef TEST_TIME_CONTAINERS_MAIN
 int main()
 {
-	time_containers_unit_tests();
+	test_time_containers();
 	log_printf("test_time_containers tests done\n");
 }
 #endif

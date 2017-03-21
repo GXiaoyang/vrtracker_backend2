@@ -1,4 +1,3 @@
-#pragma once
 #include "vr_tracker_traverse.h"
 #include "vr_system_wrapper.h"
 #include "traverse_graph.h"
@@ -69,7 +68,7 @@ static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state,
 	});
 
 	g.run("visit_settings_node",
-		[&] {
+		[visitor, s, &settings_wrapper, keys, &g] {
 		visit_settings_node(visitor, &s->settings_node, &settings_wrapper, keys, g);
 	});
 

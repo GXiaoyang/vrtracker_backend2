@@ -2,7 +2,7 @@
 
 extern void TEST_INDEXERS();
 
-void vr_keys_unit_tests()
+void test_keys()
 {
 	TEST_INDEXERS();
 }
@@ -10,7 +10,7 @@ void vr_keys_unit_tests()
 #ifdef TEST_VR_KEYS_MAIN
 int main()
 {
-	vr_keys_unit_tests();
+	test_keys();
 	log_printf("test_base_main tests done\n");
 }
 #endif

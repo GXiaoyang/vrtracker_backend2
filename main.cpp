@@ -1,16 +1,12 @@
 #include "slab_allocator.h"
 #include "log.h"
 
-slab my_heap(1024 * 1024);
-slab my_temp_heap(1024 * 1024);
+extern void test_base();
+extern void test_time_containers();
+extern void test_keys();
+extern void test_tracker();
+extern void test_traverse();
 
-
-extern void base_unit_tests();
-extern void time_containers_unit_tests();
-extern void vr_keys_unit_tests();
-extern void vr_tracker_unit_test();
-
-extern void UPDATE_USE_CASE();
 extern void TEST_SYSTEM_CURSOR();
 
 void unit_tests()
@@ -20,9 +16,12 @@ void unit_tests()
 
 int main()
 {
-	base_unit_tests();
-	time_containers_unit_tests();
-	vr_tracker_unit_test();
-	UPDATE_USE_CASE();
+	test_base();
+	test_time_containers();
+	test_keys();
+	test_tracker();
+	test_traverse();
+	TEST_SYSTEM_CURSOR();
+
 	log_printf("all tests done\n");
 }

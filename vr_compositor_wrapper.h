@@ -26,7 +26,7 @@ namespace vr_result
 		inline TMPCompositorFrameTimingString<> &GetFrameTimings(uint32_t num_frames, TMPCompositorFrameTimingString<> *timings)
 		{
 			assert(timings->val.max_size() >= num_frames);
-			num_frames = std::min(num_frames, timings->val.max_size());
+			num_frames = std::min(num_frames, (uint32_t)timings->val.max_size());
 			vr::Compositor_FrameTiming *p = timings->val.data();
 			for (int i = 0; i < size_as_int(num_frames); i++)
 			{

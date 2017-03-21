@@ -11,7 +11,7 @@ struct time_indexed
 	time_indexed() {}
 
 	template<typename... Args>
-	time_indexed(time_index_t t, Args&&... args)
+	explicit time_indexed(time_index_t t, Args&&... args)
 		: time_index(t),
 		value(std::forward<Args>(args)...)
 	{}
@@ -66,6 +66,13 @@ template <typename T,
 		: container(A<time_indexed_type>())
 	{}
 
+	time_indexed_vector(const time_indexed_vector &rhs)
+		: 
+		base::url_named(rhs),
+		container(rhs.container)
+	{}
+
+
 	template<typename... Args>
 	explicit time_indexed_vector(const base::URL &url, Args&&... args)
 		:
@@ -83,7 +90,7 @@ template <typename T,
 	// [start and end)  (half open range)
 	std::range<iterator> get_range(time_index_t a, time_index_t b)
 	{
-		return range_intersect(get_range(), a, b,
+		return range_intersect(get_range(), time_indexed_type(a), time_indexed_type(b),
 			[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 	}
 
@@ -99,13 +106,14 @@ template <typename T,
 
 	iterator last_item_less_than_or_equal_to_time(time_index_t a)
 	{
-		return last_item_less_than_or_equal_to(container.begin(), container.end(), a,
+		return last_item_less_than_or_equal_to(container.begin(), container.end(), time_indexed_type(a),
 			[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 	}
 
 	// check the hint iterator first before searching for it
 	iterator last_item_less_than_or_equal_to_time(time_index_t a, iterator &hint_iterator)
 	{
+		 
 		if (hint_iterator != end())
 		{
 			time_index_t hint_index = hint_iterator->get_time_index();
@@ -115,17 +123,17 @@ template <typename T,
 			}
 			else if (hint_index < a)
 			{
-				return last_item_less_than_or_equal_to(hint_iterator, container.end(), a,
+				return last_item_less_than_or_equal_to(hint_iterator, container.end(), time_indexed_type(a),
 					[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 			}
 			else // hint index > a
 			{
-				return last_item_less_than_or_equal_to(container.begin(), hint_iterator, a,
+				return last_item_less_than_or_equal_to(container.begin(), hint_iterator, time_indexed_type(a),
 					[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 			}
 		}
 
-		return last_item_less_than_or_equal_to(container.begin(), container.end(), a,
+		return last_item_less_than_or_equal_to(container.begin(), container.end(), time_indexed_type(a),
 			[](const time_indexed_type &a, const time_indexed_type &b) { return a.get_time_index() < b.get_time_index(); });
 	}
 

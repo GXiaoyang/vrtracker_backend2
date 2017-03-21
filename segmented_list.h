@@ -156,14 +156,14 @@ public:
 		m_size = count;
 	}
 
-	segmented_list(segmented_list &rhs)			// "select on container copy construction" is to choose the correct allocator to use
+	segmented_list(const segmented_list &rhs)			// "select on container copy construction" is to choose the correct allocator to use
 		: m_segment_container(std::allocator_traits<A>::select_on_container_copy_construction(rhs.get_allocator()))
 	{
 		m_segment_container.clear();
 		copy_segments(*this, rhs); // copy_segments updates m_size
 	}
 
-	explicit segmented_list(segmented_list &rhs, const A& alloc)
+	explicit segmented_list(const segmented_list &rhs, const A& alloc)
 		: m_segment_container(alloc)
 	{
 		m_segment_container.clear();
