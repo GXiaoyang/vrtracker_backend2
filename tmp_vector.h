@@ -87,8 +87,7 @@ public:
 		:	m_pool(nullptr),
 			m_count(0),
 			m_s(0)
-	{
-	}
+	{}
 
 	tmp_vector(tmp_vector_pool<FixedSizeBytes> *pool, const FinalAllocatorType &final_allocator)
 		:

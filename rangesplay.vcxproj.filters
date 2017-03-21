@@ -419,5 +419,8 @@
     <ClCompile Include="unit_tests\test_traverse_main.cpp">
       <Filter>Source Files\5 traverse test</Filter>
     </ClCompile>
+    <ClCompile Include="unit_tests\test_cursors_main.cpp">
+      <Filter>Source Files\6 cursor test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

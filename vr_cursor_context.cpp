@@ -1,4 +1,3 @@
-#pragma once
 #include "vr_cursor_context.h"
 #include "vr_tracker.h"
 

@@ -245,6 +245,7 @@
     <ClCompile Include="tracker_config.cpp" />
     <ClCompile Include="unit_tests\test_base_main.cpp" />
     <ClCompile Include="unit_tests\test_cursors.cpp" />
+    <ClCompile Include="unit_tests\test_cursors_main.cpp" />
     <ClCompile Include="unit_tests\test_gui_usecase.cpp" />
     <ClCompile Include="unit_tests\test_indexers.cpp" />
     <ClCompile Include="unit_tests\test_result.cpp" />

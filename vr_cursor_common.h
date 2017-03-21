@@ -1,6 +1,8 @@
 #pragma once
 #include "platform.h"
 #include <algorithm>
+#include <cstring>
+#include <log.h>
 
 //
 // macro to ensure that the cursor is up to date with it's state

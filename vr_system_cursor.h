@@ -11,7 +11,7 @@ class VRSystemCursor : public VRSystemCppStub
 
 public:
 	VRSystemCursor(CursorContext *context);
-	void VRSystemCursor::SynchronizeChildVectors();
+	void SynchronizeChildVectors();
 
 	void GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight) override;
 	struct vr::HmdMatrix44_t GetProjectionMatrix(vr::EVREye eEye, float fNearZ, float fFarZ) override;

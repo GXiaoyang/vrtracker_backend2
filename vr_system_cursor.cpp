@@ -1,4 +1,3 @@
-#pragma once
 #include "vr_system_cursor.h"
 #include "log.h"
 #include "vr_cursor_common.h"

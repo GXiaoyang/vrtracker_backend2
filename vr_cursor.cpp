@@ -1,5 +1,3 @@
-#pragma once
-
 #include "vr_cursor.h"
 #include "vr_system_cursor.h"
 #include "vr_applications_cursor.h"

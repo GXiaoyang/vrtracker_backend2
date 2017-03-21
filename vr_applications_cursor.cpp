@@ -341,7 +341,7 @@ uint32_t VRApplicationsCursor::GetApplicationLaunchArguments(uint32_t unHandle, 
 	uint32_t rc;
 	if (unArgs > 0)
 	{
-		pchArgs = "";
+		*pchArgs = 0;
 		rc = 1;
 	}
 	else
