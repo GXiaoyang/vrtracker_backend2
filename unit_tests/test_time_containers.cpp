@@ -116,18 +116,18 @@ void test_serialization()
 			vecb.decode(stream);
 			assert(veca == vecb);
 		}
-
-
-
 	}
-	
+}
 
-	
-
+void test_move_operators()
+{
+	time_indexed<std::string> a(time_indexed<std::string>(3, "ha"));
 }
 
 void TEST_TIME_CONTAINERS()
 {
+	test_move_operators();
+
 	test_serialization();
 
 	time_indexed<std::string> a(3, "ha");

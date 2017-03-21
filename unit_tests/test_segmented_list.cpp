@@ -849,6 +849,8 @@ static void move_test()
 
 	{
 		//assignment operator
+		segmented_list<int, 1024, SimpleAllocator<int>> segmented_list2;
+		segmented_list2 = segmented_list<int, 1024, SimpleAllocator<int>>(1024, allocatorA);
 	}
 	
 
@@ -862,6 +864,6 @@ void TEST_SEGMENTED_LIST()
 	move_test();
 	segmented_list_allocators();
 	basic_behaviour_test();
-	threading_tests();
+	//threading_tests();
 	log_printf("done testing segmented list");
 }

@@ -253,6 +253,18 @@ public:
 		return *this;
 	}
 
+	segmented_list& operator=(segmented_list&& rhs)
+	{
+		if (this != &rhs) {
+			m_segment_container = std::move(rhs.m_segment_container);
+			size_type tmp = m_size;
+			m_size.store(rhs.m_size);
+			rhs.m_segment_container.clear();
+			rhs.m_size = 0;
+		}
+		return *this;
+	}
+
 	void swap(segmented_list& rhs)
 	{
 		size_type tmp = m_size;
