@@ -279,6 +279,8 @@ using output_type = Result<output_type ## VectorOnly, ReturnCode>;
 };
 
 #define MEMCMP_OPERATOR_EQ(my_typename)\
+\
+namespace vr {\
 inline bool operator == (const my_typename &lhs, const my_typename &rhs)\
 {\
 	return (memcmp(&lhs, &rhs, sizeof(lhs)) == 0);\
@@ -286,7 +288,8 @@ inline bool operator == (const my_typename &lhs, const my_typename &rhs)\
 inline bool operator != (const my_typename &lhs, const my_typename &rhs)\
 {\
 	return !(lhs == rhs);\
-}
+}\
+};
 
 MEMCMP_OPERATOR_EQ(vr::TrackedDeviceRelativeTransform)
 MEMCMP_OPERATOR_EQ(vr::AbsoluteTransform)
@@ -313,33 +316,35 @@ MEMCMP_OPERATOR_EQ(vr::RenderModel_ComponentState_t)
 MEMCMP_OPERATOR_EQ(vr::RenderModel_Vertex_t)
 MEMCMP_OPERATOR_EQ(vr::VRTextureBounds_t)
 
-
-inline bool operator == (const vr::TrackedDevicePose_t &lhs, const vr::TrackedDevicePose_t &rhs)
+namespace vr
 {
-	if (lhs.bPoseIsValid == false && rhs.bPoseIsValid == false)
-		return true;
-	if (lhs.bPoseIsValid != rhs.bPoseIsValid)
-		return false;
-	// otherwise both poses are valid - go big:
-	return (memcmp(&lhs, &rhs, sizeof(lhs)) == 0);
-}
-inline bool operator != (const vr::TrackedDevicePose_t &lhs, const vr::TrackedDevicePose_t &rhs)
-{
-	return !(lhs == rhs);
-}
-
-inline bool operator == (const vr::HiddenAreaMesh_t &lhs, const vr::HiddenAreaMesh_t &rhs)
-{
-	if (lhs.unTriangleCount != rhs.unTriangleCount)
-		return false;
-	if (lhs.pVertexData == rhs.pVertexData)
-		return true;
-	else
+	inline bool operator == (const vr::TrackedDevicePose_t &lhs, const vr::TrackedDevicePose_t &rhs)
 	{
-		return (memcmp(lhs.pVertexData, rhs.pVertexData, lhs.unTriangleCount * 3 * sizeof(lhs.pVertexData[0])) == 0);
+		if (lhs.bPoseIsValid == false && rhs.bPoseIsValid == false)
+			return true;
+		if (lhs.bPoseIsValid != rhs.bPoseIsValid)
+			return false;
+		// otherwise both poses are valid - go big:
+		return (memcmp(&lhs, &rhs, sizeof(lhs)) == 0);
 	}
-}
-inline bool operator != (const vr::HiddenAreaMesh_t &lhs, const vr::HiddenAreaMesh_t &rhs)
-{
-	return !(lhs == rhs);
-}
+	inline bool operator != (const vr::TrackedDevicePose_t &lhs, const vr::TrackedDevicePose_t &rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	inline bool operator == (const vr::HiddenAreaMesh_t &lhs, const vr::HiddenAreaMesh_t &rhs)
+	{
+		if (lhs.unTriangleCount != rhs.unTriangleCount)
+			return false;
+		if (lhs.pVertexData == rhs.pVertexData)
+			return true;
+		else
+		{
+			return (memcmp(lhs.pVertexData, rhs.pVertexData, lhs.unTriangleCount * 3 * sizeof(lhs.pVertexData[0])) == 0);
+		}
+	}
+	inline bool operator != (const vr::HiddenAreaMesh_t &lhs, const vr::HiddenAreaMesh_t &rhs)
+	{
+		return !(lhs == rhs);
+	}
+};

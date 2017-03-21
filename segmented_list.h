@@ -182,7 +182,7 @@ public:
 
 	segmented_list(segmented_list &&rhs, const A& alloc)
 		:
-		m_segment_container(rhs.m_segment_container, alloc)  
+		m_segment_container(std::move(rhs.m_segment_container), alloc)  
 	{
 		log_printf("the one i wanted to test");
 		size_type tmp = rhs.m_size;

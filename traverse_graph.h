@@ -637,7 +637,7 @@ void visit_application_state(visitor_fn *visitor, vr_state::applications_schema 
 
 	VISIT(is_installed, wrap->IsApplicationInstalled(app_key));
 	VISIT(auto_launch, wrap->GetApplicationAutoLaunch(app_key));
-	VISIT(supported_mime_types, wrap->GetApplicationSupportedMimeTypes(app_key, &(TMPString<bool>())));
+	VISIT(supported_mime_types, wrap->GetApplicationSupportedMimeTypes(app_key, &TMPString<bool>()));
 
 	ApplicationsPropertiesIndexer *indexer = &keys->GetApplicationsPropertiesIndexer();
 
@@ -716,14 +716,13 @@ static void visit_applications_node(visitor_fn *visitor, vr_state::applications_
 		if (visitor->visit_source_interfaces())
 		{
 			keys->GetApplicationsIndexer().read_lock_present_indexes();
-			ss->active_application_indexes, make_result(keys->GetApplicationsIndexer().get_present_indexes());
+			visitor->visit_node(ss->active_application_indexes, make_result(keys->GetApplicationsIndexer().get_present_indexes()));
 			keys->GetApplicationsIndexer().read_unlock_present_indexes();
 		}
 		else
 		{
 			visitor->visit_node(ss->active_application_indexes);
 		}
-		
 
 		VISIT(starting_application, wrap->GetStartingApplication(&(TMPString<vr::EVRApplicationError>())));
 		VISIT(transition_state, wrap->GetTransitionState());

@@ -1,4 +1,4 @@
-
+#include "log.h"
 extern void TEST_SYSTEM_CURSOR();
 
 void test_cursors()

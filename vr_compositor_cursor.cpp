@@ -41,10 +41,15 @@ vr::EVRCompositorError VRCompositorCursor::GetLastPoses(
 	vr::EVRCompositorError rc = vr::VRCompositorError_None;
 	SynchronizeChildVectors();
 	// rebuild the arrays from the controllers
-	for (int i = 0;
-		(i < size_as_int(unRenderPoseArrayCount)) || (i < size_as_int(unGamePoseArrayCount)) &&
-		i < size_as_int(m_context->get_iterators()->compositor_node.controllers.size());
-		i++)
+
+	// the number of controllers to evaluate is the greater of unRenderPoseArrayCount
+	// and unGamePoseArrayCount, limited by the number of controllers
+
+	int num_controllers_to_evaluate = size_as_int(
+									std::min(uint32_t(iter_ref.controllers.size()),
+											std::max(unGamePoseArrayCount, unRenderPoseArrayCount)));
+
+	for (int i = 0; i < num_controllers_to_evaluate; i++)
 	{
 		if (i < size_as_int(unRenderPoseArrayCount))
 		{

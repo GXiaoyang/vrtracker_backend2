@@ -10,10 +10,10 @@
   {                                                            \
   private:                                                     \
     template<typename>                                         \
-    static constexpr std::false_type test(...);                \
+    static constexpr std::false_type test(...);               \
                                                                \
     template<typename T = U>                                   \
-    static decltype((Expr), std::true_type{}) test(int) ;      \
+    static decltype((Expr), std::true_type{}) test(int);      \
                                                                \
   public:                                                      \
     static constexpr bool value = decltype(test<U>(0))::value; \

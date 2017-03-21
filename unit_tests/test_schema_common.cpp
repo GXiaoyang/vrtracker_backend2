@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <list>
 
-template <template <typename> typename Allocator>
+template <template <typename> class Allocator>
 using test_string_result = Result<
 	std::basic_string<char, 
 	std::char_traits<char>, Allocator<char>>, NoReturnCode>;
@@ -16,10 +16,10 @@ struct test_schema : public schema<is_iterator>
 
 
 	// define a scalar TIMENODE
-	template <typename ResultType, template <typename> typename Allocator>
+	template <typename ResultType, template <typename> class Allocator>
 	using TIMENODE = time_node<ResultType, std::list, is_iterator, Allocator>;
 
-	template <typename ResultType, template <typename> typename Allocator>
+	template <typename ResultType, template <typename> class Allocator>
 	using TIMENODESEG = time_node<ResultType, segmented_list_1024, is_iterator, Allocator>;
 
 	struct sub_schema : schema<is_iterator>

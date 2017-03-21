@@ -5,6 +5,7 @@
 //    invokes it's visit interfaces
 
 #include "time_containers.h"
+#include "vr_types.h"
 
 struct update_history_visitor 
 {
