@@ -51,6 +51,7 @@ void allocate_from_multiple_threads()
 	for (auto thread : threads)
 	{
 		thread->join();
+    delete thread;
 	}
 	int page_count = std::distance(s.pages.begin(), s.pages.end());
 	int expected_page_count = num_threads * allocs_per_thread * size_per_alloc / page_size;

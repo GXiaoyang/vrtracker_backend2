@@ -49,7 +49,11 @@ public:
 		return std::distance(m_time_stamps.begin(), m_time_stamps.end());
 	}
 
-	time_stamp_t get_time_stamp(time_index_t i) { return m_time_stamps[i]; }
+	time_stamp_t get_time_stamp(time_index_t i) 
+	{
+		assert(i < size_as_int(m_time_stamps.size()));
+		return m_time_stamps[i]; 
+	}
 
 	vr_tracker(slab *slab)
 		:
