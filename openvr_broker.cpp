@@ -57,12 +57,14 @@ static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces
 {
 	vr::EVRInitError eError = vr::VRInitError_None;
 
+#if 0
 	if (!vr::VR_IsHmdPresent())
 	{
 		strcpy_safe(s_error_message, "no hmd present");
 		*error_message = s_error_message;
 		return false;
 	}
+#endif
 
 	VR_Init(&eError, vr::VRApplication_Scene);
 	if (eError != vr::VRInitError_None)
@@ -88,6 +90,14 @@ static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces
 	return true;
 }
 #endif
+
+void openvr_broker::shutdown()
+{
+#ifdef HAVE_OPEN_VR_RAW
+	vr::VR_Shutdown();
+#endif
+}
+
 
 static bool acquire_null_interfaces(openvr_broker::open_vr_interfaces *interfaces,
 	char **error_message)

@@ -58,6 +58,7 @@ void parallel_overlay_test(vr::IVROverlay *ovi)
 	for (auto thread : threads)
 	{
 		thread->join();
+		delete thread;
 	}
 }
 

@@ -1012,8 +1012,8 @@ static void visit_compositor_state(visitor_fn *visitor,
 		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 		{
 			ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
-			const char *child_name = std::to_string(ss->controllers.size()).c_str();
-			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name));
+			std::string child_name = std::to_string(ss->controllers.size());
+			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name.c_str()));
 		}
 	}
 
@@ -1518,8 +1518,8 @@ static void visit_trackedcamera_state(visitor_fn *visitor,
 		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 		{
 			ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
-			const char *child_name = std::to_string(ss->controllers.size()).c_str();
-			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name));
+			std::string child_name = std::to_string(ss->controllers.size());
+			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name.c_str()));
 		}
 	}
 
@@ -1588,8 +1588,8 @@ static void visit_resources_state(visitor_fn *visitor,
 			ss->resources.reserve(keys->GetResourcesIndexer().get_num_resources());
 			while (size_as_int(ss->resources.size()) < keys->GetResourcesIndexer().get_num_resources())
 			{
-				const char *child_name = std::to_string(ss->resources.size()).c_str();
-				ss->resources.emplace_back(ss->resources.make_url_for_child(child_name));
+				std::string child_name = std::to_string(ss->resources.size());
+				ss->resources.emplace_back(ss->resources.make_url_for_child(child_name.c_str()));
 			}
 		}
 	}

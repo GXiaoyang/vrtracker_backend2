@@ -27,6 +27,7 @@ tracker_test_context::~tracker_test_context()
 	delete m_config;
 	delete m_tracker;
 	delete m_interfaces;
+	openvr_broker::shutdown();
 }
 
 const tmp_vector_pool<VRTMPSize> *tracker_test_context::get_tmp_pool() const

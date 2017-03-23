@@ -153,7 +153,10 @@ namespace vr_result
 
 		struct system_schema : schema<is_iterator>
 		{
-			system_schema() {}
+			system_schema()
+				: structure_version(0)
+				 {}
+
 			explicit system_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(recommended_target_size),
@@ -241,7 +244,9 @@ namespace vr_result
 
 		struct applications_schema : schema<is_iterator>
 		{
-			applications_schema() {}
+			applications_schema()
+				: structure_version(0)
+				 {}
 			explicit applications_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(starting_application),
@@ -284,7 +289,9 @@ namespace vr_result
 
 		struct settings_schema : schema<is_iterator>
 		{
-			settings_schema() {}
+			settings_schema()
+				: structure_version(0)
+				 {}
 			explicit settings_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(sections),
@@ -536,7 +543,10 @@ namespace vr_result
 
 		struct render_models_schema : schema<is_iterator>
 		{
-			render_models_schema() {}
+			render_models_schema()
+				: structure_version(-1)
+				{}
+
 			explicit render_models_schema(const base::URL &name ALLOC_DECL)
 				: schema<is_iterator>(name),
 				INIT(models),

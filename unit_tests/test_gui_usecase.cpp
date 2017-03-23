@@ -5,6 +5,15 @@
 
 
 // how the gui will use these data structures
+// how the gui will use these data structures
+
+void GUI_USE_CASE_TESTx()
+{
+	using namespace openvr_string;
+	vr::TrackedDevicePose_t pose;
+	memset(&pose, 0, sizeof(pose));
+	to_string(pose);
+}
 
 void GUI_USE_CASE_TEST()
 {
@@ -31,6 +40,7 @@ void GUI_USE_CASE_TEST()
 	DevicePose<> pose_in;
 	memset(&pose_in.val, 0, sizeof(pose_in.val));
 	pose_in.val.bPoseIsValid = true;
+        pose_in.val.eTrackingResult = TrackingResult_Uninitialized;
 	tracker.m_time_stamps.push_back(123);
 	controllers[0].raw_tracking_pose.emplace_back(0, pose_in);
 	
@@ -94,4 +104,5 @@ void GUI_USE_CASE_TEST()
 
 	// VII: convert to a string (using return value from I)
 	to_string(controllers[0].raw_tracking_pose().val);
+	//to_string(pose_in.val);
 }

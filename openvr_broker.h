@@ -52,5 +52,7 @@ namespace openvr_broker
 	bool acquire_interfaces(
 		const char *type,
 		openvr_broker::open_vr_interfaces *interfaces, char **error_message);
+
+	void shutdown();
 	
 };
