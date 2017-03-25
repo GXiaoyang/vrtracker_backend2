@@ -36,20 +36,20 @@ public:
 		return m_string_indexer.size();
 	}
 
-	void read_lock_present_indexes()
+	void read_lock_live_indexes()
 	{
-		m_string_indexer.read_lock_present_indexes();
+		m_string_indexer.read_lock_live_indexes();
 	}
-	const std::vector<int> &get_present_indexes()
+	const std::vector<int> &get_live_indexes()
 	{
-		return m_string_indexer.get_present_indexes();
+		return m_string_indexer.get_live_indexes();
 	}
-	void read_unlock_present_indexes()
+	void read_unlock_live_indexes()
 	{
-		m_string_indexer.read_unlock_present_indexes();
+		m_string_indexer.read_unlock_live_indexes();
 	}
 
 private:
 	StringIndexer m_string_indexer;
-	std::vector<int> present_indexes_tmp;
+	std::vector<int> live_indexes_tmp;
 };

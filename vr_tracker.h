@@ -24,11 +24,7 @@ private:
 public:
 	time_index_t get_last_updated_frame() const { return m_last_updated_frame_number; }
 
-	static const int LARGE_SEGMENT_SIZE = 5400;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
-
-	//slab *m_slab;
-	//slab_allocator<char> m_allocator;
-	//tmp_vector_pool<VRTMPSize> m_string_pool;
+	static const int LARGE_SEGMENT_SIZE = 8192;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
 
 	std::chrono::time_point<std::chrono::steady_clock> start_time;
 
@@ -37,10 +33,12 @@ public:
 	int non_blocking_update_calls;
 	tracker_save_summary save_info;
 	vr_keys keys;
+	SerializableRegistry m_state_registry;
 
 	vr_result::vr_state m_state;
 
-	VRForwardList<FrameNumberedEvent>  m_events;
+	VRConfigEventList m_config_events;
+	VREventList m_events;
 	segmented_list<time_stamp_t, LARGE_SEGMENT_SIZE, slab_allocator<time_stamp_t>>  m_time_stamps;
 
 	time_index_t get_closest_time_index(time_stamp_t val)
@@ -62,7 +60,7 @@ public:
 		m_last_updated_frame_number(-1),
 		blocking_update_calls(0),
 		non_blocking_update_calls(0),
-		m_state(base::URL("vr", "/vr")),
+		m_state(base::URL("vr", "/vr"), &m_state_registry),
 		m_time_stamps(slab_allocator<time_stamp_t>())
 	{
 		memset(&save_info, 0, sizeof(save_info));

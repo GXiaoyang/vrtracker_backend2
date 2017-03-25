@@ -22,15 +22,15 @@ static void app_reader(ApplicationsIndexer *ai)
 			assert(i == i2);
 		}
 
-		ai->read_lock_present_indexes();
-		auto &v = ai->get_present_indexes();
+		ai->read_lock_live_indexes();
+		auto &v = ai->get_live_indexes();
 		for (auto iter = v.begin(); iter != v.end(); iter++)
 		{
 			const char *k = ai->get_key_for_index(*iter);
 			int i2 = ai->get_index_for_key(k);
 			assert(*iter == i2);
 		}
-		ai->read_unlock_present_indexes();
+		ai->read_unlock_live_indexes();
 	}
 	app_reader_done = 1;
 }
@@ -96,15 +96,15 @@ static void overlay_reader(OverlayIndexer *ai)
 			assert(i == i2);
 		}
 
-		ai->read_lock_present_indexes();
-		auto &v = ai->get_present_indexes();
+		ai->read_lock_live_indexes();
+		auto &v = ai->get_live_indexes();
 		for (auto iter = v.begin(); iter != v.end(); iter++)
 		{
 			const char *k = ai->get_key_for_index(*iter);
 			int i2 = ai->get_index_for_key(k);
 			assert(*iter == i2);
 		}
-		ai->read_unlock_present_indexes();
+		ai->read_unlock_live_indexes();
 	}
 	overlay_reader_done = 1;
 #endif

@@ -8,13 +8,59 @@
 #include "vr_tmp_vector.h"
 #include "time_containers.h"
 #include "result.h"
+#include "segmented_list.h"
+#include "dynamic_bitset.hpp"
 #include <openvr.h>
 
-
+using VRBitset = boost::dynamic_bitset<uint64_t, std::allocator<uint64_t>>;
 using FrameNumberedEvent = time_indexed<vr::VREvent_t>;
+using VREventList = segmented_list<FrameNumberedEvent, 128, slab_allocator<FrameNumberedEvent>>;
 
 template <typename T>
 using VRForwardList = std::forward_list<T, VRAllocatorTemplate<T>>;
+
+struct VRConfigEvent
+{
+	virtual VRConfigEvent *clone() const = 0;
+};
+struct NewOverlayKey : public VRConfigEvent
+{
+	std::string overlay_name;
+};
+
+struct NewAppKey : public VRConfigEvent
+{
+	NewAppKey(const std::string &s) : app_name(s)
+	{}
+	std::string app_name;
+	virtual VRConfigEvent *clone() const override
+	{
+		return new NewAppKey(*this);
+	}
+};
+
+struct NewResourceKey : public VRConfigEvent
+{
+	std::string resource_name;
+	std::string resource_directory;
+};
+
+struct NewSetting : public VRConfigEvent
+{
+	enum type {};
+	std::string section;
+	std::string name;
+};
+
+struct NewProperty : public VRConfigEvent
+{
+	enum type {};
+	std::string name;
+	uint32_t enum_id;
+};
+
+using FrameNumberedConfig = time_indexed<VRConfigEvent*>;
+using VRConfigEventList = segmented_list<FrameNumberedConfig, 128, slab_allocator<FrameNumberedConfig>>;
 
 namespace vr
 {

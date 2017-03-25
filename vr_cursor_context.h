@@ -32,7 +32,7 @@ private:
 	time_index_t m_last_event_frame_returned;
 	vr_result::vr_iterator m_iterators;
 	vr_result::vr_state *m_state;
-	VRForwardList<FrameNumberedEvent> *m_events;
+	VREventList *m_events;
 	vr_keys *m_keys;
 	vr_tracker *m_tracker;
 };

@@ -13,6 +13,18 @@
 #include "vr_settings_indexer.h"
 #include "vr_mime_types_indexer.h"
 
+// case - when external users submit new requests. e.g. spy,
+//        then these keys could be queued and inserted
+//
+//        when internal updates occur, e.g. walking though list of apps,
+//        these new things might be detected
+//
+// requirements
+//			to do incremental updates, these changes need to be logged somewhere associated with
+//          the frame id.
+//
+
+
 struct vr_keys
 {
 	vr_keys()
@@ -20,13 +32,21 @@ struct vr_keys
 
 	vr_keys(const vr_keys &) = delete;
 
+	void RegisterObserver(IndexerObserver *o)
+	{
+		m_applications_indexer.RegisterObserver(o);
+	}
+	void UnRegisterObserver(IndexerObserver *o)
+	{
+		m_applications_indexer.UnRegisterObserver(o);
+	}
+
 	DevicePropertiesIndexer &GetDevicePropertiesIndexer() { return m_device_properties_indexer; }
 	OverlayIndexer	&GetOverlayIndexer() { return m_overlay_indexer; }
 	ApplicationsIndexer &GetApplicationsIndexer() { return m_applications_indexer; }
 	ApplicationsPropertiesIndexer &GetApplicationsPropertiesIndexer() { return m_applications_properties_indexer; }
 	ResourcesIndexer &GetResourcesIndexer() { return m_resources_indexer; }
 	SettingsIndexer &GetSettingsIndexer() { return m_settings_indexer; }
-	
 	MimeTypesIndexer &GetMimeTypesIndexer() { return m_mime_types_indexer; }
 
 	void Init(const TrackerConfig &c)

@@ -50,12 +50,15 @@ private:
 	T value;
 };
 
+
+
+
 // time_indexed_vector:  a container of items wrapped in time_indexed<T>
 //                       a pretty thin layer
 template <typename T,
 	template <typename, typename> class Container,
 	template <typename> class A>
-	struct time_indexed_vector : base::url_named
+	struct time_indexed_vector : public base::url_named, RegisteredSerializable
 {
 	typedef T									value_type;
 	typedef time_indexed<T>						time_indexed_type;
@@ -74,9 +77,10 @@ template <typename T,
 
 
 	template<typename... Args>
-	explicit time_indexed_vector(const base::URL &url, Args&&... args)
+	explicit time_indexed_vector(const base::URL &url, SerializableRegistry *registry, Args&&... args)
 		:
 		url_named(url),
+		RegisteredSerializable(registry->Register(this)),
 		container(std::forward<Args>(args)...)
 	{}
 
@@ -113,7 +117,6 @@ template <typename T,
 	// check the hint iterator first before searching for it
 	iterator last_item_less_than_or_equal_to_time(time_index_t a, iterator &hint_iterator)
 	{
-		 
 		if (hint_iterator != end())
 		{
 			time_index_t hint_index = hint_iterator->get_time_index();
@@ -150,7 +153,7 @@ template <typename T,
 	}
 
 	// write just the value out to the stream
-	void encode(EncodeStream &e) const
+	void encode(EncodeStream &e) const override final
 	{
 		base::url_named::encode(e);
 		int size = container.size();
@@ -163,7 +166,7 @@ template <typename T,
 	}
 
 	// read the value from the stream
-	void decode(EncodeStream &e)
+	void decode(EncodeStream &e) override final
 	{
 		base::url_named::decode(e);
 

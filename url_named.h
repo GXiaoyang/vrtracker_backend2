@@ -16,7 +16,7 @@ namespace base
 				m_full_path(rhs.m_full_path)
 		{}
 
-		URL(const char *name, const char *full_path)
+		URL(const std::string &name, const std::string &full_path)
 			:
 			m_name(name),
 			m_full_path(full_path)
@@ -34,12 +34,9 @@ namespace base
 		const std::string &get_name() const { return m_name; };
 		const std::string &get_full_path() const { return m_full_path; };
 
-		URL make_child(const char *child_name) const
+		URL make_child(const std::string &child_name) const
 		{
-			std::string temp(m_full_path.c_str());
-			temp += "/";
-			temp += child_name;
-			return URL(child_name, temp.c_str());
+			return URL(m_full_path + "/" + child_name, child_name);
 		}
 
 		void encode(EncodeStream &stream) const
@@ -69,6 +66,7 @@ namespace base
 		const std::string &get_name() const { return m_url.get_name(); };
 		const std::string &get_path() const { return m_url.get_full_path(); };
 		const URL &get_url() const { return m_url; }
+
 		void set_url(const URL&url) { m_url = url; }
 		void encode(EncodeStream &e) const
 		{
@@ -82,21 +80,9 @@ namespace base
 		bool operator==(const url_named &rhs) const { return m_url == rhs.m_url; }
 		bool operator!=(const url_named &rhs) const { return m_url != rhs.m_url; }
 	private:
-
 		URL m_url;
 	};
 
-	template <typename T, class Allocator = std::allocator<T>>
-	struct named_vector : url_named, std::vector<T, Allocator>
-	{
-		named_vector() {}
-		template<typename... Args>
-		explicit named_vector(const URL &name, Args&&... args)
-			:
-			url_named(name),
-			std::vector<T, Allocator>(std::forward<Args>(args)...)
-		{}
-		URL make_url_for_child(const char *child) { return get_url().make_child(child); }
-	};
+	
 
 };

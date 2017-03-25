@@ -18,17 +18,26 @@ void ApplicationsIndexer::update_presence_and_size(vr_result::ApplicationsWrappe
 	auto count = wrap->GetApplicationCount();
 	int my_buf = 1;
 	working_indexes.clear();
-
+	// go through each application
 	for (int i = 0; i < size_as_int(count.val); i++)
 	{
 		vr_result::TMPString<vr::EVRApplicationError> key;
 		wrap->GetApplicationKeyByIndex(i, &key); 
+
+		// if openvr thinks the key is ok
 		if (key.is_present())
 		{
-			int indexer_index = m_string_indexer.add_key_to_set(key.val.data()); // can increase size <--- 
+			// add it to the set
+			bool is_new_key;
+			int indexer_index = m_string_indexer.add_key_to_set(key.val.data(), &is_new_key); // can increase size of the 'global dictionary'<--- 
+			if (is_new_key)
+			{
+				NewAppKey new_key_event(std::string(key.val.data()));
+				this->NotifyObservers(new_key_event);
+			}
 			working_indexes.push_back(indexer_index);
 		}
 	}
-	m_string_indexer.maybe_swap_present_indexes(&working_indexes);
+	m_string_indexer.maybe_swap_live_indexes(&working_indexes);
 }
 

@@ -20,12 +20,14 @@
 
 namespace vr_result
 {
-
-	template <typename VectorOfTimeNodesType>
-	void structure_check(int *structure_version,
+	template <typename visitor_fn, typename VectorOfTimeNodesType>
+	void spawn_check(
+		visitor_fn *visitor,
+		int *structure_version,
 		VectorOfTimeNodesType &vec,
 		PropertiesIndexer *indexer,
 		PropertiesIndexer::PropertySettingType prop_type);
+
 
 #define START_VECTOR(vector_name) \
 visitor->start_vector(ss->vector_name.get_url(), ss->vector_name)
@@ -105,13 +107,13 @@ static void visit_eye_state(visitor_fn *visitor,
 		visitor->visit_node(ss->distortion);
 	}
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		while (ss->hidden_meshes.size() < 3)
 		{
 			ss->hidden_meshes.reserve(3);
 			const char *mesh_name = openvr_string::EHiddenAreaMeshTypeToString(EHiddenAreaMeshType(ss->hidden_meshes.size()));
-			ss->hidden_meshes.emplace_back(ss->hidden_meshes.make_url_for_child(mesh_name));
+			visitor->spawn_child(ss->hidden_meshes, mesh_name);
 			system_ss->structure_version++;
 		}
 	}
@@ -277,14 +279,14 @@ static void visit_controller_state(visitor_fn *visitor,
 			visitor->visit_node(ss->controller_state);
 		}
 	}
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
-		structure_check(&system_ss->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING);
-		structure_check(&system_ss->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL);
-		structure_check(&system_ss->structure_version, ss->float_props, indexer, PropertiesIndexer::PROP_FLOAT);
-		structure_check(&system_ss->structure_version, ss->mat34_props, indexer, PropertiesIndexer::PROP_MAT34);
-		structure_check(&system_ss->structure_version, ss->int32_props, indexer, PropertiesIndexer::PROP_INT32);
-		structure_check(&system_ss->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64);
+		spawn_check(visitor, &system_ss->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING);
+		spawn_check(visitor, &system_ss->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL);
+		spawn_check(visitor, &system_ss->structure_version, ss->float_props, indexer, PropertiesIndexer::PROP_FLOAT);
+		spawn_check(visitor, &system_ss->structure_version, ss->mat34_props, indexer, PropertiesIndexer::PROP_MAT34);
+		spawn_check(visitor, &system_ss->structure_version, ss->int32_props, indexer, PropertiesIndexer::PROP_INT32);
+		spawn_check(visitor, &system_ss->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64);
 	}
 	
 	visit_string_vec(visitor, controller_index, ss->string_props, wrap, indexer, PropertiesIndexer::PROP_STRING, "string props");
@@ -305,7 +307,7 @@ static void visit_controller_state(visitor_fn *visitor,
 	// gymnastics to avoid allocating the tmp string
 	Result<vr_empty_vector<char>, NoReturnCode> tmp;
 	const char *render_model_name = nullptr;
-	if (visitor->expand_structure() || visitor->visit_source_interfaces())
+	if (visitor->spawn_children() || visitor->visit_source_interfaces())
 	{
 		TMPString<ETrackedPropertyError> render_model;
 		wrap->GetStringTrackedDeviceProperty(controller_index, vr::Prop_RenderModelName_String, &render_model);
@@ -314,7 +316,7 @@ static void visit_controller_state(visitor_fn *visitor,
 	}
 	
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		if (render_model_name)
 		{
@@ -325,7 +327,7 @@ static void visit_controller_state(visitor_fn *visitor,
 				TMPString<> component_name;
 				int component_index = ss->components.size();
 				rmw->GetComponentModelName(render_model_name, component_index, &component_name);
-				ss->components.emplace_back(ss->components.make_url_for_child(component_name.val.data()));
+				visitor->spawn_child(ss->components, component_name.val.data());
 				system_ss->structure_version++;
 			}
 		}
@@ -351,20 +353,20 @@ static void visit_system_node(
 {
 	visitor->start_group_node(ss->get_url(), -1);
 	{
-		if (visitor->expand_structure())
+		if (visitor->spawn_children())
 		{
 			while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 			{
 				ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
 				std::string name(std::to_string(ss->controllers.size()));
-				ss->controllers.emplace_back(ss->controllers.make_url_for_child(name.c_str()));
+				visitor->spawn_child(ss->controllers, name.c_str());
 				ss->structure_version++;
 			}
 			if (ss->eyes.size() < 2)
 			{
 				ss->eyes.reserve(2);
-				ss->eyes.emplace_back(ss->eyes.make_url_for_child("left"));
-				ss->eyes.emplace_back(ss->eyes.make_url_for_child("right"));
+				visitor->spawn_child(ss->eyes, "left");
+				visitor->spawn_child(ss->eyes, "right");
 				ss->structure_version++;
 			}
 			
@@ -380,7 +382,7 @@ static void visit_system_node(
 				{
 					name = "relative_to_" + std::to_string(ss->spatial_sorts.size() - 1);
 				}
-				ss->spatial_sorts.emplace_back(ss->spatial_sorts.make_url_for_child(name.c_str()));
+				visitor->spawn_child(ss->spatial_sorts, name.c_str());
 			}
 		}
 
@@ -525,8 +527,10 @@ static void visit_system_node(
 
 // structure check means to 
 // expand internal containers when required
-template <typename VectorOfTimeNodesType>
-void structure_check(int *structure_version,
+template <typename visitor_fn, typename VectorOfTimeNodesType>
+void spawn_check(
+	visitor_fn *visitor,
+	int *structure_version,
 	VectorOfTimeNodesType &vec,
 	PropertiesIndexer *indexer,
 	PropertiesIndexer::PropertySettingType prop_type)
@@ -538,7 +542,7 @@ void structure_check(int *structure_version,
 		for (int index = 0; index < num_props; index++)
 		{
 			const char *prop_name = indexer->GetName(prop_type, index);
-			vec.emplace_back(vec.make_url_for_child(prop_name));
+			visitor->spawn_child(vec, prop_name);
 		}
 		*structure_version += 1;
 	}
@@ -641,11 +645,11 @@ void visit_application_state(visitor_fn *visitor, vr_state::applications_schema 
 
 	ApplicationsPropertiesIndexer *indexer = &keys->GetApplicationsPropertiesIndexer();
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
-		structure_check(&applications->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING);
-		structure_check(&applications->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL);
-		structure_check(&applications->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64);
+		spawn_check(visitor, &applications->structure_version, ss->string_props, indexer, PropertiesIndexer::PROP_STRING);
+		spawn_check(visitor, &applications->structure_version, ss->bool_props, indexer, PropertiesIndexer::PROP_BOOL);
+		spawn_check(visitor, &applications->structure_version, ss->uint64_props, indexer, PropertiesIndexer::PROP_UINT64);
 	}
 
 	visit_string_vec(visitor, ss->string_props, wrap, app_key, indexer, PropertiesIndexer::PROP_STRING, "string_props");
@@ -687,7 +691,7 @@ static void visit_applications_node(visitor_fn *visitor, vr_state::applications_
 	{
 		keys->GetApplicationsIndexer().update_presence_and_size(wrap);
 	}
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		if (keys->GetApplicationsIndexer().get_num_applications() > size_as_int(ss->applications.size()))
 		{
@@ -695,7 +699,7 @@ static void visit_applications_node(visitor_fn *visitor, vr_state::applications_
 			while (size_as_int(ss->applications.size()) < keys->GetApplicationsIndexer().get_num_applications())
 			{
 				const char *application_name = keys->GetApplicationsIndexer().get_key_for_index(ss->applications.size());
-				ss->applications.emplace_back(ss->applications.make_url_for_child(application_name));
+				visitor->spawn_child(ss->applications, application_name);
 			}
 			ss->structure_version++;
 		}
@@ -704,7 +708,7 @@ static void visit_applications_node(visitor_fn *visitor, vr_state::applications_
 		{
 			ss->mime_types.reserve(num_mime_types);
 			const char *mime_type = keys->GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
-			ss->mime_types.emplace_back(ss->mime_types.make_url_for_child(mime_type));
+			visitor->spawn_child(ss->mime_types, mime_type);
 			ss->structure_version++;
 		}
 	}
@@ -715,9 +719,9 @@ static void visit_applications_node(visitor_fn *visitor, vr_state::applications_
 
 		if (visitor->visit_source_interfaces())
 		{
-			keys->GetApplicationsIndexer().read_lock_present_indexes();
-			visitor->visit_node(ss->active_application_indexes, make_result(keys->GetApplicationsIndexer().get_present_indexes()));
-			keys->GetApplicationsIndexer().read_unlock_present_indexes();
+			keys->GetApplicationsIndexer().read_lock_live_indexes();
+			visitor->visit_node(ss->active_application_indexes, make_result(keys->GetApplicationsIndexer().get_live_indexes()));
+			keys->GetApplicationsIndexer().read_unlock_live_indexes();
 		}
 		else
 		{
@@ -759,8 +763,9 @@ static void visit_applications_node(visitor_fn *visitor, vr_state::applications_
 	visitor->end_group_node(ss->get_url(), -1);
 }
 
-template <typename VecType>
-void structure_check(
+template <typename visitor_fn, typename VecType>
+void spawn_check(
+	visitor_fn *visitor,
 	int *structure_version,
 	VecType &vec,
 	SettingsIndexer *indexer,
@@ -775,7 +780,7 @@ void structure_check(
 		for (int i = vec.size(); i < required_size; i++)
 		{
 			const char *field_name = field_names[i];
-			vec.emplace_back(vec.make_url_for_child(field_name));
+			visitor->spawn_child(vec, field_name);
 		}
 		*structure_version += 1;
 	}
@@ -854,12 +859,12 @@ static void visit_section(
 {
 	SettingsIndexer * indexer = &keys->GetSettingsIndexer();
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
-		structure_check(structure_version, s->bool_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_BOOL);
-		structure_check(structure_version, s->string_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_STRING);
-		structure_check(structure_version, s->float_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_FLOAT);
-		structure_check(structure_version, s->int32_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_INT32);
+		spawn_check(visitor, structure_version, s->bool_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_BOOL);
+		spawn_check(visitor, structure_version, s->string_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_STRING);
+		spawn_check(visitor, structure_version, s->float_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_FLOAT);
+		spawn_check(visitor, structure_version, s->int32_settings, indexer, section_name, SettingsIndexer::SETTING_TYPE_INT32);
 	}
 	
 	visit_subtable2<visitor_fn, bool>(visitor, s->bool_settings, wrap, section_name, SettingsIndexer::SETTING_TYPE_BOOL, keys);
@@ -880,7 +885,7 @@ static void visit_settings_node(
 {
 	visitor->start_group_node(ss->get_url(), -1);
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		int required_size = keys->GetSettingsIndexer().GetNumSections();
 		if (size_as_int(ss->sections.size()) < required_size)
@@ -889,7 +894,8 @@ static void visit_settings_node(
 			while (size_as_int(ss->sections.size()) < required_size)
 			{
 				int section = ss->sections.size();
-				ss->sections.emplace_back(ss->sections.make_url_for_child(keys->GetSettingsIndexer().GetSectionName(section)));
+				const char *section_name = keys->GetSettingsIndexer().GetSectionName(section);
+				visitor->spawn_child(ss->sections, section_name);
 			}
 		}
 	}
@@ -1007,13 +1013,13 @@ static void visit_compositor_state(visitor_fn *visitor,
 	vr_keys *config, 
 	TaskGroup &g)
 {
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 		{
 			ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
 			std::string child_name = std::to_string(ss->controllers.size());
-			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name.c_str()));
+			visitor->spawn_child(ss->controllers, child_name);
 		}
 	}
 
@@ -1148,7 +1154,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 		visitor->visit_node(ss->texture_width);
 	}
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		int component_count = wrap->GetComponentCount(render_model_name);
 		if (size_as_int(ss->components.size()) < component_count)
@@ -1158,7 +1164,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 			while (size_as_int(ss->components.size()) < component_count)
 			{
 				wrap->GetComponentModelName(render_model_name, ss->components.size(), &component_model_name);
-				ss->components.emplace_back(ss->components.make_url_for_child(component_model_name.val.data()));
+				visitor->spawn_child(ss->components, component_model_name.val.data());
 				*structure_version += 1;
 			}
 		}
@@ -1328,7 +1334,7 @@ static void visit_overlay_state(visitor_fn *visitor, vr_state::overlay_schema *s
 	TaskGroup &g
 	)
 {
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		if (keys->GetOverlayIndexer().get_num_overlays() > size_as_int(ss->overlays.size()))
 		{
@@ -1336,7 +1342,7 @@ static void visit_overlay_state(visitor_fn *visitor, vr_state::overlay_schema *s
 			while (size_as_int(ss->overlays.size()) < keys->GetOverlayIndexer().get_num_overlays())
 			{
 				const char *child_name = keys->GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
-				ss->overlays.emplace_back(ss->overlays.make_url_for_child(child_name));
+				visitor->spawn_child(ss->overlays, child_name);
 			}
 		}
 	}
@@ -1355,9 +1361,9 @@ static void visit_overlay_state(visitor_fn *visitor, vr_state::overlay_schema *s
 
 	if (visitor->visit_source_interfaces())
 	{
-		keys->GetOverlayIndexer().read_lock_present_indexes();
-		visitor->visit_node(ss->active_overlay_indexes, make_result(keys->GetOverlayIndexer().get_present_indexes()));
-		keys->GetOverlayIndexer().read_unlock_present_indexes();
+		keys->GetOverlayIndexer().read_lock_live_indexes();
+		visitor->visit_node(ss->active_overlay_indexes, make_result(keys->GetOverlayIndexer().get_live_indexes()));
+		keys->GetOverlayIndexer().read_unlock_live_indexes();
 	}
 	else
 	{
@@ -1394,7 +1400,7 @@ static void visit_rendermodel_state(visitor_fn *visitor, vr_state::render_models
 {
 	visitor->start_group_node(ss->get_url(), -1);
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		Uint32<> current_rendermodels = wrap->GetRenderModelCount();
 		int num_render_models = current_rendermodels.val;
@@ -1403,8 +1409,7 @@ static void visit_rendermodel_state(visitor_fn *visitor, vr_state::render_models
 			ss->models.reserve(num_render_models);
 			TMPString<> name;
 			wrap->GetRenderModelName(ss->models.size(), &name);
-
-			ss->models.emplace_back(ss->models.make_url_for_child(name.val.data()));
+			visitor->spawn_child(ss->models, name.val.data());
 			ss->structure_version += 1;
 		}
 	}
@@ -1482,7 +1487,7 @@ static void visit_per_controller_state(visitor_fn *visitor,
 {
 	visitor->start_group_node(ss->get_url(), device_index);
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		if (ss->cameraframetypes.size() < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES)
 		{
@@ -1490,7 +1495,7 @@ static void visit_per_controller_state(visitor_fn *visitor,
 			for (int i = 0; i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
 			{
 				const char *child_name = FrameTypeToGroupName(EVRTrackedCameraFrameType(i));
-				ss->cameraframetypes.emplace_back(ss->cameraframetypes.make_url_for_child(child_name));
+				visitor->spawn_child(ss->cameraframetypes, child_name);
 			}
 		}
 	}
@@ -1513,13 +1518,13 @@ static void visit_trackedcamera_state(visitor_fn *visitor,
 	)
 {
 	visitor->start_group_node(ss->get_url(), -1);
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		while (ss->controllers.size() < vr::k_unMaxTrackedDeviceCount)
 		{
 			ss->controllers.reserve(vr::k_unMaxTrackedDeviceCount);
 			std::string child_name = std::to_string(ss->controllers.size());
-			ss->controllers.emplace_back(ss->controllers.make_url_for_child(child_name.c_str()));
+			visitor->spawn_child(ss->controllers, child_name.c_str());
 		}
 	}
 
@@ -1581,7 +1586,7 @@ static void visit_resources_state(visitor_fn *visitor,
 {
 	visitor->start_group_node(ss->get_url(), -1);
 
-	if (visitor->expand_structure())
+	if (visitor->spawn_children())
 	{
 		if (size_as_int(ss->resources.size()) < keys->GetResourcesIndexer().get_num_resources())
 		{
@@ -1589,7 +1594,7 @@ static void visit_resources_state(visitor_fn *visitor,
 			while (size_as_int(ss->resources.size()) < keys->GetResourcesIndexer().get_num_resources())
 			{
 				std::string child_name = std::to_string(ss->resources.size());
-				ss->resources.emplace_back(ss->resources.make_url_for_child(child_name.c_str()));
+				visitor->spawn_child(ss->resources, child_name.c_str());
 			}
 		}
 	}

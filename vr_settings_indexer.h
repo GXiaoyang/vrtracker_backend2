@@ -20,6 +20,7 @@ public:
 		NUM_SETTING_TYPES
 	};
 
+	// spawns new section|settings
 	bool AddCustomSetting(const char *section_name_in, SectionSettingType section_type, const char *setting_name_in);
 
 	void Init(

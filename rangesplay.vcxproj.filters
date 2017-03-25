@@ -93,9 +93,6 @@
     <ClInclude Include="vr_tracker.h">
       <Filter>Source Files\4 tracker</Filter>
     </ClInclude>
-    <ClInclude Include="traverse_graph.h">
-      <Filter>Source Files\5 traverse</Filter>
-    </ClInclude>
     <ClInclude Include="vr_types.h">
       <Filter>Source Files\3 vr base</Filter>
     </ClInclude>
@@ -264,6 +261,24 @@
     <ClInclude Include="unit_tests\tracker_test_context.h">
       <Filter>Source Files\4 tracker test</Filter>
     </ClInclude>
+    <ClInclude Include="tracker_encode_visitor.h">
+      <Filter>Source Files\5 traverse</Filter>
+    </ClInclude>
+    <ClInclude Include="tracker_update_visitor.h">
+      <Filter>Source Files\5 traverse</Filter>
+    </ClInclude>
+    <ClInclude Include="traverse_graph.h">
+      <Filter>Source Files\4 tracker</Filter>
+    </ClInclude>
+    <ClInclude Include="EncodeStream.h">
+      <Filter>Source Files\1 base</Filter>
+    </ClInclude>
+    <ClInclude Include="dynamic_bitset.hpp">
+      <Filter>Source Files\1 base</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_observable_indexer.h">
+      <Filter>Source Files\3 vr keys</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -271,9 +286,6 @@
     </ClCompile>
     <ClCompile Include="slab_allocator.cpp">
       <Filter>Source Files\1 base</Filter>
-    </ClCompile>
-    <ClCompile Include="update_history_visitor.h">
-      <Filter>Source Files\5 traverse</Filter>
     </ClCompile>
     <ClCompile Include="vr_properties_indexer.cpp">
       <Filter>Source Files\3 vr keys</Filter>
@@ -421,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="unit_tests\test_cursors_main.cpp">
       <Filter>Source Files\6 cursor test</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_tracker_serialization.cpp">
+      <Filter>Source Files\5 traverse test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

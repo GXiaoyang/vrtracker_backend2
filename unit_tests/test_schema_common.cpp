@@ -17,16 +17,23 @@ struct test_schema : public schema<is_iterator>
 
 	// define a scalar TIMENODE
 	template <typename ResultType, template <typename> class Allocator>
-	using TIMENODE = time_node<ResultType, std::list, is_iterator, Allocator>;
+	using TIMENODE = time_node<ResultType, std::vector, is_iterator, Allocator>;
 
 	template <typename ResultType, template <typename> class Allocator>
 	using TIMENODESEG = time_node<ResultType, segmented_list_1024, is_iterator, Allocator>;
 
+#define INIT(var_name)			var_name(schema<is_iterator>::make_url_for_child( #var_name ), registry)
+
 	struct sub_schema : schema<is_iterator>
 	{
-		sub_schema(const base::URL &name)
-			: schema<is_iterator>(name)
-
+		sub_schema(const base::URL &name, SerializableRegistry *registry)
+			: schema<is_iterator>(name, registry),
+			INIT(a_bool),
+			INIT(a_bool2),
+			INIT(a_bool3),
+			INIT(a_bool4),
+			INIT(a_string),
+			INIT(b_string)
 			{}
 		TIMENODE<bool_result, std::allocator>		a_bool;	// choose where the timenodes sit
 		TIMENODE<bool_result, slab_allocator>		a_bool2;
@@ -38,9 +45,9 @@ struct test_schema : public schema<is_iterator>
 
 	};
 
-	test_schema(const base::URL &name = base::URL())  
-		: schema<is_iterator>(name),
-		one(name.make_child("one"))
+	test_schema(const base::URL &name, SerializableRegistry *r)
+		: schema<is_iterator>(name, r),
+		one(name.make_child("one"), r)
 		{}
 	
 	sub_schema				one;
@@ -54,7 +61,8 @@ void TEST_SCHEMA_COMMON()
 	slab_allocator_base::m_temp_slab = &s;
 
 	// default construction
-	test_state default_state;
+	SerializableRegistry registry;
+	test_state default_state(base::URL(), &registry);
 	assert(default_state.get_name() == "");
 	assert(default_state.one.a_bool.empty());
 	default_state.one.a_bool.emplace_back(1, true);

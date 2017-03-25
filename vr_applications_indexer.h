@@ -1,11 +1,12 @@
 #pragma once
 #include "vr_applications_wrapper.h"
+#include "vr_observable_indexer.h"
 #include "vr_string_indexer.h"
 
 //
 // assigns and tracks monotonically increasing indexes<-> application keys
 //
-class ApplicationsIndexer
+class ApplicationsIndexer : public BasicObservableIndexer
 {
 public:
 	ApplicationsIndexer()
@@ -29,17 +30,18 @@ public:
 		return m_string_indexer.get_index_for_string(key);
 	}
 
-	void read_lock_present_indexes()
+	// access number of currently 'live' indexes
+	void read_lock_live_indexes()
 	{
-		m_string_indexer.read_lock_present_indexes();
+		m_string_indexer.read_lock_live_indexes();
 	}
-	const std::vector<int> &get_present_indexes() 
+	const std::vector<int> &get_live_indexes() 
 	{ 
-		return m_string_indexer.get_present_indexes();
+		return m_string_indexer.get_live_indexes();
 	}
-	void read_unlock_present_indexes()
+	void read_unlock_live_indexes()
 	{
-		m_string_indexer.read_unlock_present_indexes();
+		m_string_indexer.read_unlock_live_indexes();
 	}
 
 private:

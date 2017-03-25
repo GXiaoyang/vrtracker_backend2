@@ -18,6 +18,8 @@ struct vr_tracker_traverse
 	void update_tracker_sequential(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces);
 	void update_tracker_parallel(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces);
 
+	void save_tracker_to_binary_file(vr_tracker *tracker, const char *filename);
+
 private:
 	struct impl;
 	impl* m_pimpl;

@@ -22,13 +22,13 @@ void StringIndexer::ReadFromStream(EncodeStream &s)
 	}
 }
 
-void StringIndexer::maybe_swap_present_indexes(std::vector<int> * v)
+void StringIndexer::maybe_swap_live_indexes(std::vector<int> * v)
 {
-	if (*v != present_indexes)
+	if (*v != live_indexes)
 	{
-		present_index_lock.lock(); // writer lock
-		present_indexes.swap(*v);
-		present_index_lock.unlock();
+		live_index_lock.lock(); // writer lock
+		live_indexes.swap(*v);
+		live_index_lock.unlock();
 	}
 }
 

@@ -5,7 +5,7 @@
 #include "segmented_list.h"
 //#include "tbb/concurrent_vector.h"
 
-#define INIT(var_name)			var_name(schema<is_iterator>::make_url_for_child( #var_name ))
+#define INIT(var_name)			var_name(schema<is_iterator>::make_url_for_child( #var_name ), registry)
 #define ALLOC_DECL
 
 namespace vr_result
@@ -31,19 +31,19 @@ namespace vr_result
 	//	using CONC_TIMENODE = time_node<ResultType, tbb::concurrent_vector, is_iterator, AllocatorTemplate>;
 
 		// two kinds of children.  
-		//	child is a vector of schemas
+		//	child is a vector of structs which contain schemas
 		template <typename T>
-		using VECTOR_OF_SCHEMAS = base::named_vector<T>;
+		using VECTOR_OF_SCHEMAS = named_vector<T>;
 			
 		// child is a vector of nodes
 		template <typename ResultType>
-		using VECTOR_OF_TIMENODES = base::named_vector<TIMENODE<ResultType>>;
+		using VECTOR_OF_TIMENODES = named_vector<TIMENODE<ResultType>>;
 
 		struct hidden_mesh_schema : schema<is_iterator>
 		{
 			hidden_mesh_schema() {}
-			explicit hidden_mesh_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit hidden_mesh_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(hidden_mesh_triangle_count),
 				INIT(hidden_mesh_vertices)
 			{}
@@ -56,8 +56,8 @@ namespace vr_result
 		struct eye_schema : schema<is_iterator>
 		{
 			eye_schema() {}
-			explicit eye_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit eye_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(projection),
 				INIT(projection_raw),
 				INIT(distortion),
@@ -76,8 +76,8 @@ namespace vr_result
 		struct component_on_controller_schema : schema<is_iterator>
 		{
 			component_on_controller_schema() {}
-			explicit component_on_controller_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit component_on_controller_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(transforms),
 				INIT(transforms_scroll_wheel)
 			{}
@@ -90,8 +90,8 @@ namespace vr_result
 		{
 			system_controller_schema() {}
 
-			explicit system_controller_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit system_controller_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(raw_tracking_pose),
 				INIT(seated_tracking_pose),
 				INIT(standing_tracking_pose),
@@ -137,8 +137,8 @@ namespace vr_result
 		struct spatial_sort_schema : schema<is_iterator>
 		{
 			spatial_sort_schema() {}
-			explicit spatial_sort_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit spatial_sort_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(hmds_sorted),
 				INIT(controllers_sorted),
 				INIT(trackers_sorted),
@@ -157,8 +157,8 @@ namespace vr_result
 				: structure_version(0)
 				 {}
 
-			explicit system_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit system_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(recommended_target_size),
 				INIT(seconds_since_last_vsync),
 				INIT(frame_counter_since_last_vsync),
@@ -202,8 +202,8 @@ namespace vr_result
 		struct application_schema : schema<is_iterator>
 		{
 			application_schema() {}
-			explicit application_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit application_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(application_key),
 				INIT(is_installed),
 				INIT(auto_launch),
@@ -230,8 +230,8 @@ namespace vr_result
 		struct mime_type_schema : schema<is_iterator>
 		{
 			mime_type_schema() {}
-			explicit mime_type_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit mime_type_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(mime_type),
 				INIT(default_application),
 				INIT(applications_that_support_mime_type)
@@ -247,8 +247,8 @@ namespace vr_result
 			applications_schema()
 				: structure_version(0)
 				 {}
-			explicit applications_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit applications_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(starting_application),
 				INIT(transition_state),
 				INIT(is_quit_user_prompt),
@@ -273,8 +273,8 @@ namespace vr_result
 		struct section_schema : schema<is_iterator>
 		{
 			section_schema() {}
-			explicit section_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit section_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(bool_settings),
 				INIT(string_settings),
 				INIT(float_settings),
@@ -292,8 +292,8 @@ namespace vr_result
 			settings_schema()
 				: structure_version(0)
 				 {}
-			explicit settings_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit settings_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(sections),
 				structure_version(0)
 			{}
@@ -305,8 +305,8 @@ namespace vr_result
 		struct chaperone_schema : schema<is_iterator>
 		{
 			chaperone_schema() {}
-			explicit chaperone_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit chaperone_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(calibration_state),
 				INIT(play_area_size),
 				INIT(play_area_rect),
@@ -325,8 +325,8 @@ namespace vr_result
 		struct chaperone_setup_schema : schema<is_iterator>
 		{
 			chaperone_setup_schema() {}
-			explicit chaperone_setup_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit chaperone_setup_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(working_play_area_size),
 				INIT(working_play_area_rect),
 				INIT(working_collision_bounds_info),
@@ -353,8 +353,8 @@ namespace vr_result
 		struct compositor_controller_schema : schema<is_iterator>
 		{
 			compositor_controller_schema() {}
-			explicit compositor_controller_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit compositor_controller_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(last_render_pose),
 				INIT(last_game_pose)
 			{}
@@ -366,8 +366,8 @@ namespace vr_result
 		struct compositor_schema : schema<is_iterator>
 		{
 			compositor_schema() {}
-			explicit compositor_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit compositor_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(tracking_space),
 				INIT(frame_timing),
 				INIT(frame_timings),
@@ -411,8 +411,8 @@ namespace vr_result
 		struct per_overlay_state : schema<is_iterator>
 		{
 			per_overlay_state() {}
-			explicit per_overlay_state(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit per_overlay_state(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(overlay_handle),
 				INIT(overlay_name),
 				INIT(overlay_image_width),
@@ -481,8 +481,8 @@ namespace vr_result
 		struct overlay_schema : schema<is_iterator>
 		{
 			overlay_schema() {}
-			explicit overlay_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit overlay_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(gamepad_focus_overlay),
 				INIT(primary_dashboard_device),
 				INIT(is_dashboard_visible),
@@ -503,8 +503,8 @@ namespace vr_result
 		struct rendermodel_component_schema : schema<is_iterator>
 		{
 			rendermodel_component_schema() {}
-			explicit rendermodel_component_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit rendermodel_component_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				//INIT(component_name),
 				INIT(button_mask),
 				INIT(render_model_name)
@@ -518,8 +518,8 @@ namespace vr_result
 		struct rendermodel_schema : schema<is_iterator>
 		{
 			rendermodel_schema() {}
-			explicit rendermodel_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit rendermodel_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(thumbnail_url),
 				INIT(original_path),
 				INIT(vertex_data),
@@ -547,8 +547,8 @@ namespace vr_result
 				: structure_version(-1)
 				{}
 
-			explicit render_models_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit render_models_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(models),
 				structure_version(-1)
 			{}
@@ -560,8 +560,8 @@ namespace vr_result
 		struct cameraframetype_schema : schema<is_iterator>
 		{
 			cameraframetype_schema() {}
-			explicit cameraframetype_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit cameraframetype_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(frame_size),
 				INIT(intrinsics),
 				INIT(projection),
@@ -577,8 +577,8 @@ namespace vr_result
 		struct controller_camera_schema : schema<is_iterator>
 		{
 			controller_camera_schema() {}
-			explicit controller_camera_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit controller_camera_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(has_camera),
 				INIT(cameraframetypes)
 			{}
@@ -590,8 +590,8 @@ namespace vr_result
 		struct tracked_camera_schema : schema<is_iterator>
 		{
 			tracked_camera_schema() {}
-			explicit tracked_camera_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit tracked_camera_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(controllers)
 			{}
 
@@ -601,8 +601,8 @@ namespace vr_result
 		struct extended_display_schema : schema<is_iterator>
 		{
 			extended_display_schema() {}
-			explicit extended_display_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit extended_display_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(window_bounds),
 				INIT(left_output_viewport),
 				INIT(right_output_viewport)
@@ -616,8 +616,8 @@ namespace vr_result
 		struct resource_schema : schema<is_iterator>
 		{
 			resource_schema() {}
-			explicit resource_schema(const base::URL &name ALLOC_DECL) 
-				: schema<is_iterator>(name),
+			explicit resource_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL) 
+				: schema<is_iterator>(name,registry),
 				INIT(resource_name),
 				INIT(resource_directory),
 				INIT(resource_full_path),
@@ -633,8 +633,8 @@ namespace vr_result
 		struct resources_schema : schema<is_iterator>
 		{
 			resources_schema() {}
-			explicit resources_schema(const base::URL &name ALLOC_DECL)
-				: schema<is_iterator>(name),
+			explicit resources_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name,registry),
 				INIT(resources)
 			{}
 
@@ -642,8 +642,8 @@ namespace vr_result
 		};
 
 		vr_schema() {}
-		explicit vr_schema(const base::URL &name /*, const A & alloc*/)
-			: schema<is_iterator>(name),
+		explicit vr_schema(const base::URL &name, SerializableRegistry *registry)
+			: schema<is_iterator>(name,registry),
 			INIT(system_node),
 			INIT(applications_node),
 			INIT(settings_node),

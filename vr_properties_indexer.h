@@ -28,8 +28,9 @@ public:
 		int num_mat34_properties, const char **mat34_names, int *mat34_enum_values,
 		int num_float_properties, const char **float_names, int *float_enum_values
 	);
-	void AddCustomProperty(PropertySettingType prop_type, const char *name, int val);
 
+	// spawns new name
+	void AddCustomProperty(PropertySettingType prop_type, const char *name, int val);
 
 	inline bool GetIndexForEnum(PropertySettingType setting_type, int enum_val, int *index)
 	{

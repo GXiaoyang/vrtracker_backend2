@@ -46,38 +46,42 @@ public:
 		return ret;
 	}
 
-	void read_lock_present_indexes()
+	void read_lock_live_indexes()
 	{
-		present_index_lock.lock_read();
+		live_index_lock.lock_read();
 	}
-	const std::vector<int> &get_present_indexes() 
+	const std::vector<int> &get_live_indexes() 
 	{ 
-		return present_indexes; 
+		return live_indexes; 
 	}
-	void read_unlock_present_indexes()
+	void read_unlock_live_indexes()
 	{
-		present_index_lock.unlock();
+		live_index_lock.unlock();
 	}
 
 	// maybe swap current_index_set
 	// if v does not match the current set, lock and swap it
-	void maybe_swap_present_indexes(std::vector<int> * v);
+	void maybe_swap_live_indexes(std::vector<int> * v);
 
 	// return an index.  if the key doesn't exist yet add it.
-	int add_key_to_set(const char *key)
+	int add_key_to_set(const char *key, bool *is_new_key)
 	{
 		int string_indexer_index;
 		auto iter = keys2index.find(key);
 		if (iter != keys2index.end())
 		{
 			string_indexer_index = iter->second;
+			if (is_new_key)
+				*is_new_key = false;
 		}
 		else
 		{
+			if (is_new_key)
+				*is_new_key = true;
 			string_indexer_index = keys.size();
 			auto iter = keys.push_back(key);					// update caches
 			const char *p = (*iter).c_str(); // p needs to point to the char in keys
-			keys2index.insert({ p, string_indexer_index });
+			keys2index.insert({ p, string_indexer_index });		// spawn new value
 			updated_size = string_indexer_index+1;
 		}
 		return string_indexer_index;
@@ -91,6 +95,6 @@ public:
 		hash_c_string,
 		comp_c_string> keys2index;
 
-	tbb::spin_rw_mutex present_index_lock;
-	std::vector<int> present_indexes;
+	tbb::spin_rw_mutex live_index_lock;
+	std::vector<int> live_indexes;
 };
