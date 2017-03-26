@@ -17,7 +17,7 @@ public:
 	StringIndexer()
 	{}
 
-	void WriteToStream(EncodeStream &s);
+	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
 	volatile int size()  { return updated_size; }

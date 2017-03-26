@@ -50,7 +50,7 @@ vr_tracker& tracker_test_context::get_tracker()
 	if(!m_tracker)
 	{
 		m_tracker = new vr_tracker(&s);
-		m_tracker->keys.Init(get_config());
+		m_tracker->m_keys.Init(get_config());
 	}
 	return *m_tracker;
 }

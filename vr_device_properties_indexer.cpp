@@ -163,7 +163,7 @@ void DevicePropertiesIndexer::Init
 	);
 }
 
-void DevicePropertiesIndexer::WriteToStream(EncodeStream &s)
+void DevicePropertiesIndexer::WriteToStream(EncodeStream &s) const
 {
 	int x = 33;
 	encode(x, s);

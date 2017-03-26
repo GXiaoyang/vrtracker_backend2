@@ -6,8 +6,8 @@ CursorContext::CursorContext(vr_tracker *tracker)
 	m_current_frame(tracker->get_last_updated_frame()),
 	m_last_event_frame_returned(m_current_frame - 1),
 	m_state(&tracker->m_state),
-	m_events(&tracker->m_events),
-	m_keys(&tracker->keys),
+	m_vr_events(&tracker->m_vr_events),
+	m_keys(&tracker->m_keys),
 	m_tracker(tracker)
 {
 }

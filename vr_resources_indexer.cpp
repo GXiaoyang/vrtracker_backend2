@@ -9,12 +9,12 @@ void ResourcesIndexer::Init(const char **resource_filenames, const char **initia
 	}
 }
 
-void ResourcesIndexer::WriteToStream(EncodeStream &s)
+void ResourcesIndexer::WriteToStream(EncodeStream &s) const
 {
 	int x = 4;
 	encode(x, s);
-	write_string_vector_to_stream(s, m_resource_directories);
-	write_string_vector_to_stream(s, m_resource_filenames);
+	write_vector_of_strings_to_stream(s, m_resource_directories);
+	write_vector_of_strings_to_stream(s, m_resource_filenames);
 }
 
 void ResourcesIndexer::ReadFromStream(EncodeStream &s)
@@ -24,8 +24,8 @@ void ResourcesIndexer::ReadFromStream(EncodeStream &s)
 	assert(x == 4);
 	m_resource_directories.clear();
 	m_resource_filenames.clear();
-	read_string_vector_from_stream(s, m_resource_directories);
-	read_string_vector_from_stream(s, m_resource_filenames);
+	read_vector_of_strings_from_stream(s, m_resource_directories);
+	read_vector_of_strings_from_stream(s, m_resource_filenames);
 }
 
 

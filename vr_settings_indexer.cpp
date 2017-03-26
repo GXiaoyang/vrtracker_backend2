@@ -442,14 +442,14 @@ void SettingsIndexer::Init(
 	}
 }
 
-void SettingsIndexer::WriteToStream(EncodeStream &s)
+void SettingsIndexer::WriteToStream(EncodeStream &s) const
 {
 	int x = 33;
 	encode(x, s);
 	for (int i = 0; i < NUM_SETTING_TYPES; i++)
 	{
-		write_string_vector_to_stream(s, custom_sections[i]);
-		write_string_vector_to_stream(s, custom_settings[i]);
+		write_vector_of_strings_to_stream(s, custom_sections[i]);
+		write_vector_of_strings_to_stream(s, custom_settings[i]);
 	}
 }
 
@@ -466,8 +466,8 @@ void SettingsIndexer::ReadFromStream(EncodeStream &s)
 	{
 		tmp_sections.clear();
 		tmp_settings.clear();
-		read_string_vector_from_stream(s, tmp_sections);
-		read_string_vector_from_stream(s, tmp_settings);
+		read_vector_of_strings_from_stream(s, tmp_sections);
+		read_vector_of_strings_from_stream(s, tmp_settings);
 
 		for (int j = 0; j < size_as_int(tmp_sections.size()); j++)
 		{

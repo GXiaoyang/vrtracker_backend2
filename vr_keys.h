@@ -32,11 +32,14 @@ struct vr_keys
 
 	vr_keys(const vr_keys &) = delete;
 
-	void RegisterObserver(IndexerObserver *o)
+	// users can register for change notifications.  this call will pass it along to
+	// the other indexes
+	void RegisterObserver(KeysObserver *o)
 	{
+		// currently only applications support it
 		m_applications_indexer.RegisterObserver(o);
 	}
-	void UnRegisterObserver(IndexerObserver *o)
+	void UnRegisterObserver(KeysObserver *o)
 	{
 		m_applications_indexer.UnRegisterObserver(o);
 	}
@@ -85,7 +88,7 @@ struct vr_keys
 		m_data.farz = ffar;
 	}
 
-	void write_to_stream(EncodeStream &stream)
+	void encode(EncodeStream &stream) const
 	{
 		stream.memcpy_out_to_stream(&m_data, sizeof(m_data));
 		m_overlay_indexer.WriteToStream(stream);
@@ -96,7 +99,7 @@ struct vr_keys
 		m_settings_indexer.WriteToStream(stream);
 	}
 
-	void read_from_stream(EncodeStream &stream)
+	void decode(EncodeStream &stream)
 	{
 		stream.memcpy_from_stream(&m_data, sizeof(m_data));
 		m_overlay_indexer.ReadFromStream(stream);
@@ -106,7 +109,7 @@ struct vr_keys
 		m_resources_indexer.ReadFromStream(stream);
 		m_settings_indexer.ReadFromStream(stream);
 	}
-
+#if 0
 	uint64_t GetEncodedSize()
 	{
 		EncodeStream counter(nullptr, 0, true);
@@ -125,6 +128,7 @@ struct vr_keys
 		EncodeStream decoder(buf, buf_size, false);
 		read_from_stream(decoder);
 	}
+#endif
 
 	float GetNearZ() const { return m_data.nearz; }
 	float GetFarZ() const { return m_data.farz; }

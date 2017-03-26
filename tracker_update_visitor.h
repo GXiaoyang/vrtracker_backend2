@@ -20,7 +20,7 @@ public:
 																 // second: the name of the child
 
 	tbb::spin_mutex updated_node_lock;
-	VRBitset updated_nodes;
+	VRBitset updated_node_bits;
 
 public:
 
@@ -59,7 +59,7 @@ public:
 			history.emplace_back(m_frame_number, latest_result);
 			serialization_id history_id = history.get_serialization_index();
 			updated_node_lock.lock();
-			updated_nodes.set(history_id);
+			updated_node_bits.set(history_id);
 			updated_node_lock.unlock();
 		}
 	}

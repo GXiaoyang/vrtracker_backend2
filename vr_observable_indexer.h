@@ -1,34 +1,34 @@
 #pragma once
 #include <vr_types.h>
 
-struct IndexerObserver
+struct KeysObserver
 {
-	virtual void NewVRConfigEvent(const VRConfigEvent &e) = 0;
+	virtual void NewVRKeysUpdate(const VRKeysUpdate &e) = 0;
 };
 
-struct ObservableIndexer
+struct ObservableKeysIndexer
 {
-	virtual void RegisterObserver(IndexerObserver *) = 0;
-	virtual void UnRegisterObserver(IndexerObserver *) = 0;
+	virtual void RegisterObserver(KeysObserver *) = 0;
+	virtual void UnRegisterObserver(KeysObserver *) = 0;
 };
 
-struct BasicObservableIndexer : public ObservableIndexer
+struct BasicObservableKeysIndexer : public ObservableKeysIndexer
 {
-	virtual void RegisterObserver(IndexerObserver *observer) override
+	virtual void RegisterObserver(KeysObserver *observer) override
 	{
 		observers.push_back(observer);
 	}
-	virtual void UnRegisterObserver(IndexerObserver *observer) override
+	virtual void UnRegisterObserver(KeysObserver *observer) override
 	{
 		std::remove(observers.begin(), observers.end(), observer);
 	}
 protected:
-	void NotifyObservers(const VRConfigEvent &e)
+	void NotifyObservers(const VRKeysUpdate &e)
 	{
 		for (auto observer : observers)
 		{
-			observer->NewVRConfigEvent(e);
+			observer->NewVRKeysUpdate(e);
 		}
 	}
-	std::vector<IndexerObserver *> observers;
+	std::vector<KeysObserver *> observers;
 };

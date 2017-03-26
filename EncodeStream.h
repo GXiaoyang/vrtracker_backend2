@@ -43,6 +43,17 @@ struct EncodeStream
 		}
 	}
 
+	template <typename Container>
+	void forward_container_out_to_stream(const Container &container)
+	{
+		int size = container.size();	// dont' use size_t because it's different on 32 vs 64 bit
+		memcpy_out_to_stream(&size, sizeof(size));
+		for (auto & val : container)
+		{
+			memcpy_out_to_stream(&val, sizeof(val));
+		}
+	}
+
 	// write value to buf and advance pointer
 	void memcpy_out_to_stream(const void *src, size_t s)
 	{

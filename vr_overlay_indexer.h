@@ -16,7 +16,7 @@ class OverlayIndexer
 public:
 	OverlayIndexer();
 	void Init(const char **initial_overlay_names, int num_names);
-	void WriteToStream(EncodeStream &s);
+	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
 	void update_presence(vr_result::OverlayWrapper *ow);

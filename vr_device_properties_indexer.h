@@ -13,6 +13,6 @@ public:
 		int num_mat34_properties, const char **mat34_names, int *mat34_values,
 		int num_float_properties, const char **float_names, int *float_values
 	);
-	void WriteToStream(EncodeStream &s);
+	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 };

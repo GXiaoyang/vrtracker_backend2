@@ -12,11 +12,29 @@
 #include "dynamic_bitset.hpp"
 #include <openvr.h>
 
-using VRBitset = boost::dynamic_bitset<uint64_t, std::allocator<uint64_t>>;
+using VRTimestampVector = segmented_list<time_stamp_t, VR_LARGE_SEGMENT_SIZE, slab_allocator<time_stamp_t>>;
 
+struct  VRBitset : public boost::dynamic_bitset<uint64_t, std::allocator<uint64_t>>
+{
+	void encode(EncodeStream &e) const
+	{
+		std::vector<uint64_t> tmp;
+		boost::to_block_range(*this, std::back_inserter(tmp));
+		int num_blocks = tmp.size();
+		e.memcpy_out_to_stream(&num_blocks, sizeof(num_blocks));
+		e.memcpy_out_to_stream(tmp.data(), sizeof(uint64_t) * num_blocks);
+	}
 
-template <typename T>
-using VRForwardList = std::forward_list<T, VRAllocatorTemplate<T>>;
+	void decode(EncodeStream &e)
+	{
+		int num_blocks;
+		e.memcpy_from_stream(&num_blocks, sizeof(num_blocks));
+		std::vector<uint64_t> tmp(num_blocks);
+		e.memcpy_from_stream(tmp.data(), sizeof(uint64_t) * num_blocks);
+		resize(num_blocks * 64);
+		boost::from_block_range(tmp.begin(), tmp.end(), *this);
+	}
+};
 
 // need to support encode to serialize it
 struct VREncodableEvent : vr::VREvent_t 
@@ -34,47 +52,34 @@ struct VREncodableEvent : vr::VREvent_t
 
 using VREventList = time_indexed_vector<VREncodableEvent, segmented_list_1024, slab_allocator>;
 
-struct VRConfigEvent
+struct VRKeysUpdate
 {
-	virtual VRConfigEvent *clone() const = 0;
-};
-struct NewOverlayKey : public VRConfigEvent
-{
-	std::string overlay_name;
-};
-
-struct NewAppKey : public VRConfigEvent
-{
-	NewAppKey(const std::string &s) : app_name(s)
-	{}
-	std::string app_name;
-	virtual VRConfigEvent *clone() const override
+	enum KeysUpdateType
 	{
-		return new NewAppKey(*this);
+		NEW_APP_KEY
+	};
+	KeysUpdateType update_type;
+	uint32_t iparam1;
+	std::string sparam1;
+	std::string sparam2;
+	void encode(EncodeStream &e) const
+	{
+		e.memcpy_out_to_stream(&update_type, sizeof(update_type));
+		e.memcpy_out_to_stream(&iparam1, sizeof(iparam1));
+		e.contiguous_container_out_to_stream(sparam1);
+		e.contiguous_container_out_to_stream(sparam2);
+	}
+
+	void decode(EncodeStream &e)
+	{
+		e.memcpy_from_stream(&update_type, sizeof(update_type));
+		e.memcpy_from_stream(&iparam1, sizeof(iparam1));
+		e.contiguous_container_from_stream(sparam1);
+		e.contiguous_container_from_stream(sparam2);
 	}
 };
 
-struct NewResourceKey : public VRConfigEvent
-{
-	std::string resource_name;
-	std::string resource_directory;
-};
-
-struct NewSetting : public VRConfigEvent
-{
-	enum type {};
-	std::string section;
-	std::string name;
-};
-
-struct NewProperty : public VRConfigEvent
-{
-	enum type {};
-	std::string name;
-	uint32_t enum_id;
-};
-
-using VRConfigEventList = time_indexed_vector<VRConfigEvent*, segmented_list_1024, slab_allocator>;
+using VRKeysUpdateVector = time_indexed_vector<VRKeysUpdate, segmented_list_1024, slab_allocator>;
 using VRUpdateVector = time_indexed_vector<VRBitset, segmented_list_1024, slab_allocator>;
 
 namespace vr

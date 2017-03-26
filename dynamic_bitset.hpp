@@ -553,7 +553,6 @@ private:
     }
 
 
-
 BOOST_DYNAMIC_BITSET_PRIVATE:
 
     bool m_unchecked_test(size_type pos) const;

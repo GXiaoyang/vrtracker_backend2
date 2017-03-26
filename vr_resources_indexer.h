@@ -7,7 +7,7 @@ public:
 	ResourcesIndexer() {}
 
 	void Init(const char **resource_filenames, const char **initial_resources_dirs, int num_names);
-	void WriteToStream(EncodeStream &s);
+	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
 	const char *get_filename_for_index(int index, int *fname_size)

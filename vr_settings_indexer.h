@@ -29,7 +29,7 @@ public:
 		int num_string_settings, const char **string_setting_sections, const char **string_setting_names,
 		int num_float_settings, const char **float_setting_sections, const char **float_setting_names);
 
-	void WriteToStream(EncodeStream &s);
+	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
 	// given a section, setting_type and setting name,

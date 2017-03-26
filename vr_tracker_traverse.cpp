@@ -9,6 +9,7 @@
 #include "tracker_encode_visitor.h"
 #include "vr_tracker.h"
 #include "openvr_serialization.h"
+#include "fstream"
 
 using namespace vr_result;
 
@@ -59,7 +60,7 @@ static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state,
 	ResourcesWrapper		resources_wrapper(interfaces->resi);
 
 	vr_state *s = &outer_state->m_state;
-	vr_keys *keys = &outer_state->keys;
+	vr_keys *keys = &outer_state->m_keys;
 
 	TaskGroup g;
 	
@@ -117,7 +118,65 @@ static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state,
 
 struct vr_tracker_traverse::impl
 {
+	impl()
+	{
+		openvr_broker::acquire_interfaces("null", &null_interfaces, nullptr);
+	}
 
+	uint64_t calc_keys_size(vr_tracker *tracker)
+	{
+		// state size
+		EncodeStream count_stream(nullptr, 0, true);
+		tracker_encode_visitor visitor;
+		visitor.m_stream = &count_stream;
+		tracker->m_keys.encode(count_stream);
+		return count_stream.buf_pos + 1;
+	}
+
+	uint64_t calc_state_size(vr_tracker *tracker)
+	{
+		// state size
+		EncodeStream count_stream(nullptr, 0, true);
+		tracker_encode_visitor visitor;
+		visitor.m_stream = &count_stream;
+		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &null_interfaces);
+		return count_stream.buf_pos + 1;
+	}
+
+	uint64_t calc_vr_events_size(vr_tracker *tracker)
+	{
+		EncodeStream count_stream(nullptr, 0, true);
+		tracker_encode_visitor visitor;
+		visitor.m_stream = &count_stream;
+		tracker->m_vr_events.encode(count_stream);
+		return count_stream.buf_pos + 1;
+	}
+
+	uint64_t calc_time_stamps_size(vr_tracker *tracker)
+	{
+		return tracker->m_time_stamps.size() * sizeof(tracker->m_time_stamps[0]);
+	}
+
+	uint64_t calc_keys_updates_size(vr_tracker *tracker)
+	{
+		EncodeStream count_stream(nullptr, 0, true);
+		tracker_encode_visitor visitor;
+		visitor.m_stream = &count_stream;
+		tracker->m_keys_updates.encode(count_stream);
+		return count_stream.buf_pos + 1;
+	}
+
+	uint64_t calc_state_update_bits_size(vr_tracker *tracker)
+	{
+		EncodeStream count_stream(nullptr, 0, true);
+		tracker_encode_visitor visitor;
+		visitor.m_stream = &count_stream;
+		tracker->m_state_update_bits.encode(count_stream);
+		return count_stream.buf_pos + 1;
+	}
+	
+
+	openvr_broker::open_vr_interfaces null_interfaces;
 };
 
 vr_tracker_traverse::vr_tracker_traverse()
@@ -130,21 +189,13 @@ vr_tracker_traverse::~vr_tracker_traverse()
 	delete m_pimpl;
 }
 
-struct ConfigObserver : IndexerObserver
+struct ConfigObserver : KeysObserver
 {
-	~ConfigObserver()
+	virtual void NewVRKeysUpdate(const VRKeysUpdate &e) override final
 	{
-		for (auto e : config_events)
-		{
-			delete e;
-		}
+		config_events.push_back(e);
 	}
-
-	virtual void NewVRConfigEvent(const VRConfigEvent &e)
-	{
-		config_events.push_back(e.clone());
-	}
-	tbb::concurrent_vector<VRConfigEvent*> config_events;
+	tbb::concurrent_vector<VRKeysUpdate> config_events;
 };
 
 void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces)
@@ -153,7 +204,7 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 	tracker_update_visitor update_visitor(last_updated + 1);
 
 	ConfigObserver config_observer;
-	tracker->keys.RegisterObserver(&config_observer);
+	tracker->m_keys.RegisterObserver(&config_observer);
 
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	traverse_history_graph<named_task_group>(&update_visitor, tracker, interfaces);
@@ -170,16 +221,16 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 	//
 
 	// any new keys discovered:
-	tracker->keys.UnRegisterObserver(&config_observer);
-	for (VRConfigEvent* e : config_observer.config_events)
+	tracker->m_keys.UnRegisterObserver(&config_observer);
+	for (VRKeysUpdate& e : config_observer.config_events)
 	{
-		tracker->m_config_events.emplace_back(update_visitor.get_frame_number(), e);
+		tracker->m_keys_updates.emplace_back(update_visitor.get_frame_number(), e);
 	}
 
-	if (!update_visitor.updated_nodes.empty())
+	if (!update_visitor.updated_node_bits.empty())
 	{
 		// any items that updated
-		tracker->m_updates.emplace_back(update_visitor.get_frame_number(), update_visitor.updated_nodes);
+		tracker->m_state_update_bits.emplace_back(update_visitor.get_frame_number(), update_visitor.updated_node_bits);
 	}
 
 	
@@ -204,63 +255,114 @@ void vr_tracker_traverse::update_tracker_sequential(vr_tracker *tracker, openvr_
 }
 
 // file format starts with a header:
-struct header
+struct header_t
 {
 	uint64_t magic;
 	uint64_t summary_offset;
 	uint64_t summary_size;
+	uint64_t keys_offset;
+	uint64_t keys_size;
 	uint64_t state_offset;
 	uint64_t state_size;
-	uint64_t resource_keys_offset;
-	uint64_t resource_keys_size;
-	uint64_t event_offset;
-	uint64_t event_size;
-	uint64_t timestamp_offset;
-	uint64_t timestamp_size;
+	uint64_t events_offset;
+	uint64_t events_size;
+
+	uint64_t time_stamps_offset;
+	uint64_t time_stamps_size;
+	uint64_t keys_updates_offset;
+	uint64_t keys_updates_size;
+	uint64_t state_update_bits_offset;
+	uint64_t state_update_bits_size;
+	uint64_t updates_offset;	// no size since it's streaming
 };
 
 
+inline uint64_t pad_size(uint64_t in)
+{
+	return (in + 3) & ~0x3;
+}
 
 void vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const char *filename)
 {
-	// state size
-	EncodeStream count_stream(nullptr, 0, true);
-	tracker_encode_visitor visitor;
-	visitor.m_stream = &count_stream;
-	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-	openvr_broker::open_vr_interfaces interfaces;
-	openvr_broker::acquire_interfaces("null", &interfaces, nullptr);
-	traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &interfaces);
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	uint64_t state_size = count_stream.buf_pos + 1;
-	uint64_t padded_state_size = (state_size + 3) & ~0x3;
+	header_t header;
+	header.magic = 0x7;
+	header.summary_size		 = sizeof(save_summary);
+	header.keys_size		 = m_pimpl->calc_keys_size(tracker);
+	header.state_size		 = m_pimpl->calc_state_size(tracker);
+	header.events_size		 = m_pimpl->calc_vr_events_size(tracker);
+	header.time_stamps_size	 = m_pimpl->calc_time_stamps_size(tracker);
+	header.keys_updates_size = m_pimpl->calc_keys_updates_size(tracker);
+	header.state_update_bits_size = m_pimpl->calc_state_update_bits_size(tracker);
 
-	// key size
-	uint64_t resource_keys_size = tracker->keys.GetEncodedSize();
-	uint64_t padded_resource_keys_size = (resource_keys_size + 3) & ~0x3;
+	header.summary_offset           = sizeof(header.magic);
+	header.keys_offset              = header.summary_offset		+ pad_size(header.summary_size);
+	header.state_offset             = header.keys_offset		+ pad_size(header.keys_size);
+	header.events_offset            = header.state_offset		+ pad_size(header.state_size);
+	header.time_stamps_offset       = header.events_offset		+ pad_size(header.events_size);
+	header.keys_updates_offset      = header.time_stamps_offset + pad_size(header.time_stamps_offset);
+	header.state_update_bits_offset = header.keys_updates_offset + pad_size(header.keys_updates_size);
+	header.updates_offset           = header.state_update_bits_offset + pad_size(header.state_update_bits_size);
 
-	// event size
-	count_stream.buf_pos = 0;
-	tracker->m_events.encode(count_stream);
-	uint64_t event_size = count_stream.buf_pos + 1;
-	uint64_t padded_event_size = (event_size + 3) & ~0x3;
+	save_summary summary;
+	std::time_t start = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	ctime_s(summary.start_date_string, sizeof(summary.start_date_string), &start);
 
-	// timestamp size
-	uint64_t timestamp_size = tracker->m_time_stamps.size() * sizeof(tracker->m_time_stamps[0]);
-	uint64_t padded_timestamp_size = (timestamp_size + 3) & ~0x3;
+	// make sure the size fits in whatever size_t is
+	assert(size_t(header.updates_offset) == header.updates_offset);
+	char *big_buf = (char *)malloc(static_cast<size_t>(header.updates_offset));
+	{
+		EncodeStream e(big_buf + header.summary_offset, header.summary_size, false);
+		summary.encode(e);
+	}
+	{
+		EncodeStream e(big_buf + header.keys_offset, header.keys_size, false);
+		tracker->m_keys.encode(e);
+	}
+	{
+		EncodeStream e(big_buf + header.state_offset, header.state_size, false);
+		tracker->m_state.encode(e);
+	}
+	{
+		EncodeStream e(big_buf + header.events_offset, header.events_size, false);
+		tracker->m_vr_events.encode(e);
+	}
+	{
+		EncodeStream e(big_buf + header.time_stamps_offset, header.time_stamps_size, false);
+		e.forward_container_out_to_stream(tracker->m_time_stamps);
+	}
+	{
+		EncodeStream e(big_buf + header.keys_updates_offset, header.keys_updates_size, false);
+		tracker->m_keys_updates.encode(e);
+	}
+	{
+		EncodeStream e(big_buf + header.state_update_bits_offset, header.state_update_bits_size, false);
+		tracker->m_state_update_bits.encode(e);
+	}
 
-	// allocate a buffer
-	uint64_t total_size = sizeof(header) +
-		sizeof(tracker_save_summary) +
-		padded_state_size +
-		padded_resource_keys_size +
-		padded_event_size +
-		timestamp_size;
-	assert(size_t(total_size) == total_size);	// make sure I haven't blown 32 bits
-
-	char *buf = (char*)malloc(static_cast<size_t>(total_size));
+	std::fstream fs;
+	fs.open(filename, std::fstream::out | std::fstream::binary);
+	fs.write(big_buf, static_cast<size_t>(header.updates_offset));
+	fs.close();
+	free(big_buf);
 }
 
+#if 0
+// streamer 
+void vr_tracker_traverse::streamer(vr_tracker *tracker, const char *filename)
+{
+	// write magic
+	// write initial state with no updates
+	//	* keys, m_state
+	// after any tick is finalized
+		// write my size
+		// write timestamp
+		// write key updates
+		// write state update bits
+		// write  state update blocks
+
+
+}
+#endif
 // if every timestamp had also a list of objects that were updated
 // serialization could use this to efficently stream updates
 

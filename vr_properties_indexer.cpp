@@ -79,11 +79,11 @@ void PropertiesIndexer::AddCustomProperties(
 	AddCustomPropertiesArray(PROP_FLOAT, num_float_properties, float_names, float_values);
 }
 
-void PropertiesIndexer::WriteToStream(EncodeStream &s)
+void PropertiesIndexer::WriteToStream(EncodeStream &s) const
 {
 	for (int i = 0; i < NUM_PROP_TYPES; i++)
 	{
-		write_string_vector_to_stream(s, custom_names[i]);
+		write_vector_of_strings_to_stream(s, custom_names[i]);
 		write_int_vector_to_stream(s, custom_enum_values[i]);
 	}
 }
@@ -95,7 +95,7 @@ void PropertiesIndexer::ReadFromStream(EncodeStream &s)
 		assert(custom_names[setting_type].size() == 0); // assume init has been called and properties are empty - otherwise check load and init seq.
 		assert(custom_enum_values[setting_type].size() == 0); // assume init has been called and properties are empty - otherwise check load and init seq.
 
-		read_string_vector_from_stream(s, custom_names[setting_type]);
+		read_vector_of_strings_from_stream(s, custom_names[setting_type]);
 		read_int_vector_from_stream(s, custom_enum_values[setting_type]);
 
 		enum2index[setting_type].reserve(enum2index[setting_type].size() + custom_enum_values[setting_type].size());

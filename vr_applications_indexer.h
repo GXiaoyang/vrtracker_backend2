@@ -6,13 +6,13 @@
 //
 // assigns and tracks monotonically increasing indexes<-> application keys
 //
-class ApplicationsIndexer : public BasicObservableIndexer
+class ApplicationsIndexer : public BasicObservableKeysIndexer
 {
 public:
 	ApplicationsIndexer()
 	{}
 
-	void WriteToStream(EncodeStream &s);
+	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
 	void update_presence_and_size(vr_result::ApplicationsWrapper *ow);

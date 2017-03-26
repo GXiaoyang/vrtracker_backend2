@@ -65,7 +65,7 @@ public:
 			return custom_names[setting_type][index - default_property_table[setting_type].size].c_str();
 	}
 
-	void WriteToStream(EncodeStream &s);
+	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
 	// configuration table

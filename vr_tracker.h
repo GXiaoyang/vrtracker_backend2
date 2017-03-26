@@ -8,13 +8,15 @@
 #include <chrono>
 #include <mutex>
 
-// data recorded at time of save.  
-// it's useful when loading to have an idea what was loaded and when it was captured
-struct tracker_save_summary
+struct save_summary
 {
-	int num_frames;
-	char date_string[64];
+	char start_date_string[64];
+	void encode(EncodeStream &s) const
+	{
+		s.memcpy_out_to_stream(start_date_string, sizeof(start_date_string));
+	}
 };
+
 
 struct vr_tracker
 {
@@ -24,31 +26,42 @@ private:
 public:
 	time_index_t get_last_updated_frame() const { return m_last_updated_frame_number; }
 
-	static const int LARGE_SEGMENT_SIZE = 8192;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
+	
 
-	std::chrono::time_point<std::chrono::steady_clock, std::chrono::microseconds> start;
+	//
+	// data that is not saved and why
+	// 
+	
+	// it's an id to object pointer map so needs to be rebuilt on load
+	SerializableRegistry m_state_registry;  
 
-	std::mutex update_mutex;
-	int blocking_update_calls;
-	int non_blocking_update_calls;
-	tracker_save_summary save_info;
-	vr_keys keys;
-	SerializableRegistry m_state_registry;
+	// only used to base timestamps at zero. so only used when generating deltas (and not after reload)
+	std::chrono::time_point<std::chrono::steady_clock> start;	
 
-	vr_result::vr_state m_state;	// tree of vr nodes
+	//
+	// data that is saved
+	// 
+	save_summary m_save_summary;
 
-	VRUpdateVector m_updates;			// sparse bitfields of updates
-	VRConfigEventList m_config_events;	// sparse strings showing new configuration events
-	VREventList m_events;				// sparse list of VREvents
+	// state
+	vr_keys m_keys;						// indexes of things to track
+	vr_result::vr_state m_state;		// tree of vr nodes
+	VREventList m_vr_events;			// sparse vector of VREvents
 
-	segmented_list<time_stamp_t, LARGE_SEGMENT_SIZE, slab_allocator<time_stamp_t>>  m_time_stamps;
+	// updates
+	VRTimestampVector   m_time_stamps; 
+	VRKeysUpdateVector	m_keys_updates;			// sparse vector of strings showing new configuration events (updates keys)
+	VRUpdateVector		m_state_update_bits;	// sparse vector of bitfields of updates (updates m_state)
+		
 
+	// search for an index given a time_stamp
 	time_index_t get_closest_time_index(time_stamp_t val)
 	{
 		auto iter = last_item_less_than_or_equal_to(m_time_stamps.begin(), m_time_stamps.end(), val);
 		return std::distance(m_time_stamps.begin(), m_time_stamps.end());
 	}
 
+	// lookup a timestamp using an index
 	time_stamp_t get_time_stamp(time_index_t i) 
 	{
 		assert(i < size_as_int(m_time_stamps.size()));
@@ -57,14 +70,9 @@ public:
 
 	vr_tracker(slab *slab)
 		:
-		//m_slab(slab),
-		//m_allocator(slab),
 		m_last_updated_frame_number(-1),
-		blocking_update_calls(0),
-		non_blocking_update_calls(0),
 		m_state(base::URL("vr", "/vr"), &m_state_registry),
 		m_time_stamps(slab_allocator<time_stamp_t>())
 	{
-		memset(&save_info, 0, sizeof(save_info));
 	}
 };

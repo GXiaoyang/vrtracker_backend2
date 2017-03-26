@@ -50,7 +50,7 @@ inline void decode(vr::HmdMatrix34_t &v, EncodeStream &e)
 }
 
 template <typename StringVectorType>
-inline void write_string_vector_to_stream(EncodeStream &s, StringVectorType &v)
+inline void write_vector_of_strings_to_stream(EncodeStream &s, StringVectorType &v)
 {
 	int count = size_as_int(v.size());
 	encode(count, s);
@@ -62,7 +62,7 @@ inline void write_string_vector_to_stream(EncodeStream &s, StringVectorType &v)
 }
 
 template <typename StringVectorType>
-inline void read_string_vector_from_stream(EncodeStream &s, StringVectorType &v)
+inline void read_vector_of_strings_from_stream(EncodeStream &s, StringVectorType &v)
 {
 	int count;
 	decode(count, s);
@@ -76,7 +76,7 @@ inline void read_string_vector_from_stream(EncodeStream &s, StringVectorType &v)
 	}
 }
 
-inline void write_int_vector_to_stream(EncodeStream &s, std::vector<int> &v)
+inline void write_int_vector_to_stream(EncodeStream &s, const std::vector<int> &v)
 {
 	int count = size_as_int(v.size());
 	encode(count, s);
