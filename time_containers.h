@@ -58,7 +58,7 @@ private:
 template <typename T,
 	template <typename, typename> class Container,
 	template <typename> class A>
-	struct time_indexed_vector : public base::url_named, RegisteredSerializable
+	struct time_indexed_vector : public base::url_named
 {
 	typedef T									value_type;
 	typedef time_indexed<T>						time_indexed_type;
@@ -77,10 +77,9 @@ template <typename T,
 
 
 	template<typename... Args>
-	explicit time_indexed_vector(const base::URL &url, SerializableRegistry *registry, Args&&... args)
+	explicit time_indexed_vector(const base::URL &url, Args&&... args)
 		:
 		url_named(url),
-		RegisteredSerializable(registry->Register(this)),
 		container(std::forward<Args>(args)...)
 	{}
 
@@ -153,11 +152,11 @@ template <typename T,
 	}
 
 	// write just the value out to the stream
-	void encode(EncodeStream &e) const override final
+	void encode(EncodeStream &e) const 
 	{
 		base::url_named::encode(e);
 		int size = container.size();
-		e.memcpy_out_to_stream(&size, sizeof(size));
+		e.memcpy_out_to_stream(&size, sizeof(size)); // write the container size
 		
 		for (auto timeval: container)
 		{
@@ -166,7 +165,7 @@ template <typename T,
 	}
 
 	// read the value from the stream
-	void decode(EncodeStream &e) override final
+	void decode(EncodeStream &e) 
 	{
 		base::url_named::decode(e);
 

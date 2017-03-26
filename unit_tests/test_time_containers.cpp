@@ -106,8 +106,7 @@ void test_serialization()
 
 		// add a name
 		{
-			SerializableRegistry registry;
-			time_indexed_vector<int_result, segmented_list_1024, std::allocator> veca(base::URL("foo", "/root/foo"), &registry);
+			time_indexed_vector<int_result, segmented_list_1024, std::allocator> veca(base::URL("foo", "/root/foo"));
 
 			veca.push_back(a);
 			stream.reset_buf_pos();

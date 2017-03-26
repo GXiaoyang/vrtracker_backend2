@@ -71,15 +71,28 @@ struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocat
 template <typename ResultType, template <typename, typename> class ContainerType, 
 	template <typename>  class Allocator>
 struct time_node<ResultType, ContainerType, false, Allocator> :
-	public time_indexed_vector<ResultType, ContainerType, Allocator>
+	public time_indexed_vector<ResultType, ContainerType, Allocator>, RegisteredSerializable
 {
 	time_node()
 	{}
 
 	time_node(const base::URL &name, SerializableRegistry *registry)
-		: time_indexed_vector<ResultType, ContainerType, Allocator>(name,registry)
+		: time_indexed_vector<ResultType, ContainerType, Allocator>(name)
 	{		
+		registry->Register(this);
 	}
+
+	virtual void encode(EncodeStream &e) const override final
+	{
+		time_indexed_vector<ResultType, ContainerType, Allocator>::encode(e);		
+	}
+
+	// read the value from the stream
+	void decode(EncodeStream &e) override final
+	{
+		time_indexed_vector<ResultType, ContainerType, Allocator>::decode(e);
+	}
+
 
 	base::URL make_url_for_child(const std::string &child) { return base::URL(); }
 };

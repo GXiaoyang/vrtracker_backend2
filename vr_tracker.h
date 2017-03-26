@@ -26,7 +26,7 @@ public:
 
 	static const int LARGE_SEGMENT_SIZE = 8192;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
 
-	std::chrono::time_point<std::chrono::steady_clock> start_time;
+	std::chrono::time_point<std::chrono::steady_clock, std::chrono::microseconds> start;
 
 	std::mutex update_mutex;
 	int blocking_update_calls;
@@ -35,10 +35,12 @@ public:
 	vr_keys keys;
 	SerializableRegistry m_state_registry;
 
-	vr_result::vr_state m_state;
+	vr_result::vr_state m_state;	// tree of vr nodes
 
-	VRConfigEventList m_config_events;
-	VREventList m_events;
+	VRUpdateVector m_updates;			// sparse bitfields of updates
+	VRConfigEventList m_config_events;	// sparse strings showing new configuration events
+	VREventList m_events;				// sparse list of VREvents
+
 	segmented_list<time_stamp_t, LARGE_SEGMENT_SIZE, slab_allocator<time_stamp_t>>  m_time_stamps;
 
 	time_index_t get_closest_time_index(time_stamp_t val)

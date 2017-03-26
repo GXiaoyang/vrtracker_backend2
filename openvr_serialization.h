@@ -13,7 +13,7 @@ void encode<type_name>(type_name v, EncodeStream &e) { e.memcpy_out_to_stream(&v
 
 ENCODE(unsigned int);
 ENCODE(int);
-
+ENCODE(vr::VREvent_t);
 
 template <>
 void encode<const char *>(const char *v, EncodeStream &e)

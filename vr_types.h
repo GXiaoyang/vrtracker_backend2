@@ -13,11 +13,26 @@
 #include <openvr.h>
 
 using VRBitset = boost::dynamic_bitset<uint64_t, std::allocator<uint64_t>>;
-using FrameNumberedEvent = time_indexed<vr::VREvent_t>;
-using VREventList = segmented_list<FrameNumberedEvent, 128, slab_allocator<FrameNumberedEvent>>;
+
 
 template <typename T>
 using VRForwardList = std::forward_list<T, VRAllocatorTemplate<T>>;
+
+// need to support encode to serialize it
+struct VREncodableEvent : vr::VREvent_t 
+{
+	void encode(EncodeStream &e) const
+	{
+		e.memcpy_out_to_stream(this, sizeof(vr::VREvent_t));
+	}
+
+	void decode(EncodeStream &e)
+	{
+		e.memcpy_from_stream(this, sizeof(vr::VREvent_t));
+	}
+};
+
+using VREventList = time_indexed_vector<VREncodableEvent, segmented_list_1024, slab_allocator>;
 
 struct VRConfigEvent
 {
@@ -59,8 +74,8 @@ struct NewProperty : public VRConfigEvent
 	uint32_t enum_id;
 };
 
-using FrameNumberedConfig = time_indexed<VRConfigEvent*>;
-using VRConfigEventList = segmented_list<FrameNumberedConfig, 128, slab_allocator<FrameNumberedConfig>>;
+using VRConfigEventList = time_indexed_vector<VRConfigEvent*, segmented_list_1024, slab_allocator>;
+using VRUpdateVector = time_indexed_vector<VRBitset, segmented_list_1024, slab_allocator>;
 
 namespace vr
 {

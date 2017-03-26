@@ -8,6 +8,7 @@
 #include "tracker_update_visitor.h"
 #include "tracker_encode_visitor.h"
 #include "vr_tracker.h"
+#include "openvr_serialization.h"
 
 using namespace vr_result;
 
@@ -40,14 +41,7 @@ public:
 	void wait() {}
 };
 
-struct ConfigObserver : IndexerObserver
-{
-	virtual void NewVRConfigEvent(const VRConfigEvent &e)
-	{
-		config_events.push_back(e.clone());
-	}
-	std::vector<VRConfigEvent*> config_events;
-};
+
 
 template <typename TaskGroup, typename visitor_fn>
 static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state, openvr_broker::open_vr_interfaces *interfaces)
@@ -64,15 +58,11 @@ static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state,
 	TrackedCameraWrapper	tracked_camera_wrapper(interfaces->taci);
 	ResourcesWrapper		resources_wrapper(interfaces->resi);
 
-	
-
 	vr_state *s = &outer_state->m_state;
 	vr_keys *keys = &outer_state->keys;
 
 	TaskGroup g;
-	ConfigObserver config_observer;
-	keys->RegisterObserver(&config_observer);
-	keys->UnRegisterObserver(&config_observer);
+	
 
 	g.run("visit_system_node",
 		[&] {
@@ -140,10 +130,30 @@ vr_tracker_traverse::~vr_tracker_traverse()
 	delete m_pimpl;
 }
 
+struct ConfigObserver : IndexerObserver
+{
+	~ConfigObserver()
+	{
+		for (auto e : config_events)
+		{
+			delete e;
+		}
+	}
+
+	virtual void NewVRConfigEvent(const VRConfigEvent &e)
+	{
+		config_events.push_back(e.clone());
+	}
+	tbb::concurrent_vector<VRConfigEvent*> config_events;
+};
+
 void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces)
 {
 	time_index_t last_updated = tracker->get_last_updated_frame();
 	tracker_update_visitor update_visitor(last_updated + 1);
+
+	ConfigObserver config_observer;
+	tracker->keys.RegisterObserver(&config_observer);
 
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	traverse_history_graph<named_task_group>(&update_visitor, tracker, interfaces);
@@ -155,7 +165,28 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 			std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
 	}
 
-	tracker->m_last_updated_frame_number = last_updated + 1;
+	//
+	// finalize the frame
+	//
+
+	// any new keys discovered:
+	tracker->keys.UnRegisterObserver(&config_observer);
+	for (VRConfigEvent* e : config_observer.config_events)
+	{
+		tracker->m_config_events.emplace_back(update_visitor.get_frame_number(), e);
+	}
+
+	if (!update_visitor.updated_nodes.empty())
+	{
+		// any items that updated
+		tracker->m_updates.emplace_back(update_visitor.get_frame_number(), update_visitor.updated_nodes);
+	}
+
+	
+	using us = std::chrono::duration<int64_t, std::micro>;
+	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - tracker->start);
+	tracker->m_time_stamps.push_back(frame_time.count());
+	tracker->m_last_updated_frame_number = update_visitor.get_frame_number();
 }
 
 void vr_tracker_traverse::update_tracker_sequential(vr_tracker *tracker, openvr_broker::open_vr_interfaces *interfaces)
@@ -209,7 +240,9 @@ void vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	uint64_t padded_resource_keys_size = (resource_keys_size + 3) & ~0x3;
 
 	// event size
-	uint64_t event_size = tracker->m_events.size() * sizeof(tracker->m_events[0]);
+	count_stream.buf_pos = 0;
+	tracker->m_events.encode(count_stream);
+	uint64_t event_size = count_stream.buf_pos + 1;
 	uint64_t padded_event_size = (event_size + 3) & ~0x3;
 
 	// timestamp size

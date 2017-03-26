@@ -6,10 +6,11 @@
 #include <vector>
 #include <memory.h>
 #include <assert.h>
+#include "tbb/concurrent_vector.h"
 #include "EncodeStream.h"
 
 // has an index supports virtual serialization
-using serialization_id = uint32_t;
+using serialization_id = uint16_t;
 
 class RegisteredSerializable
 {
@@ -25,15 +26,19 @@ public:
 	virtual void decode(EncodeStream &e) = 0;
 };
 
+// register objects by an id so they can be found for serialization and deserialization
 class SerializableRegistry
 {
 public:
 	SerializableRegistry() {}
-	uint32_t Register(RegisteredSerializable *p) 
+
+	// Register is multiple writer safe since the update pass can be multi-threaded
+	serialization_id Register(RegisteredSerializable *p)
 	{ 
-		registered.push_back(p); 
-		return registered.size() - 1;
+		auto iter = registered.push_back(p); 
+		serialization_id id = std::distance(registered.begin(), iter);
+		return id;
 	}
-	uint32_t GetNumRegistered() { return registered.size(); }
-	std::vector <RegisteredSerializable *> registered;
+	serialization_id GetNumRegistered() { return static_cast<serialization_id>(registered.size()); }
+	tbb::concurrent_vector <RegisteredSerializable *> registered;
 };

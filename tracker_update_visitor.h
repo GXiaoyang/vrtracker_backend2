@@ -7,16 +7,28 @@
 #include "time_containers.h"
 #include "vr_types.h"
 
+// CONCURRENCY: needs to be multi writer safe since jobs are sharing the same visitor
 struct tracker_update_visitor 
 {
-	tracker_update_visitor(time_index_t t)
-		:	m_frame_number(t),
-			updated_nodes(registry->GetNumRegistered())
-	{}
+public:
 	time_index_t m_frame_number;
-	SerializableRegistry *registry;
+	SerializableRegistry *registry;		// register objects by an id so they can be found for serialization and deserialization
+
+	tbb::concurrent_vector<std::pair<serialization_id, std::string>> spawn; 
+																// log any new spawned objects during this update
+																 // first: the parent serialization_id
+																 // second: the name of the child
+
+	tbb::spin_mutex updated_node_lock;
 	VRBitset updated_nodes;
-	std::vector<std::pair<serialization_id, std::string>> spawn; //log any new spawned objects during this update
+
+public:
+
+	tracker_update_visitor(time_index_t t)
+		:	m_frame_number(t)
+	{}
+
+	time_index_t get_frame_number() const { return m_frame_number;  }
 
 	//
 	// visit interfaces
@@ -45,7 +57,10 @@ struct tracker_update_visitor
 		if (history.empty() || not_equals(history.latest().get_value(), latest_result))
 		{
 			history.emplace_back(m_frame_number, latest_result);
-			updated_nodes.set(history.get_serialization_index());
+			serialization_id history_id = history.get_serialization_index();
+			updated_node_lock.lock();
+			updated_nodes.set(history_id);
+			updated_node_lock.unlock();
 		}
 	}
 
