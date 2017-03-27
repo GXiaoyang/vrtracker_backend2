@@ -455,7 +455,7 @@ static void visit_system_node(
 		}
 
 		PropertiesIndexer *indexer = &keys->GetDevicePropertiesIndexer();
-		for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
+		for (int i = 0; i < size_as_int(ss->controllers.size()); i++)
 		{
 			visitor->start_group_node(ss->controllers.get_url(), i);
 			VISIT(controllers[i].raw_tracking_pose, make_result(raw_pose_array[i]));
@@ -478,8 +478,10 @@ static void visit_system_node(
 		// eyes
 		//
 		START_VECTOR(eyes);
-		visit_eye_state(visitor, &ss->eyes[0], ss, vr::Eye_Left, sysi, sysw, keys);
-		visit_eye_state(visitor, &ss->eyes[1], ss, vr::Eye_Right, sysi, sysw, keys);
+		for (int i = 0; i < size_as_int(ss->eyes.size()); i++)
+		{
+			visit_eye_state(visitor, &ss->eyes[i], ss, vr::EVREye(i), sysi, sysw, keys);
+		}
 		END_VECTOR(eyes);
 
 
@@ -488,7 +490,7 @@ static void visit_system_node(
 		//
 		
 		START_VECTOR(spatial_sorts);
-		for (unsigned i = 0; i < k_unMaxTrackedDeviceCount + 1; i++)
+		for (unsigned i = 0; i < ss->spatial_sorts.size(); i++)
 		{
 			// weird, but the iteration starts from -1 in unsigned space:
 			/** Get a sorted array of device indices of a given class of tracked devices (e.g. controllers).  Devices are sorted right to left
@@ -1382,12 +1384,14 @@ static void visit_overlay_state(visitor_fn *visitor, vr_state::overlay_schema *s
 
 	// // 3/15/2017 - calling GetOverlayImage simultaneously causes vrclient.dll to 
 	// crash - so to avoid this, we call it in a single thread:
-	int random_index = rand() % ss->overlays.size();
-	g.run("image update", [visitor, ss, wrap, keys, random_index]
+	if (ss->overlays.size() > 0)
 	{
-		visit_per_overlay_image(visitor, ss, wrap, random_index, keys);
-	});
-
+		int random_index = rand() % ss->overlays.size();
+		g.run("image update", [visitor, ss, wrap, keys, random_index]
+		{
+			visit_per_overlay_image(visitor, ss, wrap, random_index, keys);
+		});
+	}
 
 	END_VECTOR(overlays);
 

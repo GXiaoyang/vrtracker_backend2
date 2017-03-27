@@ -2,14 +2,13 @@
 #include "vr_system_wrapper.h"
 #include "traverse_graph.h"
 #include "tracker_update_visitor.h"
+#include "tracker_encode_visitor.h"
 #include "tbb/tick_count.h"
 #include "tbb/task_scheduler_init.h"
 #include "tbb/task_group.h"
-#include "tracker_update_visitor.h"
-#include "tracker_encode_visitor.h"
 #include "vr_tracker.h"
 #include "openvr_serialization.h"
-#include "fstream"
+#include <fstream>
 
 using namespace vr_result;
 
@@ -130,7 +129,7 @@ struct vr_tracker_traverse::impl
 		tracker_encode_visitor visitor;
 		visitor.m_stream = &count_stream;
 		tracker->m_keys.encode(count_stream);
-		return count_stream.buf_pos + 1;
+		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_state_size(vr_tracker *tracker)
@@ -140,7 +139,7 @@ struct vr_tracker_traverse::impl
 		tracker_encode_visitor visitor;
 		visitor.m_stream = &count_stream;
 		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &null_interfaces);
-		return count_stream.buf_pos + 1;
+		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_vr_events_size(vr_tracker *tracker)
@@ -149,12 +148,16 @@ struct vr_tracker_traverse::impl
 		tracker_encode_visitor visitor;
 		visitor.m_stream = &count_stream;
 		tracker->m_vr_events.encode(count_stream);
-		return count_stream.buf_pos + 1;
+		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_time_stamps_size(vr_tracker *tracker)
 	{
-		return tracker->m_time_stamps.size() * sizeof(tracker->m_time_stamps[0]);
+		EncodeStream count_stream(nullptr, 0, true);
+		tracker_encode_visitor visitor;
+		visitor.m_stream = &count_stream;
+		count_stream.forward_container_out_to_stream(tracker->m_time_stamps);
+		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_keys_updates_size(vr_tracker *tracker)
@@ -163,7 +166,7 @@ struct vr_tracker_traverse::impl
 		tracker_encode_visitor visitor;
 		visitor.m_stream = &count_stream;
 		tracker->m_keys_updates.encode(count_stream);
-		return count_stream.buf_pos + 1;
+		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_state_update_bits_size(vr_tracker *tracker)
@@ -172,7 +175,7 @@ struct vr_tracker_traverse::impl
 		tracker_encode_visitor visitor;
 		visitor.m_stream = &count_stream;
 		tracker->m_state_update_bits.encode(count_stream);
-		return count_stream.buf_pos + 1;
+		return count_stream.buf_pos;
 	}
 	
 
@@ -202,6 +205,7 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 {
 	time_index_t last_updated = tracker->get_last_updated_frame();
 	tracker_update_visitor update_visitor(last_updated + 1);
+	update_visitor.registry = &tracker->m_state_registry;
 
 	ConfigObserver config_observer;
 	tracker->m_keys.RegisterObserver(&config_observer);
@@ -244,6 +248,7 @@ void vr_tracker_traverse::update_tracker_sequential(vr_tracker *tracker, openvr_
 {
 	time_index_t last_updated = tracker->get_last_updated_frame();
 	tracker_update_visitor update_visitor(last_updated + 1);
+	update_visitor.registry = &tracker->m_state_registry;
 
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	traverse_history_graph<ExecuteImmediatelyTaskGroup>(&update_visitor, tracker, interfaces);
