@@ -180,17 +180,20 @@ void initializer_test_iter_constructor()
 	{
 		std::vector<std::string> ref({});
 		segmented_list<std::string, N> segmented_list0(ref.begin(), ref.end());
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 	{
 		std::vector<std::string> ref({ "a", "b" });
 		segmented_list<std::string, N> segmented_list0(ref.begin(), ref.end());
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 
 	{
 		std::vector<std::string> ref({ "a", "b", "c" });
 		segmented_list<std::string, N> segmented_list0(ref.begin(), ref.end());
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 	
@@ -202,16 +205,19 @@ void initializer_test_string()
 	{
 		std::vector<std::string> ref({});
 		segmented_list<std::string, N> segmented_list0({});
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 	{
 		std::vector<std::string> ref({ "a", "b" });
 		segmented_list<std::string,N> segmented_list0({ "a", "b" });
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 	{
 		std::vector<std::string> ref({ "a", "b", "c" });
 		segmented_list<std::string, N> segmented_list0({ "a", "b", "c" });
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 	
@@ -223,30 +229,35 @@ void initializer_test()
 	{
 		std::vector<int> ref({});
 		segmented_list<int, N> segmented_list0({});
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 
 	{
 		std::vector<int> ref({1});
 		segmented_list<int, N> segmented_list0({ 1 });
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 
 	{
 		std::vector<int> ref({ 1,2 });
 		segmented_list<int, N> segmented_list0({ 1,2 });
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 
 	{
 		std::vector<int> ref({ 1,2,3 });
 		segmented_list<int, N> segmented_list0({ 1,2,3 });
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 
 	{
 		std::vector<int> ref({ 1,2,3,4 });
 		segmented_list<int, N> segmented_list0({ 1,2,3,4 });
+		assert(ref.size() == segmented_list0.size());
 		assert(std::equal(ref.begin(), ref.end(), segmented_list0.begin()));
 	}
 }

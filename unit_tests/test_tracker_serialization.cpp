@@ -8,7 +8,20 @@ using namespace vr;
 
 bool operator ==(const vr_tracker &a, const vr_tracker &b)
 {
+	if (&a == &b)
+		return true;
+
+	if (a.m_save_summary != b.m_save_summary)
+		return false;
+	if (a.m_state_registry != b.m_state_registry)
+		return false;
+
 	return true;
+}
+
+bool operator !=(const vr_tracker &a, const vr_tracker &b)
+{
+	return !(a == b);
 }
 
 void test_tracker_serialization()
@@ -42,20 +55,21 @@ void test_tracker_serialization()
 		assert(contexta.get_tracker() == contextb.get_tracker());
 	}
 
+	tracker_test_context::reset_globals();
 	{
 		// one update
 		tracker_test_context contexta;
 		u.update_tracker_parallel(&contexta.get_tracker(), &contexta.raw_vr_interfaces());
-		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker1.bin");
-		contexta.get_tracker().m_state_registry.dump();
+		assert(u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker1.bin"));
+		//contexta.get_tracker().m_state_registry.dump();
 		
 		tracker_test_context contextb;
-		u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker1.bin");
+		assert(u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker1.bin"));
 		assert(contexta.get_tracker() == contextb.get_tracker());
 	}
 	tracker_test_context::reset_globals();
 	{
-		// ten updates
+		// ten updates ... 100mb with no textures... 600mb with textures
 		tracker_test_context contexta;
 		for (int i = 0; i < 10; i++)
 		{

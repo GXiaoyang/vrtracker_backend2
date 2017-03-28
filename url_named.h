@@ -22,8 +22,14 @@ namespace base
 			m_full_path(full_path)
 		{}
 
+		bool operator < (const URL &rhs) const
+		{
+			return m_full_path < rhs.m_full_path;
+		}
 		bool operator ==(const URL &rhs) const
 		{
+			if (this == &rhs)
+				return true;
 			return (m_name == rhs.m_name) && (m_full_path == rhs.m_full_path);
 		}
 		bool operator !=(const URL &rhs) const

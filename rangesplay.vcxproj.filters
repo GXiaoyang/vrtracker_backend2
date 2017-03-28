@@ -282,6 +282,9 @@
     <ClInclude Include="crc_32.h">
       <Filter>Source Files\1 base</Filter>
     </ClInclude>
+    <ClInclude Include="tracker_decode_visitor.h">
+      <Filter>Source Files\5 traverse</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

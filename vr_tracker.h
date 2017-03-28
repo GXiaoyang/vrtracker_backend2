@@ -19,6 +19,16 @@ struct save_summary
 	{
 		s.memcpy_from_stream(start_date_string, sizeof(start_date_string));
 	}
+	bool operator ==(const save_summary &rhs) const
+	{
+		if (&rhs == this)
+			return true;
+		return strcmp(start_date_string, rhs.start_date_string) == 0;
+	}
+	bool operator !=(const save_summary &rhs) const
+	{
+		return !(*this == rhs);
+	}
 };
 
 

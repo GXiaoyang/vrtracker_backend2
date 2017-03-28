@@ -349,6 +349,7 @@ using output_type = Result<output_type ## VectorOnly, ReturnCode>;
 namespace vr {\
 inline bool operator == (const my_typename &lhs, const my_typename &rhs)\
 {\
+    if (&lhs == &rhs) return true; \
 	return (memcmp(&lhs, &rhs, sizeof(lhs)) == 0);\
 }\
 inline bool operator != (const my_typename &lhs, const my_typename &rhs)\
@@ -386,6 +387,8 @@ namespace vr
 {
 	inline bool operator == (const vr::TrackedDevicePose_t &lhs, const vr::TrackedDevicePose_t &rhs)
 	{
+		if (&lhs == &rhs)
+			return true;
 		if (lhs.bPoseIsValid == false && rhs.bPoseIsValid == false)
 			return true;
 		if (lhs.bPoseIsValid != rhs.bPoseIsValid)
@@ -400,6 +403,8 @@ namespace vr
 
 	inline bool operator == (const vr::HiddenAreaMesh_t &lhs, const vr::HiddenAreaMesh_t &rhs)
 	{
+		if (&lhs == &rhs)
+			return true;
 		if (lhs.unTriangleCount != rhs.unTriangleCount)
 			return false;
 		if (lhs.pVertexData == rhs.pVertexData)

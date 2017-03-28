@@ -77,10 +77,9 @@ struct time_node<ResultType, ContainerType, false, Allocator> :
 	{}
 
 	time_node(const base::URL &name, SerializableRegistry *registry)
-		:	time_indexed_vector<ResultType, ContainerType, Allocator>(name),
-			RegisteredSerializable(registry->Register(this))
+		:	time_indexed_vector<ResultType, ContainerType, Allocator>(name)
 	{		
-		
+		registry->Register(this);
 	}
 
 	time_node(const time_node &rhs)
@@ -88,9 +87,19 @@ struct time_node<ResultType, ContainerType, false, Allocator> :
 		time_indexed_vector<ResultType, ContainerType, Allocator>(rhs),
 		RegisteredSerializable(rhs)
 	{
-
 	}
 
+	bool operator == (const time_node &rhs) const
+	{
+		if (&rhs == this)
+			return true;
+		return time_indexed_vector<ResultType, ContainerType, Allocator>::operator==(rhs) &&
+				RegisteredSerializable::operator==(rhs);
+	}
+	bool operator != (const time_node &rhs) const
+	{
+		return !(*this == rhs);
+	}
 
 	virtual const base::URL &get_serialization_url() const override final
 	{
@@ -99,12 +108,14 @@ struct time_node<ResultType, ContainerType, false, Allocator> :
 
 	virtual void encode(EncodeStream &e) const override final
 	{
+		encode_id(e);
 		time_indexed_vector<ResultType, ContainerType, Allocator>::encode(e);		
 	}
 
 	// read the value from the stream
 	virtual void decode(EncodeStream &e) override final
 	{
+		decode_id(e);
 		time_indexed_vector<ResultType, ContainerType, Allocator>::decode(e);
 	}
 
@@ -112,18 +123,21 @@ struct time_node<ResultType, ContainerType, false, Allocator> :
 	base::URL make_url_for_child(const std::string &child) { return base::URL(); }
 };
 
-
+// T must support encode method
 template <typename T, class Allocator = std::allocator<T>>
-struct named_vector : public base::url_named, public std::vector<T, Allocator>, public RegisteredSerializable
+struct named_vector :	public std::vector<T, Allocator>, 
+						public RegisteredSerializable, 
+						public base::url_named
 {
 	named_vector() {}
 	template<typename... Args>
 	explicit named_vector(const base::URL &name, SerializableRegistry *registry, Args&&... args)
 		:
 		url_named(name),
-		RegisteredSerializable(registry->Register(this)),
 		std::vector<T, Allocator>(std::forward<Args>(args)...)
-	{}
+	{
+		registry->Register(this);
+	}
 	base::URL make_url_for_child(const std::string &child) { return get_url().make_child(child); }
 
 	virtual const base::URL &get_serialization_url() const override final
@@ -133,13 +147,31 @@ struct named_vector : public base::url_named, public std::vector<T, Allocator>, 
 
 	virtual void encode(EncodeStream &e) const override final
 	{
+		assert(0);	// todo - split the serialization into some hierarchy thing
+	}
+
+	virtual void decode(EncodeStream &e) override final
+	{
+		assert(0);	// todo - split the serialization into some hierarchy thing
+	}
+
+	// what is weird below is that only the vector identity
+	// and the vector size is put on the stream.
+	//
+	// the values are not put put on the stream here ... (the traversal does that)
+	//virtual void encode_size(EncodeStream &e) const override final
+	void encode_size(EncodeStream &e) const
+	{
+		encode_id(e);
 		base::url_named::encode(e);
 		int mysize = size();
 		e.memcpy_out_to_stream(&mysize, sizeof(mysize));
 	}
 
-	virtual void decode(EncodeStream &e) override final
+	//virtual void decode_size(EncodeStream &e) override final
+	void decode_size(EncodeStream &e)
 	{
+		decode_id(e);
 		base::url_named::decode(e);
 		int mysize;
 		e.memcpy_from_stream(&mysize, sizeof(mysize));

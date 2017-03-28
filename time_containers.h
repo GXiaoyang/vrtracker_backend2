@@ -18,6 +18,8 @@ struct time_indexed
 
 	bool operator == (const time_indexed &rhs) const
 	{
+		if (this == &rhs)
+			return true;
 		return (time_index == rhs.time_index) && (value == rhs.value);
 	}
 
@@ -170,8 +172,9 @@ template <typename T,
 		base::url_named::decode(e);
 
 		container.clear();
-		int size = container.size();
+		int size;
 		e.memcpy_from_stream(&size, sizeof(size));
+		assert(size >= 0);
 		container.reserve(size);
 		for (int i = 0; i < size; i++)
 		{
@@ -183,10 +186,16 @@ template <typename T,
 
 	bool operator==(const time_indexed_vector &rhs) const
 	{
-		bool same_url = base::url_named::operator==(rhs);
-		bool same_values = std::equal(container.begin(), container.end(), rhs.container.begin());
-		return same_url && same_values;
+		if (!base::url_named::operator==(rhs))
+			return false;
+		if (container.size() != rhs.container.size())
+			return false;
+		return std::equal(container.begin(), container.end(), rhs.container.begin());
+	}
 
+	bool operator!=(const time_indexed_vector &rhs) const
+	{
+		return !(*this == rhs);
 	}
 
 	container_type_t container;

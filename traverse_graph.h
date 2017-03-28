@@ -51,15 +51,15 @@ static void visit_hidden_mesh(visitor_fn *visitor,
 	vr_state::hidden_mesh_schema *ss,
 	vr::EVREye eEye,
 	EHiddenAreaMeshType mesh_type,
-	IVRSystem *sysi, SystemWrapper *wrap)
+	SystemWrapper *wrap)
 {
 	if (visitor->visit_source_interfaces())
 	{
 		Uint32<> hidden_mesh_triangle_count;
 		const HmdVector2_t *vertex_data = nullptr;
 		uint32_t vertex_data_count = 0;
-
-		vr::HiddenAreaMesh_t mesh = sysi->GetHiddenAreaMesh(eEye, mesh_type);
+		
+		vr::HiddenAreaMesh_t mesh = wrap->sysi->GetHiddenAreaMesh(eEye, mesh_type); // todo move this to wrapper
 		vertex_data = mesh.pVertexData;
 		hidden_mesh_triangle_count.val = mesh.unTriangleCount;
 		if (mesh_type == vr::k_eHiddenAreaMesh_LineLoop)
@@ -86,7 +86,7 @@ static void visit_eye_state(visitor_fn *visitor,
 	vr_state::eye_schema *ss,
 	vr_state::system_schema *system_ss,
 	vr::EVREye eEye,
-	IVRSystem *sysi, SystemWrapper *wrap,
+	SystemWrapper *wrap,
 	const vr_keys *keys)
 {
 	visitor->start_group_node(ss->get_url(), eEye);
@@ -121,7 +121,7 @@ static void visit_eye_state(visitor_fn *visitor,
 	START_VECTOR(hidden_meshes);
 	for (int i = 0; i < 3; i++)
 	{
-		visit_hidden_mesh(visitor, &ss->hidden_meshes[i], eEye, EHiddenAreaMeshType(i), sysi, wrap);
+		visit_hidden_mesh(visitor, &ss->hidden_meshes[i], eEye, EHiddenAreaMeshType(i), wrap);
 	}
 	END_VECTOR(hidden_meshes);
 	visitor->end_group_node(ss->get_url(), eEye);
@@ -130,7 +130,7 @@ static void visit_eye_state(visitor_fn *visitor,
 template <typename visitor_fn>
 static void visit_component_on_controller_schema(
 	visitor_fn *visitor, vr_state::component_on_controller_schema *ss, RenderModelsWrapper *wrap,
-	const char *render_model_name,
+	SystemWrapper *system_wrap, int controller_index,
 	ControllerState<bool> &controller_state,
 	uint32_t component_index)
 {
@@ -148,19 +148,31 @@ static void visit_component_on_controller_schema(
 		}
 		else
 		{
-			wrap->GetComponentState(
-				render_model_name,
-				ss->get_name().c_str(),
-				controller_state.val,
-				false,
-				&transforms);
+			TMPString<ETrackedPropertyError> render_model;
+			system_wrap->GetStringTrackedDeviceProperty(controller_index, vr::Prop_RenderModelName_String,
+				&render_model);
 
-			wrap->GetComponentState(
-				render_model_name,
-				ss->get_name().c_str(),
-				controller_state.val,
-				true,							// scroll_wheel set to true
-				&transforms_scroll_wheel);
+			if (!render_model.is_present())
+			{
+				transforms.return_code = false;
+				transforms_scroll_wheel.return_code = false;
+			}
+			else
+			{
+				wrap->GetComponentState(
+					render_model.val.data(),
+					ss->get_name().c_str(),
+					controller_state.val,
+					false,
+					&transforms);
+
+				wrap->GetComponentState(
+					render_model.val.data(),
+					ss->get_name().c_str(),
+					controller_state.val,
+					true,							// scroll_wheel set to true
+					&transforms_scroll_wheel);
+			}
 		}
 	}
 	VISIT(transforms, transforms);
@@ -304,29 +316,20 @@ static void visit_controller_state(visitor_fn *visitor,
 	// render model name comes from a property.  to avoid coupling to visit_string_properties, 
 	// just look it up again
 
-	// gymnastics to avoid allocating the tmp string
-	Result<vr_empty_vector<char>, NoReturnCode> tmp;
-	const char *render_model_name = nullptr;
-	if (visitor->spawn_children() || visitor->visit_source_interfaces())
+	if (visitor->spawn_children() && visitor->visit_source_interfaces())
 	{
 		TMPString<ETrackedPropertyError> render_model;
-		wrap->GetStringTrackedDeviceProperty(controller_index, vr::Prop_RenderModelName_String, &render_model);
-		tmp.val = std::move(render_model.val); // move assignment
-		render_model_name = tmp.val.data();
-	}
-	
-
-	if (visitor->spawn_children())
-	{
-		if (render_model_name)
+		wrap->GetStringTrackedDeviceProperty(controller_index, vr::Prop_RenderModelName_String, 
+			&render_model);
+		if (render_model.is_present())
 		{
-			int component_count = rmw->GetComponentCount(render_model_name);
+			int component_count = rmw->GetComponentCount(render_model.val.data());
 			while (size_as_int(ss->components.size()) < component_count)
 			{
 				ss->components.reserve(component_count);
 				TMPString<> component_name;
 				int component_index = ss->components.size();
-				rmw->GetComponentModelName(render_model_name, component_index, &component_name);
+				rmw->GetComponentModelName(render_model.val.data(), component_index, &component_name);
 				visitor->spawn_child(ss->components, component_name.val.data());
 				system_ss->structure_version++;
 			}
@@ -336,7 +339,7 @@ static void visit_controller_state(visitor_fn *visitor,
 	START_VECTOR(components);
 	for (int i = 0; i < size_as_int(ss->components.size()); i++)
 	{
-		visit_component_on_controller_schema(visitor, &ss->components[i], rmw, render_model_name, controller_state, i);
+		visit_component_on_controller_schema(visitor, &ss->components[i], rmw, wrap, controller_index, controller_state, i);
 	}
 	END_VECTOR(components);
 }
@@ -346,7 +349,7 @@ template <typename visitor_fn, typename task_group>
 static void visit_system_node(
 	visitor_fn *visitor,
 	vr_state::system_schema *ss,
-	IVRSystem *sysi, SystemWrapper *sysw,
+	SystemWrapper *sysw,
 	RenderModelsWrapper *rmw,
 	vr_keys *keys,
 	task_group &g)
@@ -433,7 +436,7 @@ static void visit_system_node(
 	// controllers
 	//
 	g.run("controllers",
-		[visitor, ss, sysw, rmw, sysi, keys, &g] {
+		[visitor, ss, sysw, rmw, keys, &g] {
 		START_VECTOR(controllers);
 		TrackedDevicePose_t raw_pose_array[vr::k_unMaxTrackedDeviceCount];
 		TrackedDevicePose_t standing_pose_array[vr::k_unMaxTrackedDeviceCount];
@@ -444,13 +447,13 @@ static void visit_system_node(
 			memset(raw_pose_array, 0, sizeof(raw_pose_array));	// 2/6/2017 - on error this stuff should be zero
 			memset(standing_pose_array, 0, sizeof(standing_pose_array));
 			memset(seated_pose_array, 0, sizeof(seated_pose_array));
-			sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseRawAndUncalibrated,
+			sysw->sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseRawAndUncalibrated,
 				keys->GetPredictedSecondsToPhoton(), raw_pose_array, vr::k_unMaxTrackedDeviceCount);
 
-			sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseStanding,
+			sysw->sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseStanding,
 				keys->GetPredictedSecondsToPhoton(), standing_pose_array, vr::k_unMaxTrackedDeviceCount);
 
-			sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseSeated,
+			sysw->sysi->GetDeviceToAbsoluteTrackingPose(TrackingUniverseSeated,
 				keys->GetPredictedSecondsToPhoton(), seated_pose_array, vr::k_unMaxTrackedDeviceCount);
 		}
 
@@ -462,7 +465,7 @@ static void visit_system_node(
 			VISIT(controllers[i].standing_tracking_pose, make_result(standing_pose_array[i]));
 			VISIT(controllers[i].seated_tracking_pose, make_result(seated_pose_array[i]));
 			g.run("controller",
-				[visitor, ss, sysw, rmw, sysi, indexer, i] {
+				[visitor, ss, sysw, rmw, indexer, i] {
 				visit_controller_state(visitor, &ss->controllers[i], ss, sysw, rmw, i, indexer);
 			});
 				visitor->end_group_node(ss->controllers.get_url(), i);
@@ -472,7 +475,7 @@ static void visit_system_node(
 	});
 
 	g.run("spatial sorts + eyes",
-		[visitor, ss, sysi, sysw, keys]
+		[visitor, ss, sysw, keys]
 	{
 		//
 		// eyes
@@ -480,7 +483,7 @@ static void visit_system_node(
 		START_VECTOR(eyes);
 		for (int i = 0; i < size_as_int(ss->eyes.size()); i++)
 		{
-			visit_eye_state(visitor, &ss->eyes[i], ss, vr::EVREye(i), sysi, sysw, keys);
+			visit_eye_state(visitor, &ss->eyes[i], ss, vr::EVREye(i), sysw, keys);
 		}
 		END_VECTOR(eyes);
 
@@ -901,18 +904,8 @@ static void visit_settings_node(
 			}
 		}
 	}
-#if 0
 	START_VECTOR(sections);
-	int num_sections = size_as_int(ss->sections.size());
-	for (int index = 0; index < num_sections;index++)
-	{
-		g.run("settings section",
-			[visitor, ss, wrap, keys, index] {
-				visit_section(visitor, keys->GetSettingsIndexer().GetSectionName(index), &ss->sections[index],
-					&ss->structure_version, wrap, keys);
-		});
-	}
-#endif
+
 	int num_sections = size_as_int(ss->sections.size());
 	for (int index = 0; index < num_sections;)
 	{
@@ -1135,7 +1128,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 			}
 			visitor->visit_node(ss->vertex_data, make_result(gsl::make_span(rVertexData, unVertexCount), rc));
 			visitor->visit_node(ss->index_data, make_result(gsl::make_span(rIndexData, unTriangleCount*3), rc));
-			visitor->visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, unWidth * unHeight * 4), rc));
+// TODO			visitor->visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, unWidth * unHeight * 4), rc));
 			visitor->visit_node(ss->texture_height, make_result(unHeight, rc));
 			visitor->visit_node(ss->texture_width, make_result(unWidth, rc));
 
@@ -1151,7 +1144,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 	{
 		visitor->visit_node(ss->vertex_data);
 		visitor->visit_node(ss->index_data);
-		visitor->visit_node(ss->texture_map_data);
+// TODO		visitor->visit_node(ss->texture_map_data);
 		visitor->visit_node(ss->texture_height);
 		visitor->visit_node(ss->texture_width);
 	}
@@ -1383,13 +1376,14 @@ static void visit_overlay_state(visitor_fn *visitor, vr_state::overlay_schema *s
 	}
 
 	// // 3/15/2017 - calling GetOverlayImage simultaneously causes vrclient.dll to 
-	// crash - so to avoid this, we call it in a single thread:
+	// crash - so to avoid this, we call it in a single thread - and only once. TODO: walk through all of them
+	// (do not use RAND! you will screw up the determinism between counting and encoding in the serialization system)
 	if (ss->overlays.size() > 0)
 	{
-		int random_index = rand() % ss->overlays.size();
-		g.run("image update", [visitor, ss, wrap, keys, random_index]
+		int index = 0;
+		g.run("image update", [visitor, ss, wrap, keys, index]
 		{
-			visit_per_overlay_image(visitor, ss, wrap, random_index, keys);
+			visit_per_overlay_image(visitor, ss, wrap, index, keys);
 		});
 	}
 
@@ -1402,9 +1396,8 @@ template <typename visitor_fn, typename TaskGroup>
 static void visit_rendermodel_state(visitor_fn *visitor, vr_state::render_models_schema *ss, 
 	RenderModelsWrapper *wrap, TaskGroup &g)
 {
-	visitor->start_group_node(ss->get_url(), -1);
-
-	if (visitor->spawn_children())
+	
+	if (visitor->spawn_children() && visitor->visit_source_interfaces())
 	{
 		Uint32<> current_rendermodels = wrap->GetRenderModelCount();
 		int num_render_models = current_rendermodels.val;
@@ -1418,8 +1411,8 @@ static void visit_rendermodel_state(visitor_fn *visitor, vr_state::render_models
 		}
 	}
 
-	int num_render_models = size_as_int(ss->models.size());
 	START_VECTOR(models);
+	int num_render_models = size_as_int(ss->models.size());
 	for (int i = 0; i < num_render_models;)
 	{
 		int num_iter = std::min(5, num_render_models - i);

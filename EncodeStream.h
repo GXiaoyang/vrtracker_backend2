@@ -74,7 +74,7 @@ struct EncodeStream
 	{
 		if (!count_only)
 		{
-			assert(buf_pos + (int)s < buf_size + 1);
+			assert(buf_pos + (int)s < buf_size + 1); // buffer is too small to perform the copy
 			::memcpy(&encoded_buf[buf_pos], src, (int)s);
 		}
 		buf_pos += (int) s;
@@ -87,7 +87,7 @@ struct EncodeStream
 		::memcpy(dest, &encoded_buf[buf_pos], (int)s);
 		buf_pos += (int)s;
 	}
-	uint64_t buf_size;
+	const uint64_t buf_size;
 	char *encoded_buf;
 	uint64_t buf_pos;
 	bool count_only;

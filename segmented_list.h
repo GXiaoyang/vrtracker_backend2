@@ -42,6 +42,9 @@ public:
 
 	bool operator == (const segmented_list &rhs) const
 	{
+		if (this == &rhs)
+			return true;
+
 		bool rc;
 		rc = m_size == rhs.m_size;
 		if (rc)

@@ -9,11 +9,12 @@ using test_string_result = Result<
 	std::basic_string<char, 
 	std::char_traits<char>, Allocator<char>>, NoReturnCode>;
 
+
+typedef Result<bool, NoReturnCode> bool_result;
+
 template <bool is_iterator>
 struct test_schema : public schema<is_iterator>
 {
-	typedef Result<bool, NoReturnCode> bool_result;
-
 
 	// define a scalar TIMENODE
 	template <typename ResultType, template <typename> class Allocator>
@@ -55,6 +56,46 @@ struct test_schema : public schema<is_iterator>
 
 using test_state = test_schema<false>;
 
+template <typename a_bool_typenode_type>
+void exercise_a_bool_timenode(a_bool_typenode_type &ref, const char *expected_name)
+{
+	assert(ref.get_name() == expected_name); // initialized with the expected name?
+
+	assert(ref.empty());	// initialized empty?
+	ref.emplace_back(1, true);
+	assert(!ref.empty());	// adding a value makes it non empty?
+
+	a_bool_typenode_type copy_a_bool(ref);	// copies works?
+	assert(copy_a_bool == ref);
+	a_bool_typenode_type copy1_a_bool = ref;
+	assert(copy1_a_bool == ref);
+	a_bool_typenode_type copy2_a_bool = ref;
+	assert(copy2_a_bool == ref);
+	a_bool_typenode_type copy3_a_bool = ref;
+	assert(copy3_a_bool == ref);
+
+	// change a serialization index	to see that != works
+	assert(ref == copy_a_bool);
+	copy_a_bool.set_serialization_index(999);
+	assert(ref != copy_a_bool);
+
+	// change a value to see that != works
+	assert(ref == copy1_a_bool);
+	copy1_a_bool.emplace_back(2, false);
+	assert(ref != copy1_a_bool);
+
+	// encode and decode to check that it seems to load ok
+	char buf[1024];
+	EncodeStream e(buf, sizeof(buf), false);
+	ref.encode(e);
+	a_bool_typenode_type decoded_a_bool;
+	e.reset_buf_pos();
+	assert(decoded_a_bool != ref); // doesn't match to start
+	decoded_a_bool.decode(e);	// but after decoding
+	assert(decoded_a_bool == ref); // now matches!
+}
+
+
 void TEST_SCHEMA_COMMON()
 {
 	slab s;
@@ -63,29 +104,16 @@ void TEST_SCHEMA_COMMON()
 	// default construction
 	SerializableRegistry registry;
 	test_state default_state(base::URL(), &registry);
+	assert(default_state.get_name() == "");	// because default URL is ""
 	registry.dump();
 
-	assert(default_state.get_name() == "");
-	assert(default_state.one.a_bool.empty());
-	default_state.one.a_bool.emplace_back(1, true);
-	assert(!default_state.one.a_bool.empty());
-
-	assert(default_state.one.a_bool2.empty());
-	default_state.one.a_bool2.emplace_back(1, true);
-	assert(!default_state.one.a_bool2.empty());
+	exercise_a_bool_timenode(default_state.one.a_bool, "a_bool");
+	exercise_a_bool_timenode(default_state.one.a_bool2, "a_bool2");
+	exercise_a_bool_timenode(default_state.one.a_bool3, "a_bool3");
+	exercise_a_bool_timenode(default_state.one.a_bool4, "a_bool4");
+	
 	assert(default_state.one.a_bool2.container.get_allocator().m_slab == &s);
 
-
-	assert(default_state.one.a_bool3.empty());
-	default_state.one.a_bool3.emplace_back(1, true);
-	assert(!default_state.one.a_bool3.empty());
-
-	assert(default_state.one.a_bool4.empty());
-	default_state.one.a_bool4.emplace_back(1, true);
-	assert(!default_state.one.a_bool4.empty());
-	assert(default_state.one.a_bool4.container.get_allocator().m_slab == &s);
-
-	
 	default_state.one.a_string.emplace_back(1, "hi fred");
 	assert(!default_state.one.a_string.empty());
 	assert(default_state.one.a_string.latest().get_value().val == "hi fred");
