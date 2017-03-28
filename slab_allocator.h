@@ -59,6 +59,7 @@ struct slab
 			current_page_pos = 0;
 			slab_total_slab_page_allocs += 1;
 			char *page = (char *)malloc(page_size);
+			assert(page);
 			pages.push_front(page);
 		}
 

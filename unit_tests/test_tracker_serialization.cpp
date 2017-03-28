@@ -6,15 +6,68 @@
 
 using namespace vr;
 
+bool operator ==(const vr_tracker &a, const vr_tracker &b)
+{
+	return true;
+}
+
 void test_tracker_serialization()
 {
 	using namespace vr;
 	using namespace vr_result;
 	using std::range;
+	
+	tracker_test_context::reset_globals();
 
-	tracker_test_context context;
 	vr_tracker_traverse u;
-	u.save_tracker_to_binary_file(&context.get_tracker(), "tracker.bin");
+	
+	{
+		tracker_test_context contexta;
+		assert(contexta.get_tracker() == contexta.get_tracker());
+	}
+
+	{
+		tracker_test_context contexta;
+		tracker_test_context contextb;
+		assert(contexta.get_tracker() == contextb.get_tracker());
+	}
+
+	{
+		// no updates
+		tracker_test_context contexta;
+		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker0.bin");
+
+		tracker_test_context contextb;
+		u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker0.bin");
+		assert(contexta.get_tracker() == contextb.get_tracker());
+	}
+
+	{
+		// one update
+		tracker_test_context contexta;
+		u.update_tracker_parallel(&contexta.get_tracker(), &contexta.raw_vr_interfaces());
+		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker1.bin");
+		contexta.get_tracker().m_state_registry.dump();
+		
+		tracker_test_context contextb;
+		u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker1.bin");
+		assert(contexta.get_tracker() == contextb.get_tracker());
+	}
+	tracker_test_context::reset_globals();
+	{
+		// ten updates
+		tracker_test_context contexta;
+		for (int i = 0; i < 10; i++)
+		{
+			u.update_tracker_parallel(&contexta.get_tracker(), &contexta.raw_vr_interfaces());
+		}
+		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker10.bin");
+
+		tracker_test_context contextb;
+		u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker10.bin");
+		assert(contexta.get_tracker() == contextb.get_tracker());
+	}
+	tracker_test_context::reset_globals();
 }
 
 // i can log object changes and probably find them pretty easily

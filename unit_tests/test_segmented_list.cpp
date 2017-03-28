@@ -801,23 +801,26 @@ static void basic_behaviour_test()
 
 static void segmented_list_allocators()
 {
-	// construct a segmented list with the default allocator
-	segmented_list<int, 1024,std::allocator<int>> segmented_list0(1024);
-
-	// construct a segmented list with a slab allocator
-	slab a_slab(1024*1024);
-	slab_allocator_base::m_temp_slab = &a_slab;
-	segmented_list<int, 1024, slab_allocator<int>> segmented_list1(1024, slab_allocator<int>(&a_slab));
-
-	// construct a segmented list with a default allocator
-	segmented_list<int, 1024> segmented_list2(1024);
-
-	for (int i = 0; i < 2024; i++)
 	{
-		segmented_list0.push_back(11);
-		segmented_list1.push_back(12);
-		segmented_list2.push_back(13);
+		// construct a segmented list with the default allocator
+		segmented_list<int, 1024, std::allocator<int>> segmented_list0(1024);
+
+		// construct a segmented list with a slab allocator
+		slab a_slab(1024 * 1024);
+		slab_allocator_base::m_temp_slab = &a_slab;
+		segmented_list<int, 1024, slab_allocator<int>> segmented_list1(1024, slab_allocator<int>(&a_slab));
+
+		// construct a segmented list with a default allocator
+		segmented_list<int, 1024> segmented_list2(1024);
+
+		for (int i = 0; i < 2024; i++)
+		{
+			segmented_list0.push_back(11);
+			segmented_list1.push_back(12);
+			segmented_list2.push_back(13);
+		}
 	}
+	slab_allocator_base::m_temp_slab = nullptr;
 }
 
 static void move_test()

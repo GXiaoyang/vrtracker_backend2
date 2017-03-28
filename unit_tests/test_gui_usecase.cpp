@@ -2,6 +2,7 @@
 
 #include "vr_tracker.h"
 #include "openvr_string_std.h"
+#include "tracker_test_context.h"
 
 
 // how the gui will use these data structures
@@ -24,10 +25,8 @@ void GUI_USE_CASE_TEST()
 
 	log_printf("starting gui use case\n");
 
-	slab s(1024 * 1024);
-	slab_allocator<char> allocator;
-	slab_allocator<char>::m_temp_slab = &s;
-	vr_tracker tracker(&s);
+	tracker_test_context context;
+	vr_tracker &tracker = context.get_tracker();
 
 	auto &system = tracker.m_state.system_node;
 	auto &controllers = tracker.m_state.system_node.controllers;

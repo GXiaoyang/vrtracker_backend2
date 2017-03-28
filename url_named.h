@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "base_serialization.h"
+#include "EncodeStream.h"
 
 namespace base
 {
@@ -36,7 +36,7 @@ namespace base
 
 		URL make_child(const std::string &child_name) const
 		{
-			return URL(m_full_path + "/" + child_name, child_name);
+			return URL(child_name, m_full_path + "/" + child_name);
 		}
 
 		void encode(EncodeStream &stream) const

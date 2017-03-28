@@ -4,6 +4,7 @@
 
 extern void GUI_USE_CASE_TEST();
 
+
 void test_tracker()
 {
 	GUI_USE_CASE_TEST();

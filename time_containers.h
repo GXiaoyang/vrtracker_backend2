@@ -158,7 +158,7 @@ template <typename T,
 		int size = container.size();
 		e.memcpy_out_to_stream(&size, sizeof(size)); // write the container size
 		
-		for (auto timeval: container)
+		for (const auto &timeval: container)
 		{
 			timeval.encode(e);
 		}

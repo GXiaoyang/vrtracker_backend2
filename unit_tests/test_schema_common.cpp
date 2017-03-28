@@ -63,6 +63,8 @@ void TEST_SCHEMA_COMMON()
 	// default construction
 	SerializableRegistry registry;
 	test_state default_state(base::URL(), &registry);
+	registry.dump();
+
 	assert(default_state.get_name() == "");
 	assert(default_state.one.a_bool.empty());
 	default_state.one.a_bool.emplace_back(1, true);
@@ -91,6 +93,8 @@ void TEST_SCHEMA_COMMON()
 	default_state.one.b_string.emplace_back(1, "hi fred");
 	assert(!default_state.one.b_string.empty());
 	assert(default_state.one.b_string.latest().get_value().val == "hi fred");
+
+	slab_allocator_base::m_temp_slab = nullptr;
 
 #if 0
 	// slab allocator

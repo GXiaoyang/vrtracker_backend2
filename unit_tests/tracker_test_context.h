@@ -11,19 +11,24 @@ struct tracker_test_context
 {
 
 public:
+	static void reset_globals();
+
 	tracker_test_context();
 	~tracker_test_context();
 
+	tracker_test_context(const tracker_test_context& rhs) = delete;
+	tracker_test_context &operator =(const tracker_test_context& rhs) = delete;
+
 	void ForceInitAll();
 
-	const tmp_vector_pool<VRTMPSize> *get_tmp_pool() const;
+	//const tmp_vector_pool<VRTMPSize> *get_tmp_pool() const;
 	TrackerConfig &get_config();
 	vr_tracker& get_tracker();
 	openvr_broker::open_vr_interfaces &raw_vr_interfaces();
 
 private:
-	slab s;
-	tmp_vector_pool<VRTMPSize> m_tmp_pool;
+	//slab s;
+	//tmp_vector_pool<VRTMPSize> m_tmp_pool;
 
 	TrackerConfig *m_config;
 	vr_tracker *m_tracker;

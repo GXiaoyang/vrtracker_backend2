@@ -65,7 +65,7 @@ struct time_node : public time_indexed_vector<ResultType, ContainerType, Allocat
 };
 
 //
-// When it's a state (is_iterator_is_false), the time_node is defined as a time_indexed_vector
+// When it's a state (is_iterator_is_FALSE), the time_node is defined as a time_indexed_vector
 // the role of this truct is to makes that choice and delegate the implementation.
 //
 template <typename ResultType, template <typename, typename> class ContainerType, 
@@ -77,9 +77,24 @@ struct time_node<ResultType, ContainerType, false, Allocator> :
 	{}
 
 	time_node(const base::URL &name, SerializableRegistry *registry)
-		: time_indexed_vector<ResultType, ContainerType, Allocator>(name)
+		:	time_indexed_vector<ResultType, ContainerType, Allocator>(name),
+			RegisteredSerializable(registry->Register(this))
 	{		
-		registry->Register(this);
+		
+	}
+
+	time_node(const time_node &rhs)
+		: 
+		time_indexed_vector<ResultType, ContainerType, Allocator>(rhs),
+		RegisteredSerializable(rhs)
+	{
+
+	}
+
+
+	virtual const base::URL &get_serialization_url() const override final
+	{
+		return time_indexed_vector<ResultType, ContainerType, Allocator>::get_url();
 	}
 
 	virtual void encode(EncodeStream &e) const override final
@@ -88,7 +103,7 @@ struct time_node<ResultType, ContainerType, false, Allocator> :
 	}
 
 	// read the value from the stream
-	void decode(EncodeStream &e) override final
+	virtual void decode(EncodeStream &e) override final
 	{
 		time_indexed_vector<ResultType, ContainerType, Allocator>::decode(e);
 	}
@@ -111,14 +126,19 @@ struct named_vector : public base::url_named, public std::vector<T, Allocator>, 
 	{}
 	base::URL make_url_for_child(const std::string &child) { return get_url().make_child(child); }
 
-	void encode(EncodeStream &e) const override final
+	virtual const base::URL &get_serialization_url() const override final
+	{
+		return get_url();
+	}
+
+	virtual void encode(EncodeStream &e) const override final
 	{
 		base::url_named::encode(e);
 		int mysize = size();
 		e.memcpy_out_to_stream(&mysize, sizeof(mysize));
 	}
 
-	void decode(EncodeStream &e) override final
+	virtual void decode(EncodeStream &e) override final
 	{
 		base::url_named::decode(e);
 		int mysize;

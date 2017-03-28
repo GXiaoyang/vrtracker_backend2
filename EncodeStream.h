@@ -54,6 +54,21 @@ struct EncodeStream
 		}
 	}
 
+	template <typename Container>
+	void forward_container_from_stream(Container &container)
+	{
+		int size;
+		memcpy_from_stream(&size, sizeof(size));
+		container.clear();
+		container.reserve(size);
+		for (int i = 0; i < size; i++)
+		{
+			Container::value_type val;
+			memcpy_from_stream(&val, sizeof(val));
+			container.push_back(val);
+		}
+	}
+
 	// write value to buf and advance pointer
 	void memcpy_out_to_stream(const void *src, size_t s)
 	{

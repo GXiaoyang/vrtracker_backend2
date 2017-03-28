@@ -6,8 +6,10 @@
 #include <vector>
 #include <memory.h>
 #include <assert.h>
+#include "url_named.h"
 #include "tbb/concurrent_vector.h"
 #include "EncodeStream.h"
+
 
 // has an index supports virtual serialization
 using serialization_id = uint16_t;
@@ -20,8 +22,10 @@ public:
 	explicit RegisteredSerializable(serialization_id id)
 		: m_id(id)
 	{}
+	
 	void set_serialization_index(uint32_t id) { m_id = id; }
 	serialization_id get_serialization_index() const { return m_id; }
+	virtual const base::URL& get_serialization_url(void) const = 0;
 	virtual void encode(EncodeStream &e) const = 0;
 	virtual void decode(EncodeStream &e) = 0;
 };
@@ -39,6 +43,8 @@ public:
 		serialization_id id = std::distance(registered.begin(), iter);
 		return id;
 	}
+	void dump() const;
+	
 	serialization_id GetNumRegistered() { return static_cast<serialization_id>(registered.size()); }
 	tbb::concurrent_vector <RegisteredSerializable *> registered;
 };

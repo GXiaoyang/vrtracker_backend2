@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base_serialization.h" />
+    <ClInclude Include="crc_32.h" />
     <ClInclude Include="dynamic_bitset.hpp" />
     <ClInclude Include="EncodeStream.h" />
     <ClInclude Include="tracker_encode_visitor.h" />
@@ -236,6 +237,8 @@
     <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp" />
     <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp" />
     <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp" />
+    <ClCompile Include="base_serialization.cpp" />
+    <ClCompile Include="crc_32.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openvr_broker.cpp" />

@@ -279,6 +279,9 @@
     <ClInclude Include="vr_observable_indexer.h">
       <Filter>Source Files\3 vr keys</Filter>
     </ClInclude>
+    <ClInclude Include="crc_32.h">
+      <Filter>Source Files\1 base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -436,6 +439,12 @@
     </ClCompile>
     <ClCompile Include="unit_tests\test_tracker_serialization.cpp">
       <Filter>Source Files\5 traverse test</Filter>
+    </ClCompile>
+    <ClCompile Include="crc_32.cpp">
+      <Filter>Source Files\1 base</Filter>
+    </ClCompile>
+    <ClCompile Include="base_serialization.cpp">
+      <Filter>Source Files\1 base</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

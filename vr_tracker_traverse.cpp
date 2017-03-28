@@ -1,3 +1,4 @@
+#include "crc_32.h"
 #include "vr_tracker_traverse.h"
 #include "vr_system_wrapper.h"
 #include "traverse_graph.h"
@@ -259,10 +260,13 @@ void vr_tracker_traverse::update_tracker_sequential(vr_tracker *tracker, openvr_
 	tracker->m_last_updated_frame_number = last_updated + 1;
 }
 
+static const uint32_t HEADER_MAGIC = 0x7;
+
 // file format starts with a header:
 struct header_t
 {
-	uint64_t magic;
+	uint32_t magic;
+	uint32_t crc;
 	uint64_t summary_offset;
 	uint64_t summary_size;
 	uint64_t keys_offset;
@@ -279,18 +283,46 @@ struct header_t
 	uint64_t state_update_bits_offset;
 	uint64_t state_update_bits_size;
 	uint64_t updates_offset;	// no size since it's streaming
-};
 
+	void encode(EncodeStream &e) const
+	{
+		e.memcpy_out_to_stream(this, sizeof(*this));
+	}
+
+	void decode(EncodeStream &e) 
+	{
+		e.memcpy_from_stream(this, sizeof(*this));
+	}
+
+	bool verify()
+	{
+		if (magic != HEADER_MAGIC)
+		{
+			return false;
+		}
+		uint32_t tmp = crc;
+		crc = 0;
+		uint32_t calculated_crc = crc32buf((char*)this, sizeof(*this));
+		crc = tmp;
+		if (tmp != calculated_crc)
+		{
+			return false; // crc mismatch
+		}
+		return true;
+	}
+};
 
 inline uint64_t pad_size(uint64_t in)
 {
 	return (in + 3) & ~0x3;
 }
 
-void vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const char *filename)
+bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const char *filename)
 {
+	bool rc = true;
 	header_t header;
-	header.magic = 0x7;
+	memset(&header, 0, sizeof(header));
+	header.magic = HEADER_MAGIC;
 	header.summary_size		 = sizeof(save_summary);
 	header.keys_size		 = m_pimpl->calc_keys_size(tracker);
 	header.state_size		 = m_pimpl->calc_state_size(tracker);
@@ -299,7 +331,7 @@ void vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	header.keys_updates_size = m_pimpl->calc_keys_updates_size(tracker);
 	header.state_update_bits_size = m_pimpl->calc_state_update_bits_size(tracker);
 
-	header.summary_offset           = sizeof(header.magic);
+	header.summary_offset           = sizeof(header);
 	header.keys_offset              = header.summary_offset		+ pad_size(header.summary_size);
 	header.state_offset             = header.keys_offset		+ pad_size(header.keys_size);
 	header.events_offset            = header.state_offset		+ pad_size(header.state_size);
@@ -312,43 +344,126 @@ void vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	std::time_t start = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 	ctime_s(summary.start_date_string, sizeof(summary.start_date_string), &start);
 
+	header.crc = crc32buf((char *)&header, sizeof(header));
+
 	// make sure the size fits in whatever size_t is
 	assert(size_t(header.updates_offset) == header.updates_offset);
 	char *big_buf = (char *)malloc(static_cast<size_t>(header.updates_offset));
+	if (big_buf)
 	{
-		EncodeStream e(big_buf + header.summary_offset, header.summary_size, false);
-		summary.encode(e);
+		{
+			EncodeStream e(big_buf, sizeof(header), false);
+			header.encode(e);
+		}
+		{
+			EncodeStream e(big_buf + header.summary_offset, header.summary_size, false);
+			summary.encode(e);
+		}
+		{
+			EncodeStream e(big_buf + header.keys_offset, header.keys_size, false);
+			tracker->m_keys.encode(e);
+		}
+		{
+			EncodeStream e(big_buf + header.state_offset, header.state_size, false);
+			tracker->m_state.encode(e);
+		}
+		{
+			EncodeStream e(big_buf + header.events_offset, header.events_size, false);
+			tracker->m_vr_events.encode(e);
+		}
+		{
+			EncodeStream e(big_buf + header.time_stamps_offset, header.time_stamps_size, false);
+			e.forward_container_out_to_stream(tracker->m_time_stamps);
+		}
+		{
+			EncodeStream e(big_buf + header.keys_updates_offset, header.keys_updates_size, false);
+			tracker->m_keys_updates.encode(e);
+		}
+		{
+			EncodeStream e(big_buf + header.state_update_bits_offset, header.state_update_bits_size, false);
+			tracker->m_state_update_bits.encode(e);
+		}
+		std::fstream fs;
+		fs.open(filename, std::fstream::out | std::fstream::binary);
+		fs.write(big_buf, static_cast<size_t>(header.updates_offset));
+		fs.close();
+		free(big_buf);
 	}
+	else
 	{
-		EncodeStream e(big_buf + header.keys_offset, header.keys_size, false);
-		tracker->m_keys.encode(e);
-	}
-	{
-		EncodeStream e(big_buf + header.state_offset, header.state_size, false);
-		tracker->m_state.encode(e);
-	}
-	{
-		EncodeStream e(big_buf + header.events_offset, header.events_size, false);
-		tracker->m_vr_events.encode(e);
-	}
-	{
-		EncodeStream e(big_buf + header.time_stamps_offset, header.time_stamps_size, false);
-		e.forward_container_out_to_stream(tracker->m_time_stamps);
-	}
-	{
-		EncodeStream e(big_buf + header.keys_updates_offset, header.keys_updates_size, false);
-		tracker->m_keys_updates.encode(e);
-	}
-	{
-		EncodeStream e(big_buf + header.state_update_bits_offset, header.state_update_bits_size, false);
-		tracker->m_state_update_bits.encode(e);
+		rc = false;
 	}
 
-	std::fstream fs;
-	fs.open(filename, std::fstream::out | std::fstream::binary);
-	fs.write(big_buf, static_cast<size_t>(header.updates_offset));
-	fs.close();
-	free(big_buf);
+	return rc;
+}
+
+bool vr_tracker_traverse::load_tracker_from_binary_file(vr_tracker *tracker, const char *filename)
+{
+	bool rc = true;
+	std::ifstream file(filename, std::ios::binary | std::ios::ate);
+	std::streamsize size = file.tellg();
+	if (size >= sizeof(header_t))
+	{
+		file.seekg(0, std::ios::beg);
+		assert(size_t(size) == size);
+		char *big_buf = (char *)malloc(static_cast<size_t>(size));
+		if (big_buf)
+		{
+			header_t header;
+			if (file.read(big_buf, size))
+			{
+				file.close();
+				EncodeStream e(big_buf, sizeof(header_t), false);
+				header.decode(e);
+				if (!header.verify())
+				{
+					free(big_buf);
+					return false; // magic mismatch
+				}
+				
+				{
+					EncodeStream e(big_buf + header.summary_offset, header.summary_size, false);
+					tracker->m_save_summary.decode(e);
+				}
+				{
+					EncodeStream e(big_buf + header.keys_offset, header.keys_size, false);
+					tracker->m_keys.decode(e);
+				}
+				{
+					EncodeStream e(big_buf + header.state_offset, header.state_size, false);
+					tracker->m_state.decode(e);
+				}
+				{
+					EncodeStream e(big_buf + header.events_offset, header.events_size, false);
+					tracker->m_vr_events.decode(e);
+				}
+				{
+					EncodeStream e(big_buf + header.time_stamps_offset, header.time_stamps_size, false);
+					e.forward_container_from_stream(tracker->m_time_stamps);
+				}
+				{
+					EncodeStream e(big_buf + header.keys_updates_offset, header.keys_updates_size, false);
+					tracker->m_keys_updates.decode(e);
+				}
+				{
+					EncodeStream e(big_buf + header.state_update_bits_offset, header.state_update_bits_size, false);
+					tracker->m_state_update_bits.decode(e);
+				}
+				// apply chunks here
+
+				free(big_buf);
+
+				// write derived values
+				tracker->m_last_updated_frame_number = tracker->m_time_stamps.size();
+
+			}
+		}
+		else
+		{
+			rc = false; // malloc failed
+		}
+	}
+	return rc;
 }
 
 #if 0

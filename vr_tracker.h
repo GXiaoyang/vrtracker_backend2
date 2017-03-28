@@ -15,6 +15,10 @@ struct save_summary
 	{
 		s.memcpy_out_to_stream(start_date_string, sizeof(start_date_string));
 	}
+	void decode(EncodeStream &s) 
+	{
+		s.memcpy_from_stream(start_date_string, sizeof(start_date_string));
+	}
 };
 
 
@@ -25,8 +29,6 @@ private:
 	friend struct vr_tracker_traverse;
 public:
 	time_index_t get_last_updated_frame() const { return m_last_updated_frame_number; }
-
-	
 
 	//
 	// data that is not saved and why
@@ -68,11 +70,14 @@ public:
 		return m_time_stamps[i]; 
 	}
 
-	vr_tracker(slab *slab)
+	vr_tracker()
 		:
 		m_last_updated_frame_number(-1),
 		m_state(base::URL("vr", "/vr"), &m_state_registry),
 		m_time_stamps(slab_allocator<time_stamp_t>())
 	{
 	}
+
+	vr_tracker(const vr_tracker &rhs) = delete;
+	vr_tracker &operator =(const vr_tracker &rhs) = delete;
 };
