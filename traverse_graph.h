@@ -421,15 +421,14 @@ static void visit_system_node(
 				visitor->visit_node(ss->seconds_since_last_vsync);
 				visitor->visit_node(ss->frame_counter_since_last_vsync);
 			}
-	//		VISIT(d3d9_adapter_index, sysw->GetD3D9AdapterIndex());
+			VISIT(d3d9_adapter_index, sysw->GetD3D9AdapterIndex());
 		});
-#if 0
 		g.run("system scalars4",
 			[sysw, ss, visitor] 
 		{
+			VISIT(d3d9_adapter_index, sysw->GetD3D9AdapterIndex());
 			VISIT(dxgi_output_info, sysw->GetDXGIOutputInfo());
 		});
-#endif
 	}
 
 	//
@@ -1055,7 +1054,8 @@ static void visit_compositor_state(visitor_fn *visitor,
 	});
 	
 
-	//VISIT(instance_extensions_required, wrap->GetVulkanInstanceExtensionsRequired(&(TMPString<>())));
+	VISIT(instance_extensions_required, wrap->GetVulkanInstanceExtensionsRequired(&(TMPString<>())));
+
 	visitor->end_group_node(ss->get_url(), -1);
 }
 
@@ -1128,7 +1128,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 			}
 			visitor->visit_node(ss->vertex_data, make_result(gsl::make_span(rVertexData, unVertexCount), rc));
 			visitor->visit_node(ss->index_data, make_result(gsl::make_span(rIndexData, unTriangleCount*3), rc));
-// TODO			visitor->visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, unWidth * unHeight * 4), rc));
+			visitor->visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, unWidth * unHeight * 4), rc));
 			visitor->visit_node(ss->texture_height, make_result(unHeight, rc));
 			visitor->visit_node(ss->texture_width, make_result(unWidth, rc));
 
@@ -1144,7 +1144,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 	{
 		visitor->visit_node(ss->vertex_data);
 		visitor->visit_node(ss->index_data);
-// TODO		visitor->visit_node(ss->texture_map_data);
+		visitor->visit_node(ss->texture_map_data);
 		visitor->visit_node(ss->texture_height);
 		visitor->visit_node(ss->texture_width);
 	}
@@ -1247,8 +1247,7 @@ static void visit_per_overlay(
 		visitor->visit_node(ss->overlay_name, name);
 
 // 3/15/2017: disable image data since it's not thread safe - I think its directx
-#if 0
-			if (handle_result.is_present())
+			if ( 0 &&handle_result.is_present())
 			{
 				Uint32<EVROverlayError> width;
 				Uint32<EVROverlayError> height;
@@ -1269,17 +1268,14 @@ static void visit_per_overlay(
 				auto result(make_result(gsl::make_span(ptr, 0), handle_result.return_code));
 				visitor->visit_node(ss->overlay_image_data, result);
 			}
-#endif
 	}
 	else
 	{
 		visitor->visit_node(ss->overlay_handle);
 		visitor->visit_node(ss->overlay_name);
-#if 0
 		visitor->visit_node(ss->overlay_image_width);
 		visitor->visit_node(ss->overlay_image_height);
 		visitor->visit_node(ss->overlay_image_data);
-#endif
 	}
 
 	VISIT(overlay_rendering_pid, wrap->GetOverlayRenderingPid(handle));

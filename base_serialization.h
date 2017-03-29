@@ -78,6 +78,26 @@ public:
 		return id;
 	}
 
+	// caller specifies id
+	void Register(RegisteredSerializable *p, serialization_id new_id)
+	{
+		registered.grow_to_at_least(new_id+1);
+		registered[new_id] = p;
+	}
+
+	void clear() 
+	{
+#ifdef _DEBUG
+		map.clear();
+#endif
+		registered.clear();
+	}
+
+	void reserve(serialization_id n)
+	{
+		registered.reserve(n);
+	}
+
 	void dump() const;
 #ifdef _DEBUG
 	tbb::spin_mutex map_lock;

@@ -110,13 +110,18 @@ static void test_seek_time(tracker_test_context *test_context)
 	CursorContext cursor_context(&test_context->get_tracker());
 	VRCompositorCursor compi(&cursor_context);
 	vr_tracker_traverse u;
-	log_printf("collecting frames\n");
-
 	int target_number_of_frames = 1000;
+	log_printf("collecting %d frames\n", target_number_of_frames);
+
+	
 	while (cursor_context.GetCurrentFrame() < target_number_of_frames)
 	{
 		u.update_tracker_parallel(&test_context->get_tracker(), &test_context->raw_vr_interfaces());
 		cursor_context.ChangeFrame(target_number_of_frames);
+		if (cursor_context.GetCurrentFrame() % 100 == 0)
+		{
+			log_printf("%d\n", cursor_context.GetCurrentFrame());
+		}
 	}
 
 	float accum = 0;

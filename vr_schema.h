@@ -373,6 +373,7 @@ namespace vr_result
 				INIT(frame_timings),
 				INIT(frame_time_remaining),
 				INIT(frame_time_remaining_seg),
+				INIT(frame_time_remaining_conc),
 				INIT(cumulative_stats),
 				INIT(foreground_fade_color),
 				INIT(background_fade_color),

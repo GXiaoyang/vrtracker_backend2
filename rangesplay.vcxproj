@@ -100,6 +100,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; D:\tbb\build\vs2012\Win32\Debug-MT</AdditionalLibraryDirectories>
       <AdditionalDependencies>tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -183,6 +184,7 @@
     <ClInclude Include="time_containers.h" />
     <ClInclude Include="tmp_vector.h" />
     <ClInclude Include="tracker_config.h" />
+    <ClInclude Include="tracker_id_fixer_visitor.h" />
     <ClInclude Include="traverse_graph.h" />
     <ClInclude Include="unit_tests\tracker_test_context.h" />
     <ClInclude Include="tracker_update_visitor.h" />

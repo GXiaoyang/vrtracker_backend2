@@ -5,6 +5,7 @@
 #include "tracker_update_visitor.h"
 #include "tracker_encode_visitor.h"
 #include "tracker_decode_visitor.h"
+#include "tracker_id_fixer_visitor.h"
 #include "tbb/tick_count.h"
 #include "tbb/task_scheduler_init.h"
 #include "tbb/task_group.h"
@@ -173,6 +174,44 @@ struct vr_tracker_traverse::impl
 	{
 	}
 
+	// since the objects are not constructed in a deterministic order, we need to save it
+	// so it can be restored on re-load
+	uint64_t calc_registry_id_table_size(vr_tracker *tracker)
+	{
+		EncodeStream count_stream(nullptr, 0, true);
+		encode_registry_table(count_stream, tracker);
+		return count_stream.buf_pos;
+	}
+
+	void encode_registry_table(EncodeStream &stream, vr_tracker *tracker)
+	{
+		int num_entries = tracker->m_state_registry.GetNumRegistered();
+		stream.memcpy_out_to_stream(&num_entries, sizeof(num_entries));
+		for (int i = 0; i < num_entries; i++)
+		{
+			RegisteredSerializable *r = tracker->m_state_registry.registered[i];
+			stream.contiguous_container_out_to_stream(r->get_serialization_url().get_full_path());
+		}
+	}
+
+	void fixup_registry_ids(EncodeStream &e, vr_tracker *tracker)
+	{
+		int num_entries;
+		e.memcpy_from_stream(&num_entries, sizeof(num_entries));
+		tracker_id_fixer_visitor visitor;
+		tracker->m_state_registry.clear();
+		tracker->m_state_registry.reserve(num_entries);
+		visitor.registry = &tracker->m_state_registry;
+		for (int i = 0; i < num_entries; i++)
+		{
+			std::string full_url;
+			e.contiguous_container_from_stream(full_url);
+			visitor.url2id.insert({ full_url, i });
+		}
+		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &null_wrappers);
+	}
+
+
 	uint64_t calc_keys_size(vr_tracker *tracker)
 	{
 		// state size
@@ -264,7 +303,7 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 	}
 
 	//
-	// finalize the frame
+	// after updating the frame, finalize any per frame stats and then advance the frame number
 	//
 
 	// any new keys discovered:
@@ -279,7 +318,6 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 		// any items that updated
 		tracker->m_state_update_bits.emplace_back(update_visitor.get_frame_number(), update_visitor.updated_node_bits);
 	}
-
 	
 	using us = std::chrono::duration<int64_t, std::micro>;
 	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - tracker->start);
@@ -314,6 +352,8 @@ struct header_t
 	uint32_t crc;
 	uint64_t summary_offset;
 	uint64_t summary_size;
+	uint64_t registry_offset;
+	uint64_t registry_size;
 	uint64_t keys_offset;
 	uint64_t keys_size;
 	uint64_t state_offset;
@@ -369,6 +409,7 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	memset(&header, 0, sizeof(header));
 	header.magic = HEADER_MAGIC;
 	header.summary_size		 = sizeof(save_summary);
+	header.registry_size = m_pimpl->calc_registry_id_table_size(tracker);
 	header.keys_size		 = m_pimpl->calc_keys_size(tracker);
 	header.state_size		 = m_pimpl->calc_state_size(tracker);
 	uint64_t count_again0 = m_pimpl->calc_state_size(tracker);
@@ -404,7 +445,8 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	header.state_update_bits_size = m_pimpl->calc_state_update_bits_size(tracker);
 
 	header.summary_offset           = sizeof(header);
-	header.keys_offset              = header.summary_offset		+ pad_size(header.summary_size);
+	header.registry_offset          = header.summary_offset     + pad_size(header.registry_size);
+	header.keys_offset              = header.registry_offset	+ pad_size(header.registry_size);
 	header.state_offset             = header.keys_offset		+ pad_size(header.keys_size);
 	header.events_offset            = header.state_offset		+ pad_size(header.state_size);
 	header.time_stamps_offset       = header.events_offset		+ pad_size(header.events_size);
@@ -429,6 +471,10 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 		{
 			EncodeStream e(big_buf + header.summary_offset, header.summary_size, false);
 			tracker->m_save_summary.encode(e);
+		}
+		{
+			EncodeStream e(big_buf + header.registry_offset, header.registry_size, false);
+			m_pimpl->encode_registry_table(e, tracker);
 		}
 		{
 			EncodeStream e(big_buf + header.keys_offset, header.keys_size, false);
@@ -526,7 +572,16 @@ bool vr_tracker_traverse::load_tracker_from_binary_file(vr_tracker *tracker, con
 					EncodeStream e(big_buf + header.state_update_bits_offset, header.state_update_bits_size, false);
 					tracker->m_state_update_bits.decode(e);
 				}
+
+				// fixup the registry
+				{
+					EncodeStream e(big_buf + header.registry_offset, header.registry_size, false);
+					m_pimpl->fixup_registry_ids(e, tracker);
+				}
+
 				// apply chunks here
+
+
 
 				free(big_buf);
 

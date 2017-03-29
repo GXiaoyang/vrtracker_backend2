@@ -30,6 +30,7 @@ void test_tracker_serialization()
 	using namespace vr_result;
 	using std::range;
 	
+	log_printf("start of test_tracker_serialization\n");
 	tracker_test_context::reset_globals();
 
 	vr_tracker_traverse u;
@@ -82,6 +83,7 @@ void test_tracker_serialization()
 		assert(contexta.get_tracker() == contextb.get_tracker());
 	}
 	tracker_test_context::reset_globals();
+	log_printf("done test_tracker_serialization\n");
 }
 
 // i can log object changes and probably find them pretty easily

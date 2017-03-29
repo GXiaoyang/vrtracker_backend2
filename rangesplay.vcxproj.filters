@@ -285,6 +285,9 @@
     <ClInclude Include="tracker_decode_visitor.h">
       <Filter>Source Files\5 traverse</Filter>
     </ClInclude>
+    <ClInclude Include="tracker_id_fixer_visitor.h">
+      <Filter>Source Files\5 traverse</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
