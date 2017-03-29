@@ -65,7 +65,7 @@ public:
 		return rc;
 	}
 
-	bool operator != (segmented_list &rhs) const
+	bool operator != (const segmented_list &rhs) const
 	{
 		return !(*this == rhs);
 	}

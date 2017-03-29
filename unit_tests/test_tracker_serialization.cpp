@@ -18,6 +18,12 @@ bool operator ==(const vr_tracker &a, const vr_tracker &b)
 		return false;
 	if (a.m_keys != b.m_keys)
 		return false;
+	if (a.m_time_stamps != b.m_time_stamps)
+		return false;
+	if (a.m_keys_updates != b.m_keys_updates)
+		return false;
+	if (a.m_state_update_bits != b.m_state_update_bits)
+		return false;
 
 	return true;
 }

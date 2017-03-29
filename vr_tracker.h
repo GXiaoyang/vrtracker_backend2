@@ -11,7 +11,7 @@
 struct save_summary
 {
 	char start_date_string[64];
-	time_stamp_t last_encoded_frame;
+	time_index_t last_encoded_frame;
 
 	void encode(EncodeStream &s) const
 	{

@@ -18,20 +18,23 @@ struct  VRBitset : public boost::dynamic_bitset<uint64_t, std::allocator<uint64_
 {
 	void encode(EncodeStream &e) const
 	{
+		serialization_id num_bits;
+		num_bits = static_cast<serialization_id>(size());
+		e.memcpy_out_to_stream(&num_bits, sizeof(num_bits));
+
 		std::vector<uint64_t> tmp;
-		boost::to_block_range(*this, std::back_inserter(tmp));
-		int num_blocks = tmp.size();
-		e.memcpy_out_to_stream(&num_blocks, sizeof(num_blocks));
-		e.memcpy_out_to_stream(tmp.data(), sizeof(uint64_t) * num_blocks);
+		boost::to_block_range(*this, std::back_inserter(tmp));	// this will fill tmp with the bit vector
+		e.contiguous_container_out_to_stream(tmp);
 	}
 
 	void decode(EncodeStream &e)
 	{
-		int num_blocks;
-		e.memcpy_from_stream(&num_blocks, sizeof(num_blocks));
-		std::vector<uint64_t> tmp(num_blocks);
-		e.memcpy_from_stream(tmp.data(), sizeof(uint64_t) * num_blocks);
-		resize(num_blocks * 64);
+		serialization_id num_bits;
+		e.memcpy_from_stream(&num_bits, sizeof(num_bits));
+		resize(num_bits); // resize container to be able to store whatever is in the vector
+
+		std::vector<uint64_t> tmp(num_bits);
+		e.contiguous_container_from_stream(tmp);
 		boost::from_block_range(tmp.begin(), tmp.end(), *this);
 	}
 };
@@ -58,6 +61,25 @@ struct VRKeysUpdate
 	{
 		NEW_APP_KEY
 	};
+
+	bool operator==(const VRKeysUpdate &rhs) const
+	{
+		if (update_type != rhs.update_type)
+			return false;
+		if (iparam1 != rhs.iparam1)
+			return false;
+		if (sparam1 != rhs.sparam1)
+			return false;
+		if (sparam2 != rhs.sparam2)
+			return false;
+		return true;
+	}
+
+	bool operator!=(const VRKeysUpdate &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	KeysUpdateType update_type;
 	uint32_t iparam1;
 	std::string sparam1;

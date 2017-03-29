@@ -306,22 +306,26 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 	// after updating the frame, finalize any per frame stats and then advance the frame number
 	//
 
-	// any new keys discovered:
+	// after update, log any new keys discovered:
 	tracker->m_keys.UnRegisterObserver(&config_observer);
 	for (VRKeysUpdate& e : config_observer.config_events)
 	{
 		tracker->m_keys_updates.emplace_back(update_visitor.get_frame_number(), e);
 	}
 
+	// after update, log updated nodes
 	if (!update_visitor.updated_node_bits.empty())
 	{
 		// any items that updated
 		tracker->m_state_update_bits.emplace_back(update_visitor.get_frame_number(), update_visitor.updated_node_bits);
 	}
 	
+	// after update, log the frame_time
 	using us = std::chrono::duration<int64_t, std::micro>;
 	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - tracker->start);
 	tracker->m_time_stamps.push_back(frame_time.count());
+
+	// after update, finally update m_last_updated_frame_number
 	tracker->m_last_updated_frame_number = update_visitor.get_frame_number();
 }
 

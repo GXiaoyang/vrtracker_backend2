@@ -72,78 +72,12 @@ void app_lookup_perf_test(ApplicationsIndexer *ai, vr_result::ApplicationsWrappe
 	log_printf("%d\n", counter);
 }
 
-
-std::atomic<int> overlay_reader_done;
-static void overlay_reader(OverlayIndexer *ai)
-{
-#if 0
-	int sets_read = 0;
-	while (sets_read < 1000)
-	{
-		if (ai->get_num_overlays() > 0)
-		{
-			sets_read++;
-		}
-			
-
-		for (int i = 0; i < ai->get_num_overlays(); i++)
-		{
-			int invalid = ai->get_index_for_key("ha");
-			assert(invalid == -1);
-
-			const char *k = ai->get_overlay_key_for_index()
-			int i2 = ai->get_index_for_key(k);
-			assert(i == i2);
-		}
-
-		ai->read_lock_live_indexes();
-		auto &v = ai->get_live_indexes();
-		for (auto iter = v.begin(); iter != v.end(); iter++)
-		{
-			const char *k = ai->get_key_for_index(*iter);
-			int i2 = ai->get_index_for_key(k);
-			assert(*iter == i2);
-		}
-		ai->read_unlock_live_indexes();
-	}
-	overlay_reader_done = 1;
-#endif
-}
-
-static void overlay_updater(OverlayIndexer *ai, vr_result::OverlayWrapper *wrap)
-{
-	//while (!overlay_reader_done)
-	{
-	//	ai->update(wrap);
-	}
-}
-
-void overlay_test_multi_threading(OverlayIndexer *ai, vr_result::OverlayWrapper *wrap)
-{
-	auto a = std::thread(overlay_reader, ai);
-	auto b = std::thread(overlay_updater, ai, wrap);
-
-	a.join();
-	b.join();
-}
-
 void TEST_INDEXERS()
 {
 	tracker_test_context context;
-
-	{
-		OverlayIndexer oi;
-		vr_result::OverlayWrapper wrap(context.raw_vr_interfaces().ovi);
-		overlay_test_multi_threading(&oi, &wrap);
-	}
-	
-
 
 	vr_result::ApplicationsWrapper wrap(context.raw_vr_interfaces().appi);
 	ApplicationsIndexer ai;
 	app_lookup_perf_test(&ai, &wrap);
 	app_test_multi_threading(&ai, &wrap);
-
-	
-
 }

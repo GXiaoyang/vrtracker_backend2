@@ -188,9 +188,7 @@ template <typename T,
 	{
 		if (!base::url_named::operator==(rhs))
 			return false;
-		if (container.size() != rhs.container.size())
-			return false;
-		return std::equal(container.begin(), container.end(), rhs.container.begin());
+		return container == rhs.container;
 	}
 
 	bool operator!=(const time_indexed_vector &rhs) const
