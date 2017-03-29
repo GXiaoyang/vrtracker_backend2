@@ -11,19 +11,23 @@
 struct save_summary
 {
 	char start_date_string[64];
+	time_stamp_t last_encoded_frame;
+
 	void encode(EncodeStream &s) const
 	{
 		s.memcpy_out_to_stream(start_date_string, sizeof(start_date_string));
+		s.memcpy_out_to_stream(&last_encoded_frame, sizeof(last_encoded_frame));
 	}
 	void decode(EncodeStream &s) 
 	{
 		s.memcpy_from_stream(start_date_string, sizeof(start_date_string));
+		s.memcpy_from_stream(&last_encoded_frame, sizeof(last_encoded_frame));
 	}
 	bool operator ==(const save_summary &rhs) const
 	{
 		if (&rhs == this)
 			return true;
-		return strcmp(start_date_string, rhs.start_date_string) == 0;
+		return strcmp(start_date_string, rhs.start_date_string) == 0 && (last_encoded_frame == rhs.last_encoded_frame);
 	}
 	bool operator !=(const save_summary &rhs) const
 	{

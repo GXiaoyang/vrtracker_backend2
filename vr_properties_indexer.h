@@ -68,6 +68,34 @@ public:
 	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
+	bool operator==(const PropertiesIndexer &rhs) const
+	{
+		for (int i = 0; i < NUM_PROP_TYPES; i++)
+		{
+			if (default_property_table[i].rows != rhs.default_property_table[i].rows) // it's a pointer compare but this should be ok since it's a compile time table pointer
+			{
+				return false;
+			}
+			if (default_property_table[i].size != rhs.default_property_table[i].size)
+			{
+				return false;
+			}
+			if (enum2index[i] != rhs.enum2index[i])
+				return false;
+			if (custom_names[i] != rhs.custom_names[i])
+				return false;
+			if (custom_enum_values[i] != rhs.custom_enum_values[i])
+				return false;
+		}
+		return true;
+	}
+
+	bool operator!=(const PropertiesIndexer &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
+	
 	// configuration table
 	struct device_property_row
 	{
@@ -93,6 +121,7 @@ private:
 	void HashDefaultRows(PropertySettingType setting_type);
 	void AddCustomPropertiesArray(PropertySettingType setting_type, int num, const char **names, int *values);
 
+	// there are default properties loaded at construction time and stored in the following table:
 	struct
 	{
 		const device_property_row *rows;

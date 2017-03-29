@@ -12,7 +12,7 @@ void PropertiesIndexer::Init(
 {
 	default_property_table[PROP_BOOL].rows = bool_properties;
 	default_property_table[PROP_BOOL].size = num_bool_properties;
-	HashDefaultRows(PROP_BOOL);
+	HashDefaultRows(PROP_BOOL);						// builds up enum2index hash table
 
 	default_property_table[PROP_STRING].rows = string_properties;
 	default_property_table[PROP_STRING].size = num_string_properties;

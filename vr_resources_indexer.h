@@ -6,6 +6,19 @@ class ResourcesIndexer
 public:
 	ResourcesIndexer() {}
 
+	bool operator == (const ResourcesIndexer &rhs) const
+	{
+		if (&rhs == this)
+			return true;
+		return (m_resource_directories == rhs.m_resource_directories) &&
+			(m_resource_filenames == rhs.m_resource_filenames);
+	}
+
+	bool operator != (const ResourcesIndexer &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	void Init(const char **resource_filenames, const char **initial_resources_dirs, int num_names);
 	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);

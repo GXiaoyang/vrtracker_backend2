@@ -12,6 +12,17 @@ public:
 	ApplicationsIndexer()
 	{}
 
+	bool operator == (const ApplicationsIndexer &rhs) const
+	{
+		if (&rhs == this)
+			return true;
+		return m_string_indexer == rhs.m_string_indexer;
+	}
+	bool operator != (const ApplicationsIndexer &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 

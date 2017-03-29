@@ -15,6 +15,21 @@ class OverlayIndexer
 {
 public:
 	OverlayIndexer();
+
+	bool operator==(const OverlayIndexer &rhs) const
+	{
+		if (this == &rhs)
+			return true;
+		if (m_string_indexer != rhs.m_string_indexer)
+			return false;
+		return true;
+	}
+
+	bool operator != (const OverlayIndexer &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	void Init(const char **initial_overlay_names, int num_names);
 	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
@@ -51,5 +66,5 @@ public:
 
 private:
 	StringIndexer m_string_indexer;
-	std::vector<int> live_indexes_tmp;
+	std::vector<int> live_indexes_tmp;  // this is just a temporary - don't encode or use it in determining ==
 };

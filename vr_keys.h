@@ -32,6 +32,32 @@ struct vr_keys
 
 	vr_keys(const vr_keys &) = delete;
 
+	bool operator == (const vr_keys &rhs) const
+	{
+		if (this == &rhs)
+			return true;
+		if (memcmp(&m_data, &rhs.m_data, sizeof(m_data)) != 0)
+			return false;
+		if (m_overlay_indexer != rhs.m_overlay_indexer)
+			return false;
+		if (m_applications_indexer != rhs.m_applications_indexer)
+			return false;
+		if (m_resources_indexer != rhs.m_resources_indexer)
+			return false;
+		if (m_settings_indexer != rhs.m_settings_indexer)
+			return false;
+		if (m_device_properties_indexer != rhs.m_device_properties_indexer)
+			return false;
+		if (m_mime_types_indexer != rhs.m_mime_types_indexer)
+			return false;
+		return true;
+	}
+
+	bool operator != (const vr_keys &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	// users can register for change notifications.  this call will pass it along to
 	// the other indexes
 	void RegisterObserver(KeysObserver *o)
@@ -109,26 +135,6 @@ struct vr_keys
 		m_resources_indexer.ReadFromStream(stream);
 		m_settings_indexer.ReadFromStream(stream);
 	}
-#if 0
-	uint64_t GetEncodedSize()
-	{
-		EncodeStream counter(nullptr, 0, true);
-		write_to_stream(counter);
-		return counter.buf_pos;
-	}
-
-	void Encode(char *buf, uint64_t buf_size)
-	{
-		EncodeStream encoder(buf, buf_size, false);
-		write_to_stream(encoder);
-	}
-
-	void Decode(char *buf, uint64_t buf_size)
-	{
-		EncodeStream decoder(buf, buf_size, false);
-		read_from_stream(decoder);
-	}
-#endif
 
 	float GetNearZ() const { return m_data.nearz; }
 	float GetFarZ() const { return m_data.farz; }

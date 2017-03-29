@@ -57,7 +57,8 @@ inline void write_vector_of_strings_to_stream(EncodeStream &s, StringVectorType 
 
 	for (int i = 0; i < count; i++)
 	{
-		encode(v[i].c_str(), s);
+		s.contiguous_container_out_to_stream(v[i]);
+		//encode(v[i].c_str(), s);
 	}
 }
 

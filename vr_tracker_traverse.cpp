@@ -456,7 +456,9 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 
 	std::time_t start = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 	ctime_s(tracker->m_save_summary.start_date_string, sizeof(tracker->m_save_summary.start_date_string), &start);
+	tracker->m_save_summary.last_encoded_frame = tracker->m_last_updated_frame_number;
 
+	// LAST STEP after writing into the header is to write the crc
 	header.crc = crc32buf((char *)&header, sizeof(header));
 
 	// make sure the size fits in whatever size_t is
@@ -534,10 +536,10 @@ bool vr_tracker_traverse::load_tracker_from_binary_file(vr_tracker *tracker, con
 				file.close();
 				EncodeStream e(big_buf, sizeof(header_t), false);
 				header.decode(e);
-				if (!header.verify())
+				if (!header.verify()) // checks the magic value and the CRC
 				{
 					free(big_buf);
-					return false; // magic mismatch
+					return false; // header is invalid
 				}
 				
 				{
@@ -586,7 +588,7 @@ bool vr_tracker_traverse::load_tracker_from_binary_file(vr_tracker *tracker, con
 				free(big_buf);
 
 				// write derived values
-				tracker->m_last_updated_frame_number = tracker->m_time_stamps.size();
+				tracker->m_last_updated_frame_number = tracker->m_save_summary.last_encoded_frame;
 
 			}
 		}

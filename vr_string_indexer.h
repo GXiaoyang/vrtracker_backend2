@@ -17,6 +17,48 @@ public:
 	StringIndexer()
 	{}
 
+	bool operator == (const StringIndexer &rhs) const
+	{
+		if (this == &rhs)
+			return true;
+		if (updated_size != rhs.updated_size)
+			return false;
+		if (keys2index.size() != rhs.keys2index.size())
+			return false;
+		if (keys != rhs.keys)
+		{
+			for (int i = 0; i < keys.size(); i++)
+			{
+				std::string a = keys[i];
+				std::string b = rhs.keys[i];
+				if (a != b)
+				{
+					printf("%s %s\n", a.c_str(), b.c_str());
+				}
+			}
+			return false;
+		}
+			
+		if (live_indexes != rhs.live_indexes)
+			return false;
+
+		for (const auto & pair : keys2index)
+		{
+			const char *f = pair.first;
+			auto iter = rhs.keys2index.find(f);
+			if ( iter == rhs.keys2index.end() || iter->second != pair.second)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool operator !=(const StringIndexer &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	void WriteToStream(EncodeStream &s) const;
 	void ReadFromStream(EncodeStream &s);
 
@@ -46,6 +88,11 @@ public:
 		return ret;
 	}
 
+	// a read write lock protects the live indexes vector
+	// multiple readers are able to read the live indexes while this 
+	// vector is being updated by the updater threads
+	// ... I am not sure if it would be better to just make this a concurrent vector
+	//
 	void read_lock_live_indexes()
 	{
 		live_index_lock.lock_read();

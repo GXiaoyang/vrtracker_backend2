@@ -10,10 +10,13 @@ bool operator ==(const vr_tracker &a, const vr_tracker &b)
 {
 	if (&a == &b)
 		return true;
-
 	if (a.m_save_summary != b.m_save_summary)
 		return false;
 	if (a.m_state_registry != b.m_state_registry)
+		return false;
+	if (a.get_last_updated_frame() != b.get_last_updated_frame())
+		return false;
+	if (a.m_keys != b.m_keys)
 		return false;
 
 	return true;

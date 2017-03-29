@@ -13,6 +13,18 @@ public:
 	inline bool GetIndexForMimeType(const char *pchMimeType, int *index);
 	const char *GetNameForIndex(int index) const { return m_table_ref[index]; }
 	size_t GetNumMimeTypes() const { return m_table_size;  }
+
+	bool operator == (const MimeTypesIndexer &rhs) const
+	{
+		// it's all refs to const tables
+		return (m_table_size == rhs.m_table_size && m_table_ref == rhs.m_table_ref);
+	}
+
+	bool operator != (const MimeTypesIndexer &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 private:
 	size_t m_table_size;
 	const char **m_table_ref;

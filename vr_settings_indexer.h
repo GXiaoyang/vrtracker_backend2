@@ -20,6 +20,28 @@ public:
 		NUM_SETTING_TYPES
 	};
 
+	bool operator ==(const SettingsIndexer &rhs) const
+	{
+		for (int i = 0; i < NUM_SETTING_TYPES; i++)
+		{
+			if (custom_sections[i] != rhs.custom_sections[i])
+				return false;
+			if (custom_settings[i] != rhs.custom_settings[i])
+				return false;
+		}
+		if (sections != rhs.sections)
+			return false;
+		if (name2section != rhs.name2section)
+		{
+			return false;
+		}
+		return true;
+	}
+	bool operator !=(const SettingsIndexer &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	// spawns new section|settings
 	bool AddCustomSetting(const char *section_name_in, SectionSettingType section_type, const char *setting_name_in);
 
@@ -92,6 +114,15 @@ private:
 	// settings of a type
 	struct subtable
 	{
+		bool operator == (const subtable &rhs) const
+		{
+			return (fieldnames == rhs.fieldnames) && (fieldname2index == rhs.fieldname2index);
+		}
+		bool operator != (const subtable &rhs) const
+		{
+			return !(*this == rhs);
+		}
+
 		std::vector<const char *> fieldnames;
 		string2int fieldname2index;
 	};
@@ -100,10 +131,23 @@ private:
 	{
 		section_data() {}
 		section_data(const char *s) : section_name(s) {}
+
+		bool operator==(const section_data &rhs) const
+		{
+			if (this == &rhs)
+				return true;
+			if (section_name != rhs.section_name)	// pointer compare should be ok
+				return false;
+			return std::equal(std::begin(typed_data), std::end(typed_data), std::begin(rhs.typed_data));
+		}
+		bool operator!=(const section_data &rhs) const
+		{
+			return !(*this == rhs);
+		}
+
 		const char *section_name;
 		subtable typed_data[NUM_SETTING_TYPES];
 	};
-
 
 	std::vector < std::string > custom_sections[NUM_SETTING_TYPES];
 	std::vector < std::string > custom_settings[NUM_SETTING_TYPES];
