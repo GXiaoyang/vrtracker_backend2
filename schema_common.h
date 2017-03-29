@@ -164,7 +164,7 @@ struct named_vector :	public std::vector<T, Allocator>,
 	{
 		encode_id(e);
 		base::url_named::encode(e);
-		int mysize = size();
+		int mysize = std::vector<T, Allocator>::size();
 		e.memcpy_out_to_stream(&mysize, sizeof(mysize));
 	}
 
@@ -175,6 +175,6 @@ struct named_vector :	public std::vector<T, Allocator>,
 		base::url_named::decode(e);
 		int mysize;
 		e.memcpy_from_stream(&mysize, sizeof(mysize));
-		resize(mysize);
+		std::vector<T, Allocator>::resize(mysize);
 	}
 };

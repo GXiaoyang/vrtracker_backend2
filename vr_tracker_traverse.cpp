@@ -1,3 +1,4 @@
+#include <time.h>
 #include "crc_32.h"
 #include "vr_tracker_traverse.h"
 #include "vr_system_wrapper.h"
@@ -420,7 +421,7 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 
 	if (count_again0 != header.state_size)
 	{
-		size_t buf_size = max(count_again0, header.state_size) + 4096;
+		size_t buf_size = std::max(count_again0, header.state_size) + 4096;
 		char *debuga = (char *)malloc(buf_size);
 
 		EncodeStream a(debuga, buf_size, false);
@@ -459,7 +460,11 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	header.updates_offset           = header.state_update_bits_offset + pad_size(header.state_update_bits_size);
 
 	std::time_t start = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+#ifdef _WIN32
 	ctime_s(tracker->m_save_summary.start_date_string, sizeof(tracker->m_save_summary.start_date_string), &start);
+#else
+	strcpy(tracker->m_save_summary.start_date_string, ctime(&start));
+#endif
 	tracker->m_save_summary.last_encoded_frame = tracker->m_last_updated_frame_number;
 
 	// LAST STEP after writing into the header is to write the crc

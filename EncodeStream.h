@@ -63,7 +63,7 @@ struct EncodeStream
 		container.reserve(size);
 		for (int i = 0; i < size; i++)
 		{
-			Container::value_type val;
+			typename Container::value_type val;
 			memcpy_from_stream(&val, sizeof(val));
 			container.push_back(val);
 		}

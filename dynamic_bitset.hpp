@@ -351,6 +351,7 @@ public:
         std::vector<Block, Allocator> v(first, last);
         m_append(v.begin(), v.end(), std::random_access_iterator_tag());
     }
+#ifndef HACKED_BITSET
     template <typename BlockInputIterator>
     void m_append(BlockInputIterator first, BlockInputIterator last, std::forward_iterator_tag)
     {
@@ -380,6 +381,7 @@ public:
             m_append(first, last, cat);
         }
     }
+#endif
 
 
     // bitset operations
@@ -485,6 +487,7 @@ private:
     static block_width_type bit_index(size_type pos) BOOST_NOEXCEPT { return static_cast<block_width_type>(pos % bits_per_block); }
     static Block bit_mask(size_type pos) BOOST_NOEXCEPT { return Block(1) << bit_index(pos); }
 
+#ifndef HACKED_BITSET
     template <typename CharT, typename Traits, typename Alloc>
     void init_from_string(const std::basic_string<CharT, Traits, Alloc>& s,
         typename std::basic_string<CharT, Traits, Alloc>::size_type pos,
@@ -551,7 +554,7 @@ private:
         }
 
     }
-
+#endif
 
 BOOST_DYNAMIC_BITSET_PRIVATE:
 
@@ -733,6 +736,7 @@ dynamic_bitset<Block, Allocator>::dynamic_bitset(const Allocator& alloc)
 
 }
 
+#ifndef HACKED_BITSET
 template <typename Block, typename Allocator>
 dynamic_bitset<Block, Allocator>::
 dynamic_bitset(size_type num_bits, unsigned long value, const Allocator& alloc)
@@ -741,6 +745,7 @@ dynamic_bitset(size_type num_bits, unsigned long value, const Allocator& alloc)
 {
     init_from_unsigned_long(num_bits, value);
 }
+#endif
 
 // copy constructor
 template <typename Block, typename Allocator>
@@ -1223,6 +1228,8 @@ dynamic_bitset<Block, Allocator>::operator~() const
     return b;
 }
 
+#ifndef HACKED_BITSET
+
 template <typename Block, typename Allocator>
 typename dynamic_bitset<Block, Allocator>::size_type
 dynamic_bitset<Block, Allocator>::count() const BOOST_NOEXCEPT
@@ -1254,11 +1261,12 @@ dynamic_bitset<Block, Allocator>::count() const BOOST_NOEXCEPT
                     static_cast<value_to_type<(bool)mode> *>(0));
 }
 
+#endif
 
 //-----------------------------------------------------------------------------
 // conversions
 
-
+#ifndef HACKED_BITSET
 template <typename B, typename A, typename stringT>
 void to_string_helper(const dynamic_bitset<B, A> & b, stringT & s,
                       bool dump_all)
@@ -1312,6 +1320,7 @@ dump_to_string(const dynamic_bitset<B, A>& b, stringT& s)
 {
     to_string_helper(b, s, true /* =dump_all*/);
 }
+#endif
 
 template <typename Block, typename Allocator, typename BlockOutputIterator>
 inline void
@@ -1323,6 +1332,7 @@ to_block_range(const dynamic_bitset<Block, Allocator>& b,
     std::copy(b.m_bits.begin(), b.m_bits.end(), result);
 }
 
+#ifndef HACKED_BITSET
 template <typename Block, typename Allocator>
 unsigned long dynamic_bitset<Block, Allocator>::
 to_ulong() const
@@ -1356,6 +1366,7 @@ to_ulong() const
 
   return result;
 }
+#endif
 
 template <typename Block, typename Allocator>
 inline typename dynamic_bitset<Block, Allocator>::size_type
@@ -1371,6 +1382,7 @@ dynamic_bitset<Block, Allocator>::num_blocks() const BOOST_NOEXCEPT
     return m_bits.size();
 }
 
+#ifndef HACKED_BITSET
 template <typename Block, typename Allocator>
 inline typename dynamic_bitset<Block, Allocator>::size_type
 dynamic_bitset<Block, Allocator>::max_size() const BOOST_NOEXCEPT
@@ -1392,6 +1404,7 @@ dynamic_bitset<Block, Allocator>::max_size() const BOOST_NOEXCEPT
         m * bits_per_block :
         size_type(-1);
 }
+#endif
 
 template <typename Block, typename Allocator>
 inline bool dynamic_bitset<Block, Allocator>::empty() const BOOST_NOEXCEPT
@@ -1658,6 +1671,8 @@ operator<<(std::ostream& os, const dynamic_bitset<Block, Alloc>& b)
 }
 #else
 
+#ifndef HACKED_BITSET
+
 template <typename Ch, typename Tr, typename Block, typename Alloc>
 std::basic_ostream<Ch, Tr>&
 operator<<(std::basic_ostream<Ch, Tr>& os,
@@ -1739,6 +1754,7 @@ operator<<(std::basic_ostream<Ch, Tr>& os,
 
 }
 #endif
+#endif
 
 
 #ifdef BOOST_OLD_IOSTREAMS
@@ -1813,6 +1829,8 @@ operator>>(std::istream& is, dynamic_bitset<Block, Alloc>& b)
 
 #else // BOOST_OLD_IOSTREAMS
 
+#ifndef HACKED_BITSET
+ 
 template <typename Ch, typename Tr, typename Block, typename Alloc>
 std::basic_istream<Ch, Tr>&
 operator>>(std::basic_istream<Ch, Tr>& is, dynamic_bitset<Block, Alloc>& b)
@@ -1888,6 +1906,7 @@ operator>>(std::basic_istream<Ch, Tr>& is, dynamic_bitset<Block, Alloc>& b)
     return is;
 
 }
+#endif
 
 
 #endif
