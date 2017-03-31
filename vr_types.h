@@ -12,7 +12,7 @@
 #include "dynamic_bitset.hpp"
 #include <openvr.h>
 
-using VRTimestampVector = segmented_list<time_stamp_t, VR_LARGE_SEGMENT_SIZE, slab_allocator<time_stamp_t>>;
+using VRTimestampVector = segmented_list<time_stamp_t, VR_LARGE_SEGMENT_SIZE, VRAllocatorTemplate<time_stamp_t>>;
 
 struct  VRBitset : public boost::dynamic_bitset<uint64_t, std::allocator<uint64_t>>
 {
@@ -53,7 +53,7 @@ struct VREncodableEvent : vr::VREvent_t
 	}
 };
 
-using VREventList = time_indexed_vector<VREncodableEvent, segmented_list_1024, slab_allocator>;
+using VREventList = time_indexed_vector<VREncodableEvent, segmented_list_1024, VRAllocatorTemplate>;
 
 struct VRKeysUpdate
 {
@@ -105,8 +105,8 @@ struct VRKeysUpdate
 	}
 };
 
-using VRKeysUpdateVector = time_indexed_vector<VRKeysUpdate, segmented_list_1024, slab_allocator>;
-using VRUpdateVector = time_indexed_vector<VRBitset, segmented_list_1024, slab_allocator>;
+using VRKeysUpdateVector = time_indexed_vector<VRKeysUpdate, segmented_list_1024, VRAllocatorTemplate>;
+using VRUpdateVector = time_indexed_vector<VRBitset, segmented_list_1024, VRAllocatorTemplate>;
 
 namespace vr
 {

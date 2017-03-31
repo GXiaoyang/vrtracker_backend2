@@ -1,10 +1,7 @@
 // vr_tmp_vector
-//	does two types of thing
-//
-// Commits to types
+//	specializes tmp_vector in two ways:
 //		* commits to the size of the temporary vectors used
-//      * commits to the final storage type
-// Provides access to a global pool
+//		* provides access to a global pool
 //     
 #pragma once
 #include "vr_constants.h"
@@ -22,7 +19,7 @@ struct vr_tmp_vector : tmp_vector2<T, VRTMPSize>, vr_tmp_vector_base
 		: tmp_vector2<T, VRTMPSize>(m_global_pool)
 	{}
 	
-	vr_tmp_vector(int)	// int is a flag to indicate not to create from a pool
+	vr_tmp_vector(int)	// int is a flag to use the default constructor/create an empty object (used by vr_empty_vector below)
 	{}
 
 	vr_tmp_vector & operator = (vr_tmp_vector &&rhs)
@@ -32,7 +29,6 @@ struct vr_tmp_vector : tmp_vector2<T, VRTMPSize>, vr_tmp_vector_base
 	}
 
 	vr_tmp_vector &operator =(const vr_tmp_vector &rhs) = delete;
-
 };
 
 //

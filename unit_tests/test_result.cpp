@@ -116,14 +116,15 @@ static void test_type_checks()
 void test_copies()
 {
 	tmp_vector_pool<1024> my_pool;
-	typedef tmp_vector<int, std::allocator<int>, 1024> tmp_ints;
+	typedef tmp_vector2<int, 1024> tmp_ints;
 
 	{
 		Result<std::vector<int>, NoReturnCode> a;
 		a.val = { 1,2,3 };
 
-		tmp_ints tmp(&my_pool, std::allocator<char>());
-		Result<tmp_ints, NoReturnCode> b(tmp_ints(&my_pool, std::allocator<char>()));
+		tmp_ints tmp(&my_pool);
+
+		Result<tmp_ints, NoReturnCode> b(std::move(tmp));
 		assert(b != a);
 
 		b = a;
@@ -132,11 +133,11 @@ void test_copies()
 		assert(b.val[1] == 2);
 		assert(a.val.size() == b.val.size());
 		assert(a == b);
-	
 	}
 
 	{
-		Result<tmp_ints, NoReturnCode> a(tmp_ints(&my_pool, std::allocator<char>()));
+//		Result<tmp_ints, NoReturnCode> a(tmp_ints(&my_pool));
+#if 0
 		a.val.resize(3);
 		a.val[0] = 4;
 		a.val[1] = 5;
@@ -145,6 +146,7 @@ void test_copies()
 		assert(b.val[0] == 4);
 		assert(b.val[1] == 5);
 		assert(b.val[2] == 6);
+#endif
 	}
 }
 void TEST_RESULT()

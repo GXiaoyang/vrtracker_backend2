@@ -93,7 +93,7 @@ public:
 		:
 		m_last_updated_frame_number(-1),
 		m_state(base::URL("vr", "/vr"), &m_state_registry),
-		m_time_stamps(slab_allocator<time_stamp_t>())
+		m_time_stamps(VRAllocatorTemplate<time_stamp_t>())
 	{
 	}
 

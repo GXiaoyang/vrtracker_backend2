@@ -4,12 +4,12 @@
 #include <openvr.h>
 
 const size_t VRTMPSize = vr::k_unMaxPropertyStringSize;
-using VRFinalAllocatorType = slab_allocator<char>;
+//using VRFinalAllocatorType = slab_allocator<char>;
 
 const size_t VR_LARGE_SEGMENT_SIZE = 8192;		// segment size for per/frame data.  e.g. 1minute at 90 fps - 5400
 
 template <typename T>
-using VRAllocatorTemplate = slab_allocator<T>;
+using VRAllocatorTemplate = std::allocator<T>;
 
 #include "result.h"
 
