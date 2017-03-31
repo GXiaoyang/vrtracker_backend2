@@ -103,9 +103,9 @@ struct Result : ResultBase<ElementType>
 	}
 
 	// write the return code and then the value out to stream
-	void encode(EncodeStream &e) const
+	void encode(BaseStream &e) const
 	{
-		e.memcpy_out_to_stream(&return_code, sizeof(return_code));
+		e.write_to_stream(&return_code, sizeof(return_code));
 		if (is_present())
 		{
 			val_encode(val, e);
@@ -113,9 +113,9 @@ struct Result : ResultBase<ElementType>
 	}
 
 	// read the return code and then the value from the stream
-	void decode(EncodeStream &e) 
+	void decode(BaseStream &e) 
 	{
-		e.memcpy_from_stream(&return_code, sizeof(return_code));
+		e.read_from_stream(&return_code, sizeof(return_code));
 		if (is_present())
 		{
 			val_decode(val, e);
@@ -171,13 +171,13 @@ struct Result<ElementType, NoReturnCode> : ResultBase<ElementType>
 	}
 
 	// write just the value out to the stream
-	void encode(EncodeStream &e) const
+	void encode(BaseStream &e) const
 	{
 		val_encode(val, e);
 	}
 
 	// read the value from the stream
-	void decode(EncodeStream &e) 
+	void decode(BaseStream &e) 
 	{
 		val_decode(val, e);
 	}
@@ -285,7 +285,7 @@ void assign(Result<ElementType, ReturnCode> &a, const Result<ResultType2, Return
 
 // encode when the element type is a container
 template <typename ElementType>
-void val_encode(const ElementType &e, EncodeStream &stream,
+void val_encode(const ElementType &e, BaseStream &stream,
 	typename std::enable_if<detail::SupportsData<ElementType>::value, int>::type* = 0)
 {
 	stream.contiguous_container_out_to_stream(e);
@@ -293,15 +293,15 @@ void val_encode(const ElementType &e, EncodeStream &stream,
 
 // encode when the element type is NOT container
 template <typename ElementType>
-void val_encode(const ElementType &e, EncodeStream &stream,
+void val_encode(const ElementType &e, BaseStream &stream,
 	typename std::enable_if<!detail::SupportsData<ElementType>::value, int>::type* = 0)
 {
-	stream.memcpy_out_to_stream(&e, sizeof(e));
+	stream.write_to_stream(&e, sizeof(e));
 }
 
 // encode when the element type is a container
 template <typename ElementType>
-void val_decode(ElementType &e, EncodeStream &stream,
+void val_decode(ElementType &e, BaseStream &stream,
 	typename std::enable_if<detail::SupportsData<ElementType>::value, int>::type* = 0)
 {
 	stream.contiguous_container_from_stream(e);
@@ -309,10 +309,10 @@ void val_decode(ElementType &e, EncodeStream &stream,
 
 // encode when the element type is NOT container
 template <typename ElementType>
-void val_decode(ElementType &e, EncodeStream &stream,
+void val_decode(ElementType &e, BaseStream &stream,
 	typename std::enable_if<!detail::SupportsData<ElementType>::value, int>::type* = 0)
 {
-	stream.memcpy_from_stream(&e, sizeof(e));
+	stream.read_from_stream(&e, sizeof(e));
 }
 
 

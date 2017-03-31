@@ -9,7 +9,7 @@
 #include "url_named.h"
 #include "tbb/concurrent_vector.h"
 #include "tbb/spin_mutex.h"
-#include "EncodeStream.h"
+#include "BaseStream.h"
 #include <map>
 
 // has an index supports virtual serialization
@@ -18,13 +18,13 @@ using serialization_id = uint16_t;
 class RegisteredSerializable
 {
 protected:
-	void encode_id(EncodeStream &e) const
+	void encode_id(BaseStream &e) const
 	{
-		e.memcpy_out_to_stream(&m_id, sizeof(m_id));
+		e.write_to_stream(&m_id, sizeof(m_id));
 	}
-	void decode_id(EncodeStream &e)
+	void decode_id(BaseStream &e)
 	{
-		e.memcpy_from_stream(&m_id, sizeof(m_id));
+		e.read_from_stream(&m_id, sizeof(m_id));
 	}
 
 	serialization_id m_id;
@@ -44,8 +44,8 @@ public:
 	void set_serialization_index(uint32_t id) { m_id = id; }
 	serialization_id get_serialization_index() const { return m_id; }
 	virtual const base::URL& get_serialization_url(void) const = 0;
-	virtual void encode(EncodeStream &e) const = 0;
-	virtual void decode(EncodeStream &e) = 0;
+	virtual void encode(BaseStream &e) const = 0;
+	virtual void decode(BaseStream &e) = 0;
 };
 
 // register objects by an id so they can be found for serialization and deserialization

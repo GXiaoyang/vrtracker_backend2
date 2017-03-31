@@ -43,14 +43,14 @@ void ApplicationsPropertiesIndexer::Init()
 		nullptr, 0);
 }
 
-void ApplicationsPropertiesIndexer::WriteToStream(EncodeStream &s) const
+void ApplicationsPropertiesIndexer::WriteToStream(BaseStream &s) const
 {
 	int x = 33;
 	encode(x, s);
 	PropertiesIndexer::WriteToStream(s);
 }
 
-void ApplicationsPropertiesIndexer::ReadFromStream(EncodeStream &s)
+void ApplicationsPropertiesIndexer::ReadFromStream(BaseStream &s)
 {
 	int x;
 	decode(x, s);

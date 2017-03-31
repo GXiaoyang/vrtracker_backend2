@@ -2,6 +2,7 @@
 // * unit test for result
 //
 
+#include "MemoryStream.h"
 #include "tmp_vector.h"
 #include "segmented_list.h"
 #include "result.h"
@@ -16,7 +17,7 @@ static void test_result_encoding()
 		a.val = { 1,2,3 };
 
 		char buf[1024];
-		EncodeStream e(buf, sizeof(buf), false);
+		MemoryStream e(buf, sizeof(buf), false);
 		a.encode(e);
 		e.reset_buf_pos();
 		Result<std::vector<int>, NoReturnCode> b;
@@ -31,7 +32,7 @@ static void test_result_encoding()
 		a.val = { 1,2,3 };
 
 		char buf[1024];
-		EncodeStream e(buf, sizeof(buf), false);
+		MemoryStream e(buf, sizeof(buf), false);
 		a.encode(e);
 		e.reset_buf_pos();
 		Result<std::vector<int>, bool> b;
@@ -46,7 +47,7 @@ static void test_result_encoding()
 		a.val = 11;
 
 		char buf[1024];
-		EncodeStream e(buf, sizeof(buf), false);
+		MemoryStream e(buf, sizeof(buf), false);
 		a.encode(e);
 		e.reset_buf_pos();
 		Result<int, NoReturnCode> b;
@@ -61,7 +62,7 @@ static void test_result_encoding()
 		a.val = 44;
 
 		char buf[1024];
-		EncodeStream e(buf, sizeof(buf), false);
+		MemoryStream e(buf, sizeof(buf), false);
 		a.encode(e);
 		e.reset_buf_pos();
 		Result<int, bool> b;

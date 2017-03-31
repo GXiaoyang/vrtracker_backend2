@@ -2,12 +2,12 @@
 #include "vr_applications_wrapper.h"
 #include "vr_tmp_vector.h"
 
-void ApplicationsIndexer::WriteToStream(EncodeStream &s) const
+void ApplicationsIndexer::WriteToStream(BaseStream &s) const
 {
 	m_string_indexer.WriteToStream(s);
 }
 
-void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
+void ApplicationsIndexer::ReadFromStream(BaseStream &s)
 {
 	m_string_indexer.ReadFromStream(s);
 }

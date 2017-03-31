@@ -1,6 +1,7 @@
 #include "schema_common.h"
 #include "slab_allocator.h"
 #include "segmented_list.h"
+#include "MemoryStream.h"
 #include <assert.h>
 #include <list>
 
@@ -86,7 +87,7 @@ void exercise_a_bool_timenode(a_bool_typenode_type &ref, const char *expected_na
 
 	// encode and decode to check that it seems to load ok
 	char buf[1024];
-	EncodeStream e(buf, sizeof(buf), false);
+	MemoryStream e(buf, sizeof(buf), false);
 	ref.encode(e);
 	a_bool_typenode_type decoded_a_bool;
 	e.reset_buf_pos();

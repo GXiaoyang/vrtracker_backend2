@@ -9,7 +9,7 @@ struct tracker_decode_visitor
 {
 	tracker_decode_visitor()
 	{}
-	EncodeStream *m_stream;
+	BaseStream *m_stream;
 	SerializableRegistry *registry;		// register objects by an id so they can be found for serialization and deserialization
 
 	//

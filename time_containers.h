@@ -35,15 +35,15 @@ struct time_indexed
 	void set_time_index(time_index_t t) { time_index = t; }
 
 	// write just the value out to the stream
-	void encode(EncodeStream &e) const
+	void encode(BaseStream &e) const
 	{
-		e.memcpy_out_to_stream(&time_index, sizeof(time_index));
+		e.write_to_stream(&time_index, sizeof(time_index));
 		value.encode(e);
 	}
 
-	void decode(EncodeStream &e) 
+	void decode(BaseStream &e) 
 	{
-		e.memcpy_from_stream(&time_index, sizeof(time_index));
+		e.read_from_stream(&time_index, sizeof(time_index));
 		value.decode(e);
 	}
 
@@ -154,11 +154,11 @@ template <typename T,
 	}
 
 	// write just the value out to the stream
-	void encode(EncodeStream &e) const 
+	void encode(BaseStream &e) const 
 	{
 		base::url_named::encode(e);
 		int size = container.size();
-		e.memcpy_out_to_stream(&size, sizeof(size)); // write the container size
+		e.write_to_stream(&size, sizeof(size)); // write the container size
 		
 		for (const auto &timeval: container)
 		{
@@ -167,13 +167,13 @@ template <typename T,
 	}
 
 	// read the value from the stream
-	void decode(EncodeStream &e) 
+	void decode(BaseStream &e) 
 	{
 		base::url_named::decode(e);
 
 		container.clear();
 		int size;
-		e.memcpy_from_stream(&size, sizeof(size));
+		e.read_from_stream(&size, sizeof(size));
 		assert(size >= 0);
 		container.reserve(size);
 		for (int i = 0; i < size; i++)

@@ -19,19 +19,19 @@ StringIndexer &StringIndexer::operator=(const StringIndexer &rhs)
 	return *this;
 }
 
-void StringIndexer::WriteToStream(EncodeStream &s) const
+void StringIndexer::WriteToStream(BaseStream &s) const
 {
 	int size = updated_size;
-	s.memcpy_out_to_stream(&size, sizeof(size));
+	s.write_to_stream(&size, sizeof(size));
 
 	write_vector_of_strings_to_stream(s, keys);
 	s.forward_container_out_to_stream(live_indexes);
 }
 
-void StringIndexer::ReadFromStream(EncodeStream &s)
+void StringIndexer::ReadFromStream(BaseStream &s)
 {
 	int size;
-	s.memcpy_from_stream(&size, sizeof(size));
+	s.read_from_stream(&size, sizeof(size));
 	updated_size = size;
 
 	keys.clear();

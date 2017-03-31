@@ -106,14 +106,14 @@ struct time_node<ResultType, ContainerType, false, Allocator> :
 		return time_indexed_vector<ResultType, ContainerType, Allocator>::get_url();
 	}
 
-	virtual void encode(EncodeStream &e) const override final
+	virtual void encode(BaseStream &e) const override final
 	{
 		encode_id(e);
 		time_indexed_vector<ResultType, ContainerType, Allocator>::encode(e);		
 	}
 
 	// read the value from the stream
-	virtual void decode(EncodeStream &e) override final
+	virtual void decode(BaseStream &e) override final
 	{
 		decode_id(e);
 		time_indexed_vector<ResultType, ContainerType, Allocator>::decode(e);
@@ -145,12 +145,12 @@ struct named_vector :	public std::vector<T, Allocator>,
 		return get_url();
 	}
 
-	virtual void encode(EncodeStream &e) const override final
+	virtual void encode(BaseStream &e) const override final
 	{
 		assert(0);	// todo - split the serialization into some hierarchy thing
 	}
 
-	virtual void decode(EncodeStream &e) override final
+	virtual void decode(BaseStream &e) override final
 	{
 		assert(0);	// todo - split the serialization into some hierarchy thing
 	}
@@ -159,22 +159,22 @@ struct named_vector :	public std::vector<T, Allocator>,
 	// and the vector size is put on the stream.
 	//
 	// the values are not put put on the stream here ... (the traversal does that)
-	//virtual void encode_size(EncodeStream &e) const override final
-	void encode_size(EncodeStream &e) const
+	//virtual void encode_size(BaseStream &e) const override final
+	void encode_size(BaseStream &e) const
 	{
 		encode_id(e);
 		base::url_named::encode(e);
 		int mysize = std::vector<T, Allocator>::size();
-		e.memcpy_out_to_stream(&mysize, sizeof(mysize));
+		e.write_to_stream(&mysize, sizeof(mysize));
 	}
 
-	//virtual void decode_size(EncodeStream &e) override final
-	void decode_size(EncodeStream &e)
+	//virtual void decode_size(BaseStream &e) override final
+	void decode_size(BaseStream &e)
 	{
 		decode_id(e);
 		base::url_named::decode(e);
 		int mysize;
-		e.memcpy_from_stream(&mysize, sizeof(mysize));
+		e.read_from_stream(&mysize, sizeof(mysize));
 		std::vector<T, Allocator>::resize(mysize);
 	}
 };

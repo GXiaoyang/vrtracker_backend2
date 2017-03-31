@@ -52,8 +52,8 @@ public:
 		return !(*this == rhs);
 	}
 
-	void WriteToStream(EncodeStream &s) const;
-	void ReadFromStream(EncodeStream &s);
+	void WriteToStream(BaseStream &s) const;
+	void ReadFromStream(BaseStream &s);
 
 	volatile int size()  { return updated_size; }
 

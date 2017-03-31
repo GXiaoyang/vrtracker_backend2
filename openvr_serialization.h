@@ -6,31 +6,31 @@
 #include <vector>
 
 template <typename T>
-static void encode(T v, EncodeStream &e);
+static void encode(T v, BaseStream &e);
 
 #define ENCODE(type_name) template <> \
-void encode<type_name>(type_name v, EncodeStream &e) { e.memcpy_out_to_stream(&v, sizeof(v)); }
+void encode<type_name>(type_name v, BaseStream &e) { e.write_to_stream(&v, sizeof(v)); }
 
 ENCODE(unsigned int);
 ENCODE(int);
 ENCODE(vr::VREvent_t);
 
 template <>
-void encode<const char *>(const char *v, EncodeStream &e)
+void encode<const char *>(const char *v, BaseStream &e)
 {
 	int size = size_as_int(strlen(v)) + 1;
 	encode(size, e);
-	e.memcpy_out_to_stream(v, size);
+	e.write_to_stream(v, size);
 }
 
 template <typename T>
-void decode(T &v, EncodeStream &e)
+void decode(T &v, BaseStream &e)
 {
-	e.memcpy_from_stream(&v, sizeof(v));
+	e.read_from_stream(&v, sizeof(v));
 }
 
 template <typename U>
-void decode(const char *&str, EncodeStream &e, U allocator)
+void decode(const char *&str, BaseStream &e, U allocator)
 {
 	// read the size of the string
 	int size;
@@ -39,18 +39,18 @@ void decode(const char *&str, EncodeStream &e, U allocator)
 	// make space for it
 	char *buf = allocator.allocate(size);
 	// read it into the string
-	e.memcpy_from_stream(buf, size);
+	e.read_from_stream(buf, size);
 	str = buf;
 }
 
 
-inline void decode(vr::HmdMatrix34_t &v, EncodeStream &e)
+inline void decode(vr::HmdMatrix34_t &v, BaseStream &e)
 {
-	e.memcpy_from_stream(&v, sizeof(v));
+	e.read_from_stream(&v, sizeof(v));
 }
 
 template <typename StringVectorType>
-inline void write_vector_of_strings_to_stream(EncodeStream &s, StringVectorType &v)
+inline void write_vector_of_strings_to_stream(BaseStream &s, StringVectorType &v)
 {
 	int count = size_as_int(v.size());
 	encode(count, s);
@@ -63,7 +63,7 @@ inline void write_vector_of_strings_to_stream(EncodeStream &s, StringVectorType 
 }
 
 template <typename StringVectorType>
-inline void read_vector_of_strings_from_stream(EncodeStream &s, StringVectorType &v)
+inline void read_vector_of_strings_from_stream(BaseStream &s, StringVectorType &v)
 {
 	int count;
 	decode(count, s);
@@ -77,7 +77,7 @@ inline void read_vector_of_strings_from_stream(EncodeStream &s, StringVectorType
 	}
 }
 
-inline void write_int_vector_to_stream(EncodeStream &s, const std::vector<int> &v)
+inline void write_int_vector_to_stream(BaseStream &s, const std::vector<int> &v)
 {
 	int count = size_as_int(v.size());
 	encode(count, s);
@@ -88,7 +88,7 @@ inline void write_int_vector_to_stream(EncodeStream &s, const std::vector<int> &
 	}
 }
 
-inline void read_int_vector_from_stream(EncodeStream &s, std::vector<int> &v)
+inline void read_int_vector_from_stream(BaseStream &s, std::vector<int> &v)
 {
 	int count;
 	decode(count, s);

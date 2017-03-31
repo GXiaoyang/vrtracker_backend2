@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "EncodeStream.h"
+#include "BaseStream.h"
 
 namespace base
 {
@@ -45,12 +45,12 @@ namespace base
 			return URL(child_name, m_full_path + "/" + child_name);
 		}
 
-		void encode(EncodeStream &stream) const
+		void encode(BaseStream &stream) const
 		{
 			stream.contiguous_container_out_to_stream(m_name);
 			stream.contiguous_container_out_to_stream(m_full_path);
 		}
-		void decode(EncodeStream &stream)
+		void decode(BaseStream &stream)
 		{
 			stream.contiguous_container_from_stream(m_name);
 			stream.contiguous_container_from_stream(m_full_path);
@@ -74,12 +74,12 @@ namespace base
 		const URL &get_url() const { return m_url; }
 
 		void set_url(const URL&url) { m_url = url; }
-		void encode(EncodeStream &e) const
+		void encode(BaseStream &e) const
 		{
 			m_url.encode(e);
 		}
 
-		void decode(EncodeStream &e)
+		void decode(BaseStream &e)
 		{
 			m_url.decode(e);
 		}

@@ -79,7 +79,7 @@ void PropertiesIndexer::AddCustomProperties(
 	AddCustomPropertiesArray(PROP_FLOAT, num_float_properties, float_names, float_values);
 }
 
-void PropertiesIndexer::WriteToStream(EncodeStream &s) const
+void PropertiesIndexer::WriteToStream(BaseStream &s) const
 {
 	for (int i = 0; i < NUM_PROP_TYPES; i++)
 	{
@@ -88,7 +88,7 @@ void PropertiesIndexer::WriteToStream(EncodeStream &s) const
 	}
 }
 
-void PropertiesIndexer::ReadFromStream(EncodeStream &s)
+void PropertiesIndexer::ReadFromStream(BaseStream &s)
 {
 	for (int setting_type = 0; setting_type < NUM_PROP_TYPES; setting_type++)
 	{

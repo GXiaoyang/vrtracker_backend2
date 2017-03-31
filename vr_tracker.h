@@ -18,15 +18,15 @@ struct save_summary
 	char start_date_string[64];
 	time_index_t last_encoded_frame;
 
-	void encode(EncodeStream &s) const
+	void encode(BaseStream &s) const
 	{
-		s.memcpy_out_to_stream(start_date_string, sizeof(start_date_string));
-		s.memcpy_out_to_stream(&last_encoded_frame, sizeof(last_encoded_frame));
+		s.write_to_stream(start_date_string, sizeof(start_date_string));
+		s.write_to_stream(&last_encoded_frame, sizeof(last_encoded_frame));
 	}
-	void decode(EncodeStream &s) 
+	void decode(BaseStream &s) 
 	{
-		s.memcpy_from_stream(start_date_string, sizeof(start_date_string));
-		s.memcpy_from_stream(&last_encoded_frame, sizeof(last_encoded_frame));
+		s.read_from_stream(start_date_string, sizeof(start_date_string));
+		s.read_from_stream(&last_encoded_frame, sizeof(last_encoded_frame));
 	}
 	bool operator ==(const save_summary &rhs) const
 	{

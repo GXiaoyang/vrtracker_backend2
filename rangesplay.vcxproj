@@ -160,10 +160,12 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseStream.h" />
     <ClInclude Include="base_serialization.h" />
     <ClInclude Include="crc_32.h" />
     <ClInclude Include="dynamic_bitset.hpp" />
-    <ClInclude Include="EncodeStream.h" />
+    <ClInclude Include="FileStream.h" />
+    <ClInclude Include="MemoryStream.h" />
     <ClInclude Include="tracker_decode_visitor.h" />
     <ClInclude Include="tracker_encode_visitor.h" />
     <ClInclude Include="log.h" />
@@ -255,6 +257,7 @@
     </ClCompile>
     <ClCompile Include="tracker_config.cpp" />
     <ClCompile Include="unit_tests\test_base_main.cpp" />
+    <ClCompile Include="unit_tests\test_base_stream.cpp" />
     <ClCompile Include="unit_tests\test_cursors.cpp" />
     <ClCompile Include="unit_tests\test_cursors_main.cpp" />
     <ClCompile Include="unit_tests\test_gui_usecase.cpp" />

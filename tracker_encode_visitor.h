@@ -9,7 +9,7 @@ struct tracker_encode_visitor
 {
 	tracker_encode_visitor()
 	{}
-	EncodeStream *m_stream;
+	BaseStream *m_stream;
 
 	//
 	// visit interfaces

@@ -9,7 +9,7 @@ void ResourcesIndexer::Init(const char **resource_filenames, const char **initia
 	}
 }
 
-void ResourcesIndexer::WriteToStream(EncodeStream &s) const
+void ResourcesIndexer::WriteToStream(BaseStream &s) const
 {
 	int x = 4;
 	encode(x, s);
@@ -17,7 +17,7 @@ void ResourcesIndexer::WriteToStream(EncodeStream &s) const
 	write_vector_of_strings_to_stream(s, m_resource_filenames);
 }
 
-void ResourcesIndexer::ReadFromStream(EncodeStream &s)
+void ResourcesIndexer::ReadFromStream(BaseStream &s)
 {
 	int x;
 	decode(x, s);

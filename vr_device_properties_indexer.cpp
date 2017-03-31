@@ -163,14 +163,14 @@ void DevicePropertiesIndexer::Init
 	);
 }
 
-void DevicePropertiesIndexer::WriteToStream(EncodeStream &s) const
+void DevicePropertiesIndexer::WriteToStream(BaseStream &s) const
 {
 	int x = 33;
 	encode(x, s);
 	PropertiesIndexer::WriteToStream(s);
 }
 
-void DevicePropertiesIndexer::ReadFromStream(EncodeStream &s)
+void DevicePropertiesIndexer::ReadFromStream(BaseStream &s)
 {
 	PropertiesIndexer::Init(
 		device_bool_properties_table, TBL_SIZE(device_bool_properties_table),

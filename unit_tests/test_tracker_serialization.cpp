@@ -31,10 +31,10 @@ void test_tracker_serialization()
 		log_printf("serializing empty context\n");
 		// no updates
 		tracker_test_context contexta;
-		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker0.bin");
+		u.save_tracker_to_binary_file(&contexta.get_tracker(), "c:\\temp\\tracker0.bin");
 
 		tracker_test_context contextb;
-		u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker0.bin");
+		u.load_tracker_from_binary_file(&contextb.get_tracker(), "c:\\temp\\tracker0.bin");
 		assert(contexta.get_tracker() == contextb.get_tracker());
 	}
 
@@ -44,11 +44,11 @@ void test_tracker_serialization()
 		// one update
 		tracker_test_context contexta;
 		u.update_tracker_parallel(&contexta.get_tracker(), &contexta.raw_vr_interfaces());
-		assert(u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker1.bin"));
+		assert(u.save_tracker_to_binary_file(&contexta.get_tracker(), "c:\\temp\\tracker1.bin"));
 		//contexta.get_tracker().m_state_registry.dump();
 		
 		tracker_test_context contextb;
-		assert(u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker1.bin"));
+		assert(u.load_tracker_from_binary_file(&contextb.get_tracker(), "c:\\temp\\tracker1.bin"));
 		assert(contexta.get_tracker() == contextb.get_tracker());
 	}
 	tracker_test_context::reset_globals();
@@ -61,11 +61,11 @@ void test_tracker_serialization()
 			u.update_tracker_parallel(&contexta.get_tracker(), &contexta.raw_vr_interfaces());
 		}
 		log_printf("writing\n");
-		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker10.bin");
+		u.save_tracker_to_binary_file(&contexta.get_tracker(), "c:\\temp\\tracker10.bin");
 
 		log_printf("reading\n");
 		tracker_test_context contextb;
-		u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker10.bin");
+		u.load_tracker_from_binary_file(&contextb.get_tracker(), "c:\\temp\\tracker10.bin");
 		assert(contexta.get_tracker() == contextb.get_tracker());
 	}
 	tracker_test_context::reset_globals();

@@ -65,8 +65,8 @@ public:
 			return custom_names[setting_type][index - default_property_table[setting_type].size].c_str();
 	}
 
-	void WriteToStream(EncodeStream &s) const;
-	void ReadFromStream(EncodeStream &s);
+	void WriteToStream(BaseStream &s) const;
+	void ReadFromStream(BaseStream &s);
 
 	bool operator==(const PropertiesIndexer &rhs) const
 	{

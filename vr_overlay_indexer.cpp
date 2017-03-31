@@ -11,12 +11,12 @@ void OverlayIndexer::Init(const char **initial_overlay_names, int num_names)
 	}
 }
 
-void OverlayIndexer::WriteToStream(EncodeStream &s) const
+void OverlayIndexer::WriteToStream(BaseStream &s) const
 {
 	m_string_indexer.WriteToStream(s);
 }
 
-void OverlayIndexer::ReadFromStream(EncodeStream &s)
+void OverlayIndexer::ReadFromStream(BaseStream &s)
 {
 	m_string_indexer.ReadFromStream(s);
 }

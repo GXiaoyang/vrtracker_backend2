@@ -1,3 +1,4 @@
+#include "MemoryStream.h"
 #include "time_containers.h"
 #include "segmented_list.h"
 #include "result.h"
@@ -71,7 +72,7 @@ void test_serialization()
 		a.set_time_index(11);
 
 		char buf[1024];
-		EncodeStream stream(buf, sizeof(buf), false);
+		MemoryStream stream(buf, sizeof(buf), false);
 
 		a.encode(stream);
 		stream.reset_buf_pos();

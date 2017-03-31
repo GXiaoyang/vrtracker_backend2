@@ -16,21 +16,21 @@ using VRTimestampVector = segmented_list<time_stamp_t, VR_LARGE_SEGMENT_SIZE, VR
 
 struct  VRBitset : public boost::dynamic_bitset<uint64_t, std::allocator<uint64_t>>
 {
-	void encode(EncodeStream &e) const
+	void encode(BaseStream &e) const
 	{
 		serialization_id num_bits;
 		num_bits = static_cast<serialization_id>(size());
-		e.memcpy_out_to_stream(&num_bits, sizeof(num_bits));
+		e.write_to_stream(&num_bits, sizeof(num_bits));
 
 		std::vector<uint64_t> tmp;
 		boost::to_block_range(*this, std::back_inserter(tmp));	// this will fill tmp with the bit vector
 		e.contiguous_container_out_to_stream(tmp);
 	}
 
-	void decode(EncodeStream &e)
+	void decode(BaseStream &e)
 	{
 		serialization_id num_bits;
-		e.memcpy_from_stream(&num_bits, sizeof(num_bits));
+		e.read_from_stream(&num_bits, sizeof(num_bits));
 		resize(num_bits); // resize container to be able to store whatever is in the vector
 
 		std::vector<uint64_t> tmp(num_bits);
@@ -42,14 +42,14 @@ struct  VRBitset : public boost::dynamic_bitset<uint64_t, std::allocator<uint64_
 // need to support encode to serialize it
 struct VREncodableEvent : vr::VREvent_t 
 {
-	void encode(EncodeStream &e) const
+	void encode(BaseStream &e) const
 	{
-		e.memcpy_out_to_stream(this, sizeof(vr::VREvent_t));
+		e.write_to_stream(this, sizeof(vr::VREvent_t));
 	}
 
-	void decode(EncodeStream &e)
+	void decode(BaseStream &e)
 	{
-		e.memcpy_from_stream(this, sizeof(vr::VREvent_t));
+		e.read_from_stream(this, sizeof(vr::VREvent_t));
 	}
 };
 
@@ -88,18 +88,18 @@ struct VRKeysUpdate
 	uint32_t iparam1;
 	std::string sparam1;
 	std::string sparam2;
-	void encode(EncodeStream &e) const
+	void encode(BaseStream &e) const
 	{
-		e.memcpy_out_to_stream(&update_type, sizeof(update_type));
-		e.memcpy_out_to_stream(&iparam1, sizeof(iparam1));
+		e.write_to_stream(&update_type, sizeof(update_type));
+		e.write_to_stream(&iparam1, sizeof(iparam1));
 		e.contiguous_container_out_to_stream(sparam1);
 		e.contiguous_container_out_to_stream(sparam2);
 	}
 
-	void decode(EncodeStream &e)
+	void decode(BaseStream &e)
 	{
-		e.memcpy_from_stream(&update_type, sizeof(update_type));
-		e.memcpy_from_stream(&iparam1, sizeof(iparam1));
+		e.read_from_stream(&update_type, sizeof(update_type));
+		e.read_from_stream(&iparam1, sizeof(iparam1));
 		e.contiguous_container_from_stream(sparam1);
 		e.contiguous_container_from_stream(sparam2);
 	}

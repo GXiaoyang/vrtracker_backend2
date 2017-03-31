@@ -126,9 +126,9 @@ struct vr_keys
 		m_data.farz = ffar;
 	}
 
-	void encode(EncodeStream &stream) const
+	void encode(BaseStream &stream) const
 	{
-		stream.memcpy_out_to_stream(&m_data, sizeof(m_data));
+		stream.write_to_stream(&m_data, sizeof(m_data));
 		m_overlay_indexer.WriteToStream(stream);
 		m_applications_indexer.WriteToStream(stream);
 		m_applications_properties_indexer.WriteToStream(stream);
@@ -137,9 +137,9 @@ struct vr_keys
 		m_settings_indexer.WriteToStream(stream);
 	}
 
-	void decode(EncodeStream &stream)
+	void decode(BaseStream &stream)
 	{
-		stream.memcpy_from_stream(&m_data, sizeof(m_data));
+		stream.read_from_stream(&m_data, sizeof(m_data));
 		m_overlay_indexer.ReadFromStream(stream);
 		m_applications_indexer.ReadFromStream(stream);
 		m_applications_properties_indexer.ReadFromStream(stream);

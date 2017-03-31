@@ -7,6 +7,6 @@ class ApplicationsPropertiesIndexer : public PropertiesIndexer
 {
 public:
 	void Init();
-	void WriteToStream(EncodeStream &s) const;
-	void ReadFromStream(EncodeStream &s);
+	void WriteToStream(BaseStream &s) const;
+	void ReadFromStream(BaseStream &s);
 };

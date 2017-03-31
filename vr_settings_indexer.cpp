@@ -442,7 +442,7 @@ void SettingsIndexer::Init(
 	}
 }
 
-void SettingsIndexer::WriteToStream(EncodeStream &s) const
+void SettingsIndexer::WriteToStream(BaseStream &s) const
 {
 	int x = 33;
 	encode(x, s);
@@ -453,7 +453,7 @@ void SettingsIndexer::WriteToStream(EncodeStream &s) const
 	}
 }
 
-void SettingsIndexer::ReadFromStream(EncodeStream &s)
+void SettingsIndexer::ReadFromStream(BaseStream &s)
 {
 	int x;
 	decode(x, s);

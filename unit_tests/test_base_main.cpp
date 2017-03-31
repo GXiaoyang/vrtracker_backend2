@@ -1,12 +1,14 @@
 #include "slab_allocator.h"
 #include "log.h"
 
+extern void test_base_stream();
 extern void TEST_SEGMENTED_LIST();
 extern void TEST_RESULT();
 extern void TEST_SLAB_ALLOCATOR();
 
 void test_base()
 {
+	test_base_stream();
 	TEST_RESULT();
 	TEST_SLAB_ALLOCATOR();
 	TEST_SEGMENTED_LIST();

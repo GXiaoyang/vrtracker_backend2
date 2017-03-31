@@ -12,6 +12,8 @@
 #include "tbb/task_group.h"
 #include "vr_tracker.h"
 #include "openvr_serialization.h"
+#include "MemoryStream.h"
+#include "FileStream.h"
 #include <fstream>
 #include <algorithm>
 
@@ -173,15 +175,15 @@ struct vr_tracker_traverse::impl
 	// so it can be restored on re-load
 	uint64_t calc_registry_id_table_size(vr_tracker *tracker)
 	{
-		EncodeStream count_stream(nullptr, 0, true);
+		MemoryStream count_stream(nullptr, 0, true);
 		encode_registry_table(count_stream, tracker);
 		return count_stream.buf_pos;
 	}
 
-	void encode_registry_table(EncodeStream &stream, vr_tracker *tracker)
+	void encode_registry_table(BaseStream &stream, vr_tracker *tracker)
 	{
 		int num_entries = tracker->m_state_registry.GetNumRegistered();
-		stream.memcpy_out_to_stream(&num_entries, sizeof(num_entries));
+		stream.write_to_stream(&num_entries, sizeof(num_entries));
 		for (int i = 0; i < num_entries; i++)
 		{
 			RegisteredSerializable *r = tracker->m_state_registry.registered[i];
@@ -189,10 +191,10 @@ struct vr_tracker_traverse::impl
 		}
 	}
 
-	void fixup_registry_ids(EncodeStream &e, vr_tracker *tracker)
+	void fixup_registry_ids(BaseStream &e, vr_tracker *tracker)
 	{
 		int num_entries;
-		e.memcpy_from_stream(&num_entries, sizeof(num_entries));
+		e.read_from_stream(&num_entries, sizeof(num_entries));
 		tracker_id_fixer_visitor visitor;
 		tracker->m_state_registry.clear();
 		tracker->m_state_registry.reserve(num_entries);
@@ -209,7 +211,7 @@ struct vr_tracker_traverse::impl
 	uint64_t calc_keys_size(vr_tracker *tracker)
 	{
 		// state size
-		EncodeStream count_stream(nullptr, 0, true);
+		MemoryStream count_stream(nullptr, 0, true);
 		tracker->m_keys.encode(count_stream);
 		return count_stream.buf_pos;
 	}
@@ -217,7 +219,7 @@ struct vr_tracker_traverse::impl
 	uint64_t calc_state_size(vr_tracker *tracker)
 	{
 		// state size
-		EncodeStream count_stream(nullptr, 0, true);
+		MemoryStream count_stream(nullptr, 0, true);
 		tracker_encode_visitor visitor;
 		visitor.m_stream = &count_stream;
 		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &null_wrappers);
@@ -226,28 +228,28 @@ struct vr_tracker_traverse::impl
 
 	uint64_t calc_vr_events_size(vr_tracker *tracker)
 	{
-		EncodeStream count_stream(nullptr, 0, true);
+		MemoryStream count_stream(nullptr, 0, true);
 		tracker->m_vr_events.encode(count_stream);
 		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_time_stamps_size(vr_tracker *tracker)
 	{
-		EncodeStream count_stream(nullptr, 0, true);
+		MemoryStream count_stream(nullptr, 0, true);
 		count_stream.forward_container_out_to_stream(tracker->m_time_stamps);
 		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_keys_updates_size(vr_tracker *tracker)
 	{
-		EncodeStream count_stream(nullptr, 0, true);
+		MemoryStream count_stream(nullptr, 0, true);
 		tracker->m_keys_updates.encode(count_stream);
 		return count_stream.buf_pos;
 	}
 
 	uint64_t calc_state_update_bits_size(vr_tracker *tracker)
 	{
-		EncodeStream count_stream(nullptr, 0, true);
+		MemoryStream count_stream(nullptr, 0, true);
 		tracker->m_state_update_bits.encode(count_stream);
 		return count_stream.buf_pos;
 	}
@@ -365,14 +367,14 @@ struct header_t
 	uint64_t state_update_bits_size;
 	uint64_t updates_offset;	// no size since it's streaming
 
-	void encode(EncodeStream &e) const
+	void encode(BaseStream &e) const
 	{
-		e.memcpy_out_to_stream(this, sizeof(*this));
+		e.write_to_stream(this, sizeof(*this));
 	}
 
-	void decode(EncodeStream &e) 
+	void decode(BaseStream &e) 
 	{
-		e.memcpy_from_stream(this, sizeof(*this));
+		e.read_from_stream(this, sizeof(*this));
 	}
 
 	bool verify()
@@ -437,52 +439,48 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 
 	// make sure the size fits in whatever size_t is
 	assert(size_t(header.updates_offset) == header.updates_offset);
-	char *big_buf = (char *)malloc(static_cast<size_t>(header.updates_offset));
-	if (big_buf)
+	FileStream f;
+	
+	if (f.open_file_for_write_plus(filename))
 	{
+		BaseStream &stream = f;
 		{
-			EncodeStream e(big_buf, sizeof(header), false);
-			header.encode(e);
+			header.encode(stream);
 		}
 		{
-			EncodeStream e(big_buf + header.summary_offset, header.summary_size, false);
-			tracker->m_save_summary.encode(e);
+			stream.set_pos(header.summary_offset);
+			tracker->m_save_summary.encode(stream);
 		}
 		{
-			EncodeStream e(big_buf + header.registry_offset, header.registry_size, false);
-			m_pimpl->encode_registry_table(e, tracker);
+			stream.set_pos(header.registry_offset);
+			m_pimpl->encode_registry_table(stream, tracker);
 		}
 		{
-			EncodeStream e(big_buf + header.keys_offset, header.keys_size, false);
-			tracker->m_keys.encode(e);
+			stream.set_pos(header.keys_offset);
+			tracker->m_keys.encode(stream);
 		}
 		{
-			EncodeStream e(big_buf + header.state_offset, header.state_size, false);
+			stream.set_pos(header.state_offset);
 			tracker_encode_visitor visitor;
-			visitor.m_stream = &e;
+			visitor.m_stream = &stream;
 			traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
 		}
 		{
-			EncodeStream e(big_buf + header.events_offset, header.events_size, false);
-			tracker->m_vr_events.encode(e);
+			stream.set_pos(header.events_offset);
+			tracker->m_vr_events.encode(stream);
 		}
 		{
-			EncodeStream e(big_buf + header.time_stamps_offset, header.time_stamps_size, false);
-			e.forward_container_out_to_stream(tracker->m_time_stamps);
+			stream.set_pos(header.time_stamps_offset);
+			stream.forward_container_out_to_stream(tracker->m_time_stamps);
 		}
 		{
-			EncodeStream e(big_buf + header.keys_updates_offset, header.keys_updates_size, false);
-			tracker->m_keys_updates.encode(e);
+			stream.set_pos(header.keys_updates_offset);
+			tracker->m_keys_updates.encode(stream);
 		}
 		{
-			EncodeStream e(big_buf + header.state_update_bits_offset, header.state_update_bits_size, false);
-			tracker->m_state_update_bits.encode(e);
+			stream.set_pos(header.state_update_bits_offset);
+			tracker->m_state_update_bits.encode(stream);
 		}
-		std::fstream fs;
-		fs.open(filename, std::fstream::out | std::fstream::binary);
-		fs.write(big_buf, static_cast<size_t>(header.updates_offset));
-		fs.close();
-		free(big_buf);
 	}
 	else
 	{
@@ -495,79 +493,65 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 bool vr_tracker_traverse::load_tracker_from_binary_file(vr_tracker *tracker, const char *filename)
 {
 	bool rc = true;
-	std::ifstream file(filename, std::ios::binary | std::ios::ate);
-	std::streamsize size = file.tellg();
-	if (size >= sizeof(header_t))
+
+	FileStream stream;
+	if (!stream.open_file_for_read(filename))
 	{
-		file.seekg(0, std::ios::beg);
-		assert(size_t(size) == size);
-		char *big_buf = (char *)malloc(static_cast<size_t>(size));
-		if (big_buf)
+		rc = false;
+	}
+	else
+	{
+		header_t header;
+		stream.set_pos(0);
+		header.decode(stream);
+		if (!header.verify()) // checks the magic value and the CRC
 		{
-			header_t header;
-			if (file.read(big_buf, size))
-			{
-				file.close();
-				EncodeStream e(big_buf, sizeof(header_t), false);
-				header.decode(e);
-				if (!header.verify()) // checks the magic value and the CRC
-				{
-					free(big_buf);
-					return false; // header is invalid
-				}
-				
-				{
-					EncodeStream e(big_buf + header.summary_offset, header.summary_size, false);
-					tracker->m_save_summary.decode(e);
-				}
-				{
-					EncodeStream e(big_buf + header.keys_offset, header.keys_size, false);
-					tracker->m_keys.decode(e);
-				}
-				{
-					EncodeStream e(big_buf + header.state_offset, header.state_size, false);
-					tracker_decode_visitor visitor;
-					visitor.m_stream = &e;
-					visitor.registry = &tracker->m_state_registry;
-					traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
-				}
-				{
-					EncodeStream e(big_buf + header.events_offset, header.events_size, false);
-					tracker->m_vr_events.decode(e);
-				}
-				{
-					EncodeStream e(big_buf + header.time_stamps_offset, header.time_stamps_size, false);
-					e.forward_container_from_stream(tracker->m_time_stamps);
-				}
-				{
-					EncodeStream e(big_buf + header.keys_updates_offset, header.keys_updates_size, false);
-					tracker->m_keys_updates.decode(e);
-				}
-				{
-					EncodeStream e(big_buf + header.state_update_bits_offset, header.state_update_bits_size, false);
-					tracker->m_state_update_bits.decode(e);
-				}
-
-				// fixup the registry
-				{
-					EncodeStream e(big_buf + header.registry_offset, header.registry_size, false);
-					m_pimpl->fixup_registry_ids(e, tracker);
-				}
-
-				// apply chunks here
-
-
-
-				free(big_buf);
-
-				// write derived values
-				tracker->m_last_updated_frame_number = tracker->m_save_summary.last_encoded_frame;
-			}
+			return false; // header is invalid
 		}
 		else
 		{
-			rc = false; // malloc failed
+			stream.set_pos(header.summary_offset);
+			tracker->m_save_summary.decode(stream);
 		}
+		{
+			stream.set_pos(header.keys_offset);
+			tracker->m_keys.decode(stream);
+		}
+		{
+			stream.set_pos(header.state_offset);
+			tracker_decode_visitor visitor;
+			visitor.m_stream = &stream;
+			visitor.registry = &tracker->m_state_registry;
+			traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
+		}
+		{
+			stream.set_pos(header.events_offset);
+			tracker->m_vr_events.decode(stream);
+		}
+		{
+			stream.set_pos(header.time_stamps_offset);
+			stream.forward_container_from_stream(tracker->m_time_stamps);
+		}
+		{
+			stream.set_pos(header.keys_updates_offset);
+			tracker->m_keys_updates.decode(stream);
+		}
+		{
+			stream.set_pos(header.state_update_bits_offset);
+			tracker->m_state_update_bits.decode(stream);
+		}
+
+		// fixup the registry
+		{
+			stream.set_pos(header.registry_offset);
+			m_pimpl->fixup_registry_ids(stream, tracker);
+		}
+
+		// apply chunks here
+
+		// write derived values
+		tracker->m_last_updated_frame_number = tracker->m_save_summary.last_encoded_frame;
+		rc = true;
 	}
 	return rc;
 }
