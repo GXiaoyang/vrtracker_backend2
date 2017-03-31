@@ -19,6 +19,9 @@ public:
 		updated_size = 0;
 	}
 
+	StringIndexer(const StringIndexer &rhs);
+	StringIndexer &operator=(const StringIndexer &rhs);
+
 	bool operator == (const StringIndexer &rhs) const
 	{
 		if (this == &rhs)

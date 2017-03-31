@@ -24,7 +24,6 @@ struct CursorContext
 	vr_result::vr_state    *get_state()     { return m_state; }
 	vr_keys* get_keys() { return m_keys; }
 
-
 	bool PollNextEvent(struct vr::VREvent_t * pEvent);
 
 private:

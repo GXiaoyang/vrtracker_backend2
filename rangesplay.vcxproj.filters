@@ -452,5 +452,8 @@
     <ClCompile Include="base_serialization.cpp">
       <Filter>Source Files\1 base</Filter>
     </ClCompile>
+    <ClCompile Include="unit_tests\test_tracker_class.cpp">
+      <Filter>Source Files\4 tracker test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

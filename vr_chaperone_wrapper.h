@@ -33,7 +33,6 @@ namespace vr_result
 			return result;
 		}
 
-
 		inline void GetBoundsColor(
 			TMPHMDColorString<>* colors,
 			int num_output_colors,
@@ -46,10 +45,6 @@ namespace vr_result
 			colors->val.resize(num_output_colors);
 		}
 
-
 		IVRChaperone *chapi;
 	};
-
-
-	
 }

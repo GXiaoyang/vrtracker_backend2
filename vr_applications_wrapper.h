@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "vr_types.h"
 #include "vr_wrappers_common.h"
 

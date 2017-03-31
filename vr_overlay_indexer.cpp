@@ -21,7 +21,6 @@ void OverlayIndexer::ReadFromStream(EncodeStream &s)
 	m_string_indexer.ReadFromStream(s);
 }
 
-
 void OverlayIndexer::update_presence(vr_result::OverlayWrapper *ow)
 {
 	live_indexes_tmp.clear();

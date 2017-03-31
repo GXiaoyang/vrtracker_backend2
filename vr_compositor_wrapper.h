@@ -90,5 +90,4 @@ namespace vr_result
 
 		IVRCompositor *compi;
 	};
-	
 }

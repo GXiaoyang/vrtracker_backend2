@@ -47,7 +47,6 @@ struct tracker_encode_visitor
 	{
 		assert(0);
 	}
-
 };
 
 

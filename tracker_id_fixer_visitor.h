@@ -63,7 +63,6 @@ struct tracker_id_fixer_visitor
 	{
 		assert(0);
 	}
-
 };
 
 

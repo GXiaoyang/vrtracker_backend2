@@ -1,5 +1,24 @@
 #include "vr_string_indexer.h"
 
+
+StringIndexer::StringIndexer(const StringIndexer &rhs)
+	:
+	keys(rhs.keys),
+	keys2index(rhs.keys2index),
+	live_indexes(rhs.live_indexes)
+{
+	updated_size = keys.size();
+}
+
+StringIndexer &StringIndexer::operator=(const StringIndexer &rhs)
+{
+	keys = rhs.keys;
+	keys2index = rhs.keys2index;
+	live_indexes = rhs.live_indexes;
+	updated_size = keys.size();
+	return *this;
+}
+
 void StringIndexer::WriteToStream(EncodeStream &s) const
 {
 	int size = updated_size;
@@ -8,7 +27,6 @@ void StringIndexer::WriteToStream(EncodeStream &s) const
 	write_vector_of_strings_to_stream(s, keys);
 	s.forward_container_out_to_stream(live_indexes);
 }
-
 
 void StringIndexer::ReadFromStream(EncodeStream &s)
 {

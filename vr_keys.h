@@ -24,7 +24,6 @@
 //          the frame id.
 //
 
-
 struct vr_keys
 {
 	vr_keys()
@@ -32,7 +31,18 @@ struct vr_keys
 		memset(&m_data, 0, sizeof(m_data));
 	}
 
-	vr_keys(const vr_keys &) = delete;
+	vr_keys(const vr_keys &rhs)
+		:
+		m_data(rhs.m_data),
+		m_overlay_indexer(rhs.m_overlay_indexer),
+		m_applications_indexer(rhs.m_applications_indexer),
+		m_applications_properties_indexer(rhs.m_applications_properties_indexer),
+		m_resources_indexer(rhs.m_resources_indexer),
+		m_settings_indexer(rhs.m_settings_indexer),
+		m_device_properties_indexer(rhs.m_device_properties_indexer),
+		m_mime_types_indexer(rhs.m_mime_types_indexer)
+	{
+	}
 
 	bool operator == (const vr_keys &rhs) const
 	{
@@ -149,7 +159,7 @@ struct vr_keys
 	uint32_t GetFrameTimingsNumFrames() const { return m_data.frame_timings_num_frames; }
 
 private:
-	struct {
+	struct KeyData {
 		float nearz;
 		float farz;
 		int distortion_sample_width;

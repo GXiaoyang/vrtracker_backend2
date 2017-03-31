@@ -6,33 +6,6 @@
 
 using namespace vr;
 
-bool operator ==(const vr_tracker &a, const vr_tracker &b)
-{
-	if (&a == &b)
-		return true;
-	if (a.m_save_summary != b.m_save_summary)
-		return false;
-	if (a.m_state_registry != b.m_state_registry)
-		return false;
-	if (a.get_last_updated_frame() != b.get_last_updated_frame())
-		return false;
-	if (a.m_keys != b.m_keys)
-		return false;
-	if (a.m_time_stamps != b.m_time_stamps)
-		return false;
-	if (a.m_keys_updates != b.m_keys_updates)
-		return false;
-	if (a.m_state_update_bits != b.m_state_update_bits)
-		return false;
-
-	return true;
-}
-
-bool operator !=(const vr_tracker &a, const vr_tracker &b)
-{
-	return !(a == b);
-}
-
 void test_tracker_serialization()
 {
 	using namespace vr;
@@ -43,7 +16,6 @@ void test_tracker_serialization()
 	tracker_test_context::reset_globals();
 
 	vr_tracker_traverse u;
-	
 	{
 		tracker_test_context contexta;
 		assert(contexta.get_tracker() == contexta.get_tracker());

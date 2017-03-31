@@ -105,8 +105,6 @@ struct WrapperSet
 	ResourcesWrapper		*resources_wrapper;
 };
 
-
-
 template <typename TaskGroup, typename visitor_fn>
 static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state, WrapperSet *wrappers)
 {
@@ -115,7 +113,6 @@ static void traverse_history_graph(visitor_fn *visitor, vr_tracker *outer_state,
 
 	TaskGroup g;
 	
-
 	g.run("visit_system_node",
 		[&visitor, s, wrappers, keys, &g] {
 		visit_system_node(visitor, &s->system_node, wrappers->system_wrapper, wrappers->rendermodel_wrapper, keys, g);
@@ -172,10 +169,6 @@ struct vr_tracker_traverse::impl
 {
 	WrapperSet null_wrappers;
 
-	impl()
-	{
-	}
-
 	// since the objects are not constructed in a deterministic order, we need to save it
 	// so it can be restored on re-load
 	uint64_t calc_registry_id_table_size(vr_tracker *tracker)
@@ -212,7 +205,6 @@ struct vr_tracker_traverse::impl
 		}
 		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &null_wrappers);
 	}
-
 
 	uint64_t calc_keys_size(vr_tracker *tracker)
 	{
@@ -259,8 +251,6 @@ struct vr_tracker_traverse::impl
 		tracker->m_state_update_bits.encode(count_stream);
 		return count_stream.buf_pos;
 	}
-	
-
 };
 
 vr_tracker_traverse::vr_tracker_traverse()
@@ -324,7 +314,7 @@ void vr_tracker_traverse::update_tracker_parallel(vr_tracker *tracker, openvr_br
 	
 	// after update, log the frame_time
 	using us = std::chrono::duration<int64_t, std::micro>;
-	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - tracker->start);
+	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - tracker->m_start);
 	tracker->m_time_stamps.push_back(frame_time.count());
 
 	// after update, finally update m_last_updated_frame_number
@@ -419,33 +409,6 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	header.registry_size = m_pimpl->calc_registry_id_table_size(tracker);
 	header.keys_size		 = m_pimpl->calc_keys_size(tracker);
 	header.state_size		 = m_pimpl->calc_state_size(tracker);
-	uint64_t count_again0 = m_pimpl->calc_state_size(tracker);
-
-	if (count_again0 != header.state_size)
-	{
-		size_t buf_size = std::max(count_again0, header.state_size) + 4096;
-		char *debuga = (char *)malloc(buf_size);
-
-		EncodeStream a(debuga, buf_size, false);
-		tracker_encode_visitor visitor;
-		visitor.m_stream = &a;
-
-		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
-		FILE *pf = fopen("one.bin", "wb");
-		fwrite(debuga, 1, a.buf_pos, pf);
-		fclose(pf);
-
-		a.reset_buf_pos();
-		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
-		pf = fopen("two.bin", "wb");
-		fwrite(debuga, 1, a.buf_pos, pf);
-		fclose(pf);
-		free(debuga);
-	}
-
-	uint64_t count_again1 = m_pimpl->calc_state_size(tracker);
-	assert(count_again0 == header.state_size);
-	assert(count_again1 == header.state_size);
 	header.events_size		 = m_pimpl->calc_vr_events_size(tracker);
 	header.time_stamps_size	 = m_pimpl->calc_time_stamps_size(tracker);
 	header.keys_updates_size = m_pimpl->calc_keys_updates_size(tracker);
@@ -460,10 +423,6 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	header.keys_updates_offset      = header.time_stamps_offset + pad_size(header.time_stamps_size);
 	header.state_update_bits_offset = header.keys_updates_offset + pad_size(header.keys_updates_size);
 	header.updates_offset           = header.state_update_bits_offset + pad_size(header.state_update_bits_size);
-	printf("summary offset %lld\n", header.summary_offset);
-	printf("registry offset %lld\n", header.registry_offset);
-	printf("keys offset %lld\n", header.keys_offset);
-	printf("state offset  %lld\n", header.state_offset);
 
 	std::time_t start = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 #ifdef _WIN32

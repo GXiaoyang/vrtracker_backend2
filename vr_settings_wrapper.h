@@ -37,7 +37,4 @@ namespace vr_result
 
 		IVRSettings *setti;
 	};
-
-
-	
 }

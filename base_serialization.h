@@ -53,8 +53,8 @@ class SerializableRegistry
 {
 public:
 	SerializableRegistry() {}
-	SerializableRegistry(const SerializableRegistry&) = delete;
-	SerializableRegistry &operator=(const SerializableRegistry&) = delete;
+	SerializableRegistry(const SerializableRegistry&);
+	SerializableRegistry &operator=(const SerializableRegistry&);
 
 	bool operator==(const SerializableRegistry&) const;
 	bool operator!=(const SerializableRegistry& rhs) const

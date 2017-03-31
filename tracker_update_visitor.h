@@ -18,10 +18,8 @@ public:
 																// log any new spawned objects during this update
 																 // first: the parent serialization_id
 																 // second: the name of the child
-
 	tbb::spin_mutex updated_node_lock;
 	VRBitset updated_node_bits;
-
 public:
 
 	tracker_update_visitor(time_index_t t)

@@ -7,7 +7,6 @@ void ApplicationsIndexer::WriteToStream(EncodeStream &s) const
 	m_string_indexer.WriteToStream(s);
 }
 
-
 void ApplicationsIndexer::ReadFromStream(EncodeStream &s)
 {
 	m_string_indexer.ReadFromStream(s);

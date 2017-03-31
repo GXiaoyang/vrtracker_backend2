@@ -100,41 +100,4 @@ namespace vr_result
 			result->val.resize(count);
 		}
 	}
-
-
-#if 0
-
-	template<typename T, typename InterfaceHandle, typename FunctionPtr, typename ...Params>
-	inline void query_vector_zero_means_not_present(vector_result<T, bool> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
-	{
-		result->count = (ifh->*function_ptr)(params..., result->s.buf(), result->s.max_count());
-		result->result_code = result->count != 0;
-		assert(result->count < (int)result->s.max_count());
-	}
-
-
-
-	//
-
-
-
-	// returns void and takes no params ... guaranteed to work
-	// virtual void GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow,
-	// VR_ARRAY_COUNT(unTrackedDevicePoseArrayCount) TrackedDevicePose_t *pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount) = 0;
-	template<typename T, typename InterfaceHandle, typename FunctionPtr, typename ...Params>
-	void query_vector_rcvoid(vector_result<T> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
-	{
-		(ifh->*function_ptr)(params..., result->s.buf(), result->s.max_count());
-		result->count = (int)strlen(result->s.buf()) + 1; // gross because it's assuming char  and I want a null byte
-	}
-
-	// scalar query
-	// virtual EVROverlayError GetOverlaySortOrder(VROverlayHandle_t ulOverlayHandle, uint32_t *punSortOrder) = 0;
-	template<typename T, typename ResultType, typename InterfaceHandle, typename FunctionPtr, typename ...Params>
-	void query_scalar_rcerror(scalar_result<T, ResultType> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
-	{
-		result->result_code = (ifh->*function_ptr)(params..., &result->val);
-	}
-#endif
-
 }

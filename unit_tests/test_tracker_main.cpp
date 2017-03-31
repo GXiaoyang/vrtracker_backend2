@@ -2,11 +2,12 @@
 
 #include "log.h"
 
+extern void test_tracker_class();
 extern void GUI_USE_CASE_TEST();
-
 
 void test_tracker()
 {
+	test_tracker_class();
 	GUI_USE_CASE_TEST();
 }
 

@@ -51,6 +51,8 @@ struct SimpleAllocator {
 	typedef T value_type;
 	SimpleHeap *m_heap;
 
+	using propagate_on_container_swap = std::true_type;
+
 	SimpleAllocator(SimpleHeap *h = &default_heap)
 		: m_heap(h)
 	{}
@@ -623,7 +625,6 @@ void compare_against_ref()
 			assert(a == b);
 			iter1++;
 			iter2++;
-
 		}
 
 		assert(std::equal(segmented_copyconstruct.begin(), segmented_copyconstruct.end(), ref_list.begin()));

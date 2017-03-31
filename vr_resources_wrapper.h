@@ -46,7 +46,6 @@ namespace vr_result
 				free(data);
 			}
 		}
-
 		IVRResources *resi;
 	};
 }

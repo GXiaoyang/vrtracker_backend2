@@ -26,7 +26,6 @@ namespace vr_result
 			edi->GetEyeOutputViewport(eye, &ret.val.u[0], &ret.val.u[1], &ret.val.u[2], &ret.val.u[3]);
 			return ret;
 		}
-
 		IVRExtendedDisplay *edi;
 	};	
 }

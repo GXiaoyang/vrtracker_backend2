@@ -70,14 +70,6 @@ struct SystemWrapper
 	}
 
 	SCALAR_WRAP(IVRSystem, sysi, IsInputFocusCapturedByAnotherProcess);
-	// c++14
-#if 0
-	auto IsInputFocusCapturedByAnotherProcess() 
-	{
-		return make_result(sysi->IsInputFocusCapturedByAnotherProcess());
-	}
-#endif
-	
 	SCALAR_WRAP(IVRSystem, sysi, GetSeatedZeroPoseToStandingAbsoluteTrackingPose);
 	SCALAR_WRAP(IVRSystem, sysi, GetRawZeroPoseToStandingAbsoluteTrackingPose);
 
@@ -240,5 +232,4 @@ struct SystemWrapper
 		query_vector_rccount(result, sysi, &IVRSystem::GetStringTrackedDeviceProperty, unDeviceIndex, prop);
 	}
 };
-
 }

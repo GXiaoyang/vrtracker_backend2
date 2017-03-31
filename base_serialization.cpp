@@ -1,6 +1,25 @@
 ﻿#include "base_serialization.h"
 #include <iostream>
 
+
+SerializableRegistry::SerializableRegistry(const SerializableRegistry &rhs)
+	: 
+#ifdef _DEBUG
+	map(rhs.map),
+#endif
+	registered(rhs.registered)
+{
+}
+
+SerializableRegistry &SerializableRegistry::operator=(const SerializableRegistry& rhs)
+{
+#ifdef _DEBUG
+	map = rhs.map;
+#endif
+	registered = rhs.registered;
+	return *this;
+}
+
 bool SerializableRegistry::operator==(const SerializableRegistry &rhs) const
 {
 	if (this == &rhs)

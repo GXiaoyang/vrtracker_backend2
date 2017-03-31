@@ -133,5 +133,4 @@ namespace vr_result
 
 		IVRRenderModels *remi;
 	};
-
 }

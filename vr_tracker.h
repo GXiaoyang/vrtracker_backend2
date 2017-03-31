@@ -57,8 +57,8 @@ public:
 	SerializableRegistry m_state_registry;  
 
 	// only used to base timestamps at zero. so only used when generating deltas (and not after reload)
-	std::chrono::time_point<std::chrono::steady_clock> start;	
-
+	std::chrono::time_point<std::chrono::steady_clock> m_start;	
+	
 	//
 	// data that is saved
 	// 
@@ -97,6 +97,62 @@ public:
 	{
 	}
 
-	vr_tracker(const vr_tracker &rhs) = delete;
-	vr_tracker &operator =(const vr_tracker &rhs) = delete;
+
+	vr_tracker(const vr_tracker &rhs)
+		: 
+			m_last_updated_frame_number(rhs.m_last_updated_frame_number),
+			m_state_registry(rhs.m_state_registry),
+			m_start(rhs.m_start),
+			m_save_summary(rhs.m_save_summary),
+			m_keys(rhs.m_keys),
+			m_state(rhs.m_state),
+			m_vr_events(rhs.m_vr_events),
+			m_time_stamps(rhs.m_time_stamps),
+			m_keys_updates(rhs.m_keys_updates),
+			m_state_update_bits(rhs.m_state_update_bits)
+	{}
+
+	vr_tracker &operator =(const vr_tracker &rhs)
+	{
+		m_last_updated_frame_number = rhs.m_last_updated_frame_number;
+		m_state_registry = rhs.m_state_registry;
+		m_start = rhs.m_start;
+		m_save_summary = rhs.m_save_summary;
+		m_keys = rhs.m_keys;
+		m_state = rhs.m_state;
+		m_vr_events = rhs.m_vr_events;
+		m_time_stamps = rhs.m_time_stamps;
+		m_keys_updates = rhs.m_keys_updates;
+		m_state_update_bits = rhs.m_state_update_bits;
+		return *this;
+	}
+		
+
 };
+
+inline bool operator ==(const vr_tracker &a, const vr_tracker &b)
+{
+	if (&a == &b)
+		return true;
+	if (a.m_save_summary != b.m_save_summary)
+		return false;
+	if (a.m_state_registry != b.m_state_registry)
+		return false;
+	if (a.get_last_updated_frame() != b.get_last_updated_frame())
+		return false;
+	if (a.m_keys != b.m_keys)
+		return false;
+	if (a.m_time_stamps != b.m_time_stamps)
+		return false;
+	if (a.m_keys_updates != b.m_keys_updates)
+		return false;
+	if (a.m_state_update_bits != b.m_state_update_bits)
+		return false;
+
+	return true;
+}
+
+inline bool operator !=(const vr_tracker &a, const vr_tracker &b)
+{
+	return !(a == b);
+}
