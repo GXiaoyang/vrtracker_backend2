@@ -9,8 +9,8 @@ extern void test_tracker_serialization();
 
 void test_traverse()
 {
-	UPDATE_USE_CASE();
 	test_tracker_serialization();
+	UPDATE_USE_CASE();
 }
 
 #ifdef TEST_TRAVERSE_MAIN

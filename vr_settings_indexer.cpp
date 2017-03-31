@@ -255,7 +255,7 @@ const struct section_def_t
 	},
 	{
 		vr::k_pch_Null_Section,
-		nullptr,0,
+		nullptr, 0,
 		TBL(nullsection_stri_settings_ary),
 		TBL(nullsection_floa_settings_ary),
 		TBL(nullsection_int32_settings_ary)

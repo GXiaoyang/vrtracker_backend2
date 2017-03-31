@@ -12,7 +12,7 @@ struct vr_tracker;
 
 struct CursorContext
 {
-	CursorContext(vr_tracker *);
+	explicit CursorContext(vr_tracker *);
 
 	// if new frame > then the greatest processed frame, the greatest processed
 	// frame is used

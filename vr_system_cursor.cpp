@@ -67,7 +67,7 @@ struct vr::HmdMatrix44_t VRSystemCursor::GetProjectionMatrix(vr::EVREye eEye, fl
 {
 	LOG_ENTRY("CppStubGetProjectionMatrix");
 
-	CURSOR_SYNC_STATE(proj, eyes[int(eEye)].projection);
+	CURSOR_SYNC_STATE(proj, eyes[static_cast<int>(eEye)].projection);
 
 	LOG_EXIT_RC(proj->val, "CppStubGetProjectionMatrix");
 }
@@ -76,7 +76,7 @@ void VRSystemCursor::GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * p
 {
 	LOG_ENTRY("CppStubGetProjectionRaw");
 
-	CURSOR_SYNC_STATE(v4, eyes[int(eEye)].projection_raw);
+	CURSOR_SYNC_STATE(v4, eyes[static_cast<int>(eEye)].projection_raw);
 
 	*pfLeft = v4->val.v[0];
 	*pfRight = v4->val.v[1];
@@ -89,10 +89,9 @@ void VRSystemCursor::GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * p
 bool VRSystemCursor::ComputeDistortion(vr::EVREye eEye, float fU, float fV, struct vr::DistortionCoordinates_t * pDistortionCoordinates)
 {
 	LOG_ENTRY("CppStubComputeDistortion");
-	CURSOR_SYNC_STATE(distortion, eyes[int(eEye)].distortion);
+	CURSOR_SYNC_STATE(distortion, eyes[static_cast<int>(eEye)].distortion);
 	if (distortion->is_present() && pDistortionCoordinates)
 	{
-
 		int sample_width = m_context->get_keys()->GetDistortionSampleWidth();
 		int sample_height = m_context->get_keys()->GetDistortionSampleHeight();
 		int offset_x = CLAMP(0, sample_width - 1, (int)(fU * sample_width));
@@ -107,7 +106,7 @@ bool VRSystemCursor::ComputeDistortion(vr::EVREye eEye, float fU, float fV, stru
 struct vr::HmdMatrix34_t VRSystemCursor::GetEyeToHeadTransform(vr::EVREye eEye)
 {
 	LOG_ENTRY("CppStubGetEyeToHeadTransform");
-	CURSOR_SYNC_STATE(tx, eyes[int(eEye)].eye2head);
+	CURSOR_SYNC_STATE(tx, eyes[static_cast<int>(eEye)].eye2head);
 	LOG_EXIT_RC(tx->val, "CppStubGetEyeToHeadTransform");
 }
 
@@ -585,8 +584,8 @@ struct vr::HiddenAreaMesh_t VRSystemCursor::GetHiddenAreaMesh(vr::EVREye eEye, v
 {
 	LOG_ENTRY("CppStubGetHiddenAreaMesh");
 
-	CURSOR_SYNC_STATE(vertices, eyes[int(eEye)].hidden_meshes[(int)type].hidden_mesh_vertices);
-	CURSOR_SYNC_STATE(triangle_count, eyes[int(eEye)].hidden_meshes[(int)type].hidden_mesh_triangle_count);
+	CURSOR_SYNC_STATE(vertices, eyes[static_cast<int>(eEye)].hidden_meshes[(int)type].hidden_mesh_vertices);
+	CURSOR_SYNC_STATE(triangle_count, eyes[static_cast<int>(eEye)].hidden_meshes[(int)type].hidden_mesh_triangle_count);
 
 	vr::HiddenAreaMesh_t ret;
 	ret.pVertexData = &vertices->val[0];

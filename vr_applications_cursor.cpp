@@ -87,7 +87,7 @@ uint32_t VRApplicationsCursor::GetApplicationCount()
 }
 
 template <typename T>
-vr::EVRApplicationError return_app_key(T &app_key, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
+vr::EVRApplicationError return_app_key(const T &app_key, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
 {
 	vr::EVRApplicationError rc;
 	if (app_key->is_present())

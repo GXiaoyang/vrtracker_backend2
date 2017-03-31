@@ -19,7 +19,7 @@
 
 struct VRCursor::VRCursorImpl
 {
-	VRCursorImpl(vr_tracker *tracker)
+	explicit VRCursorImpl(vr_tracker *tracker)
 		:
 		m_context(tracker),
 		m_system_cursor(&m_context),

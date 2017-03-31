@@ -41,7 +41,7 @@ void PropertiesIndexer::HashDefaultRows(PropertySettingType setting_type)
 
 	for (int i = 0; i < default_property_table[setting_type].size; i++)
 	{
-		enum2index[setting_type].insert({ (int)default_property_table[setting_type].rows[i].enum_val, i });
+		enum2index[setting_type].insert({ static_cast<int>(default_property_table[setting_type].rows[i].enum_val), i });
 	}
 }
 
@@ -102,7 +102,7 @@ void PropertiesIndexer::ReadFromStream(EncodeStream &s)
 		for (int i = 0; i < size_as_int(custom_enum_values[setting_type].size()); i++)
 		{
 			int index = enum2index[setting_type].size();
-			enum2index[setting_type].insert({ (int)custom_enum_values[setting_type][i], index });
+			enum2index[setting_type].insert({ static_cast<int>(custom_enum_values[setting_type][i]), index });
 		}
 	}
 }

@@ -10,6 +10,11 @@
 
 struct save_summary
 {
+	save_summary()
+	{
+		memset(&start_date_string, 0, sizeof(start_date_string));
+		last_encoded_frame = -1; 
+	}
 	char start_date_string[64];
 	time_index_t last_encoded_frame;
 

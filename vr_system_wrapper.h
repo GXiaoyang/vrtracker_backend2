@@ -12,7 +12,7 @@ struct SystemWrapper
 {
 	IVRSystem *sysi;
 
-	SystemWrapper(IVRSystem *sysi_in)
+	explicit SystemWrapper(IVRSystem *sysi_in)
 		: sysi(sysi_in)
 	{}
 

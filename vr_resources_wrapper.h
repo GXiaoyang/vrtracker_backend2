@@ -10,7 +10,7 @@ namespace vr_result
 
 	struct ResourcesWrapper
 	{
-		ResourcesWrapper(IVRResources *resi_in)
+		explicit ResourcesWrapper(IVRResources *resi_in)
 			: resi(resi_in)
 		{}
 

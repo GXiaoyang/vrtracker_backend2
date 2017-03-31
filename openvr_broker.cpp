@@ -34,7 +34,7 @@ bool openvr_broker::acquire_interfaces(const char *interface_type,
 	}
 	else
 	{
-		snprintf(s_error_message, sizeof(s_error_message), "broker error unrecognized interface type %s",interface_type);
+		snprintf(s_error_message, sizeof(s_error_message), "broker error unrecognized interface type %s", interface_type);
 		*error_message = s_error_message;
 		return false;
 	}
@@ -44,7 +44,7 @@ template <size_t count>
 void strcpy_safe(char(&s)[count], const char* pSrc)
 {
 #pragma warning(push)
-#pragma warning( disable : 4996)
+#pragma warning(disable : 4996)
 	strncpy(s, pSrc, count);
 #pragma warning(pop)
 	// Ensure null-termination.
@@ -85,7 +85,7 @@ static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces
 	interfaces->exdi = vr::VRExtendedDisplay();
 	interfaces->taci = vr::VRTrackedCamera();
 	interfaces->screeni = vr::VRScreenshots();
-	interfaces->noti = nullptr; // from openvr.h: This current interface is not yet implemented. Do not use yet.
+	interfaces->noti = nullptr;  // from openvr.h: This current interface is not yet implemented. Do not use yet.
 	interfaces->resi = vr::VRResources();
 	return true;
 }
@@ -113,7 +113,7 @@ static bool acquire_null_interfaces(openvr_broker::open_vr_interfaces *interface
 	interfaces->exdi =		nullptr;
 	interfaces->taci =		nullptr;
 	interfaces->screeni = nullptr;
-	interfaces->noti = nullptr; // from openvr.h: This current interface is not yet implemented. Do not use yet.
+	interfaces->noti = nullptr;  // from openvr.h: This current interface is not yet implemented. Do not use yet.
 	interfaces->resi = nullptr;
 	return true;
 }
@@ -132,7 +132,7 @@ static bool acquire_stub_interfaces(openvr_broker::open_vr_interfaces *interface
 	interfaces->exdi = nullptr;
 	interfaces->taci = nullptr;
 	interfaces->screeni = nullptr;
-	interfaces->noti = nullptr; // from openvr.h: This current interface is not yet implemented. Do not use yet.
+	interfaces->noti = nullptr;  // from openvr.h: This current interface is not yet implemented. Do not use yet.
 	interfaces->resi = nullptr;
 	return true;
 }

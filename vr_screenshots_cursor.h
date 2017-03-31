@@ -4,5 +4,5 @@ struct CursorContext;
 
 struct VRScreenshotsCursor : public VRScreenshotsCppStub
 {
-	VRScreenshotsCursor(CursorContext *context) {}
+	explicit VRScreenshotsCursor(CursorContext *context) {}
 };

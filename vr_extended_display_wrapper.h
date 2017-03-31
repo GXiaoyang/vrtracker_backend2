@@ -9,7 +9,7 @@ namespace vr_result
 
 	struct ExtendedDisplayWrapper
 	{
-		ExtendedDisplayWrapper(IVRExtendedDisplay *edi_in)
+		explicit ExtendedDisplayWrapper(IVRExtendedDisplay *edi_in)
 			: edi(edi_in)
 		{}
 

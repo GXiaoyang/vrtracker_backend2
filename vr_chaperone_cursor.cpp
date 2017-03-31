@@ -75,7 +75,7 @@ void VRChaperoneCursor::GetBoundsColor(struct vr::HmdColor_t * pOutputColorArray
 		}
 		else
 		{
-			int elements_to_copy = std::min(nNumOutputColors, (int)bounds_colors->val.size());
+			int elements_to_copy = std::min(nNumOutputColors, static_cast<int>(bounds_colors->val.size()));
 			memcpy(pOutputColorArray, &bounds_colors->val.at(0), sizeof(vr::HmdColor_t) * elements_to_copy);
 			while (elements_to_copy < nNumOutputColors)
 			{

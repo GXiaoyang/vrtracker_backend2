@@ -11,7 +11,7 @@ namespace vr_result
 
 	struct RenderModelsWrapper
 	{
-		RenderModelsWrapper(IVRRenderModels *remi_in)
+		explicit RenderModelsWrapper(IVRRenderModels *remi_in)
 			: remi(remi_in)
 		{}
 

@@ -53,7 +53,7 @@ bool VRRenderModelsCursor::GetIndexForRenderModelAndComponent(
 	int render_model_index;
 	if (GetIndexForRenderModelName(pchRenderModelName, &render_model_index))
 	{
-		for (int i = 0; i < (int)iter_ref.models[render_model_index].components.size(); i++)
+		for (int i = 0; i < size_as_int(iter_ref.models[render_model_index].components.size()); i++)
 		{
 			if (state_ref.models[render_model_index].components[i].get_path() == pchComponentName)
 			{
@@ -138,7 +138,7 @@ vr::EVRRenderModelError VRRenderModelsCursor::LoadTexture_Async(
 	}
 	SynchronizeChildVectors();
 	vr::EVRRenderModelError rc;
-	int index = (int)textureId - 1000;
+	int index = static_cast<int>(textureId) - 1000;
 	if (index >= 0 && index < size_as_int(iter_ref.models.size()))
 	{
 		// build the return value from vertex and index data
@@ -298,8 +298,8 @@ uint32_t VRRenderModelsCursor::GetComponentRenderModelName(
 // let the render model cursor poke at the system state cursors
 #define REMI_SYNC_SYSTEM_STATE(local_name, variable_name) \
 auto local_name ## iter = m_context->get_iterators()->system_node.variable_name;\
-update_iter(local_name ## iter,\
-	m_context->get_state()->system_node.variable_name,\
+update_iter(local_name ## iter, \
+	m_context->get_state()->system_node.variable_name, \
 	m_context->GetCurrentFrame());\
 auto & local_name = local_name ## iter;
 
@@ -336,7 +336,7 @@ bool VRRenderModelsCursor::GetComponentState(
 	SynchronizeChildVectors();
 	if (pchRenderModelName && pchComponentName && pControllerState && pState && pComponentState)
 	{
-		// TODO / Review the following after its up and running and think if there is a better way
+		// TODO(sean) / Review the following after its up and running and think if there is a better way
 		//
 		// GetComponentState is close to a pure function. its parameteized by, controller state,
 		// and pstate.  the unpure part is that it depends on the component.  Because of the pstate and controller state

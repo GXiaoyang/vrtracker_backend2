@@ -4,29 +4,29 @@
 
 static const char *default_overlay_keys[] =
 {
-	"valve.steam.desktop", // (Desktop), 
-	"valve.steam.desktop.thumb", // Desktop(Thumb)
-	"valve.steam.bigpicture", // Steam
-	"valve.steam.bigpicture.thumb", // Steam(Thumb)
-	"system.vrdashboard", // VR Dashboard
-	"system.powermenu", // Power Menu
-	"system.powermenu.thumb", // Power Menu(Thumb)
-	"system.notificationhistory", // History
-	"system.notificationhistory.thumb", // History(Thumb)
-	"system.settings", // Settings
-	"system.settings.thumb", // Settings(Thumb)
-	"system.keyboard", // Keyboard
-	"system.messageoverlay", // Message Overlay
-	"system.messageoverlay.thumb", // Message Overlay(Thumb)
-	"system.IPDValue", // IPD Setting
-	"system.ScreenshotProgress", // Screenshot Progress
-	"system.CameraSurfaceUI", // Camera Surface UI
-	"system.DefaultTransition", // Default Transition
-	"system.controllerstatus.1 ", // system.controllerstatus.1
-	"system.controllerstatus.2 ", // system.controllerstatus.2
-	"system.dashboardfade", // Fades the world for the dashboard
-	"system.dashboard.controls.background", // Sits behind dashboard controls
-	"system.dashboard.active.background", // Sits behind active dashboard
+	"valve.steam.desktop",  // (Desktop),
+	"valve.steam.desktop.thumb",  // Desktop(Thumb)
+	"valve.steam.bigpicture",  // Steam
+	"valve.steam.bigpicture.thumb",  // Steam(Thumb)
+	"system.vrdashboard",  // VR Dashboard
+	"system.powermenu",  // Power Menu
+	"system.powermenu.thumb",  // Power Menu(Thumb)
+	"system.notificationhistory",  // History
+	"system.notificationhistory.thumb",  // History(Thumb)
+	"system.settings",  // Settings
+	"system.settings.thumb",  // Settings(Thumb)
+	"system.keyboard",  // Keyboard
+	"system.messageoverlay",  // Message Overlay
+	"system.messageoverlay.thumb",  // Message Overlay(Thumb)
+	"system.IPDValue",  // IPD Setting
+	"system.ScreenshotProgress",  // Screenshot Progress
+	"system.CameraSurfaceUI",  // Camera Surface UI
+	"system.DefaultTransition",  // Default Transition
+	"system.controllerstatus.1 ",  // system.controllerstatus.1
+	"system.controllerstatus.2 ",  // system.controllerstatus.2
+	"system.dashboardfade",  // Fades the world for the dashboard
+	"system.dashboard.controls.background",  // Sits behind dashboard controls
+	"system.dashboard.active.background",  // Sits behind active dashboard
 };
 
 void TrackerConfig::set_default()

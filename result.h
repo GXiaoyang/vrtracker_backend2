@@ -106,14 +106,20 @@ struct Result : ResultBase<ElementType>
 	void encode(EncodeStream &e) const
 	{
 		e.memcpy_out_to_stream(&return_code, sizeof(return_code));
-		val_encode(val, e);
+		if (is_present())
+		{
+			val_encode(val, e);
+		}
 	}
 
 	// read the return code and then the value from the stream
 	void decode(EncodeStream &e) 
 	{
 		e.memcpy_from_stream(&return_code, sizeof(return_code));
-		val_decode(val, e);
+		if (is_present())
+		{
+			val_decode(val, e);
+		}
 	}
 	
 	ReturnCode return_code;

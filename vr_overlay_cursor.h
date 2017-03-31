@@ -9,7 +9,7 @@ public:
 	vr_result::overlay_state &state_ref;
 	vr_result::overlay_iterator &iter_ref;
 
-	VROverlayCursor(CursorContext *context);
+	explicit VROverlayCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
 	vr::EVROverlayError GetOverlayIndexForHandle(vr::VROverlayHandle_t ulOverlayHandle, int *index);

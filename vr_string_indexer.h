@@ -15,7 +15,9 @@ class StringIndexer
 {
 public:
 	StringIndexer()
-	{}
+	{
+		updated_size = 0;
+	}
 
 	bool operator == (const StringIndexer &rhs) const
 	{
@@ -26,19 +28,7 @@ public:
 		if (keys2index.size() != rhs.keys2index.size())
 			return false;
 		if (keys != rhs.keys)
-		{
-			for (int i = 0; i < keys.size(); i++)
-			{
-				std::string a = keys[i];
-				std::string b = rhs.keys[i];
-				if (a != b)
-				{
-					printf("%s %s\n", a.c_str(), b.c_str());
-				}
-			}
 			return false;
-		}
-			
 		if (live_indexes != rhs.live_indexes)
 			return false;
 

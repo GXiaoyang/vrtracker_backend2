@@ -10,7 +10,7 @@ class VRSettingsCursor : public VRSettingsCppStub
 	SettingsIndexer *m_settings_indexer;
 
 public:
-	VRSettingsCursor(CursorContext *context);
+	explicit VRSettingsCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 	const char * GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError) override;
 	bool GetBool(const char * pchSection, const char * pchSettingsKey, vr::EVRSettingsError * peError) override;

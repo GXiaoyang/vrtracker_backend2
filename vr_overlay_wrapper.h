@@ -10,7 +10,7 @@ namespace vr_result
 
 	struct OverlayWrapper
 	{
-		OverlayWrapper(IVROverlay *ovi_in)
+		explicit OverlayWrapper(IVROverlay *ovi_in)
 			: ovi(ovi_in)
 		{}
 
@@ -140,6 +140,7 @@ namespace vr_result
 		Uint32Size<EVROverlayError> GetOverlayTextureSize(VROverlayHandle_t h)
 		{
 			Uint32Size<EVROverlayError> rc;
+			//memset(&rc, 0, sizeof(rc)); // valgrind
 			rc.return_code = ovi->GetOverlayTextureSize(h, &rc.val.width, &rc.val.height);
 			return rc;
 		}
@@ -154,6 +155,7 @@ namespace vr_result
 		AbsoluteTransform<EVROverlayError> GetOverlayTransformAbsolute(VROverlayHandle_t h)
 		{
 			AbsoluteTransform<EVROverlayError> rc;
+			//memset(&rc, 0, sizeof(rc)); // valgrind
 			rc.return_code = ovi->GetOverlayTransformAbsolute(h, &rc.val.tracking_origin, &rc.val.origin2overlaytransform);
 			return rc;
 		}

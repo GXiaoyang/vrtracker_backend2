@@ -10,7 +10,7 @@ namespace vr_result
 
 	struct ApplicationsWrapper
 	{
-		ApplicationsWrapper(IVRApplications *appi_in)
+		explicit ApplicationsWrapper(IVRApplications *appi_in)
 			: appi(appi_in)
 		{}
 

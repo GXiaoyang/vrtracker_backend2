@@ -8,7 +8,7 @@ struct VRChaperoneCursor : public VRChaperoneCppStub
 	vr_result::chaperone_state &state_ref;
 	vr_result::chaperone_iterator &iter_ref;
 
-	VRChaperoneCursor(CursorContext *context);
+	explicit VRChaperoneCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
 	vr::ChaperoneCalibrationState GetCalibrationState() override;

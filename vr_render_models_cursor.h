@@ -8,7 +8,7 @@ class VRRenderModelsCursor : public VRRenderModelsCppStub
 	vr_result::render_models_state &state_ref;
 	vr_result::render_models_iterator &iter_ref;
 public:
-	VRRenderModelsCursor(CursorContext *context);
+	explicit VRRenderModelsCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
 	vr::EVRRenderModelError LoadRenderModel_Async(

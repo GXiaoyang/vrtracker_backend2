@@ -129,7 +129,7 @@ bool VRCompositorCursor::GetFrameTiming(struct vr::Compositor_FrameTiming * pTim
 {
 	LOG_ENTRY("CppStubGetFrameTiming");
 	bool rc = false;
-	CURSOR_SYNC_STATE(frame_timing, frame_timing);	// TODO : I can actually walk backwards and figure unFramesAgo out
+	CURSOR_SYNC_STATE(frame_timing, frame_timing);	// TODO(sean) : I can actually walk backwards and figure unFramesAgo out
 	if (pTiming && frame_timing->is_present())		//        OR - I could cache the frame timing table out of
 													//        band - e.g. like the events and timestamps
 	{
@@ -141,7 +141,7 @@ bool VRCompositorCursor::GetFrameTiming(struct vr::Compositor_FrameTiming * pTim
 
 uint32_t VRCompositorCursor::GetFrameTimings(struct vr::Compositor_FrameTiming * pTiming, uint32_t nFrames)
 {
-	LOG_ENTRY("CppStubGetFrameTimings");				// TODO/Notes: See GetFrameTiming comment above
+	LOG_ENTRY("CppStubGetFrameTimings");			// TODO(sean): See GetFrameTiming comment above
 	uint32_t rc = 0;
 	CURSOR_SYNC_STATE(frame_timings, frame_timings);
 	if (pTiming && frame_timings->is_present() && frame_timings->val.size() > 0)

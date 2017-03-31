@@ -9,7 +9,7 @@ public:
 	vr_result::tracked_camera_state &state_ref;
 	vr_result::tracked_camera_iterator &iter_ref;
 
-	VRTrackedCameraCursor(CursorContext *context);
+	explicit VRTrackedCameraCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
 	const char * GetCameraErrorNameFromEnum(vr::EVRTrackedCameraError eCameraError) override;

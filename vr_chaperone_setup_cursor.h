@@ -8,7 +8,7 @@ class VRChaperoneSetupCursor : public VRChaperoneSetupCppStub
 	vr_result::chaperone_setup_state &state_ref;
 	vr_result::chaperone_setup_iterator &iter_ref;
 public:
-	VRChaperoneSetupCursor(CursorContext *context);
+	explicit VRChaperoneSetupCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
 	bool GetWorkingPlayAreaSize(float * pSizeX, float * pSizeZ) override;

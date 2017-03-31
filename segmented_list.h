@@ -237,20 +237,29 @@ public:
 	void copy_segments(segmented_list& lhs, const segmented_list& rhs)
 	{
 		lhs.m_size.store(rhs.m_size);
-
+		auto lhs_iter = lhs.m_segment_container.begin();
 		for (auto segment = rhs.m_segment_container.begin(); segment != rhs.m_segment_container.end(); segment++)
 		{
 			const value_type *dest = *segment;
-			T *buf = get_allocator().allocate(SegmentSize);
+			T *buf;
+			if (lhs_iter != lhs.m_segment_container.end())
+			{
+				buf = *lhs_iter;
+				++lhs_iter;
+			}
+			else
+			{
+				buf = get_allocator().allocate(SegmentSize);
+				lhs.m_segment_container.push_back(buf);
+			}
 			memcpy(buf, dest, SegmentSize * sizeof(value_type));	// copy data from rhs segment to lhs buf
-			lhs.m_segment_container.push_back(buf);						// add data onto lhs container
 		}
 	}
 
 	segmented_list& operator=(const segmented_list& rhs) 
 	{
 		if (this != &rhs) { 
-			m_segment_container.clear();
+			clear();
 			copy_segments(*this, rhs);
 		}
 		return *this;
@@ -259,11 +268,8 @@ public:
 	segmented_list& operator=(segmented_list&& rhs)
 	{
 		if (this != &rhs) {
-			m_segment_container = std::move(rhs.m_segment_container);
-			size_type tmp = m_size;
-			m_size.store(rhs.m_size);
-			rhs.m_segment_container.clear();
-			rhs.m_size = 0;
+printf("burp\n");
+			swap(rhs);
 		}
 		return *this;
 	}

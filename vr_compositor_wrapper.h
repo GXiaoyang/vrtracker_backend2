@@ -10,7 +10,7 @@ namespace vr_result
 
 	struct CompositorWrapper
 	{
-		CompositorWrapper(IVRCompositor *compi_in)
+		explicit CompositorWrapper(IVRCompositor *compi_in)
 			: compi(compi_in)
 		{}
 

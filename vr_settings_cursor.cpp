@@ -12,7 +12,7 @@ int subsection_index;\
 if (m_settings_indexer->GetIndexes(pchSection, setting_type, pchSettingsKey, &section_index, &subsection_index))\
 {\
 	auto iter = iter_ref.sections[section_index].settings_field_name[subsection_index];\
-	auto state =state_ref.sections[section_index].settings_field_name[subsection_index];\
+	auto state = state_ref.sections[section_index].settings_field_name[subsection_index];\
 	update_iter(iter, state, m_context->GetCurrentFrame());\
 \
 	settings_error = iter->get_value().return_code;\

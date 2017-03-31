@@ -8,7 +8,7 @@ class VRResourcesCursor : public VRResourcesCppStub
 	vr_result::resources_state &state_ref;
 	vr_result::resources_iterator &iter_ref; 
 public:
-	VRResourcesCursor(CursorContext *context);
+	explicit VRResourcesCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 	
 	bool GetIndexForResourceName(const char *pchResourceName, int *index);

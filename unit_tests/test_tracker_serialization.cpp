@@ -56,6 +56,7 @@ void test_tracker_serialization()
 	}
 
 	{
+		log_printf("serializing empty context\n");
 		// no updates
 		tracker_test_context contexta;
 		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker0.bin");
@@ -67,6 +68,7 @@ void test_tracker_serialization()
 
 	tracker_test_context::reset_globals();
 	{
+		log_printf("serializing one update\n");
 		// one update
 		tracker_test_context contexta;
 		u.update_tracker_parallel(&contexta.get_tracker(), &contexta.raw_vr_interfaces());
@@ -79,14 +81,17 @@ void test_tracker_serialization()
 	}
 	tracker_test_context::reset_globals();
 	{
+		log_printf("serializing 10 updates\n");
 		// ten updates ... 100mb with no textures... 600mb with textures
 		tracker_test_context contexta;
 		for (int i = 0; i < 10; i++)
 		{
 			u.update_tracker_parallel(&contexta.get_tracker(), &contexta.raw_vr_interfaces());
 		}
+		log_printf("writing\n");
 		u.save_tracker_to_binary_file(&contexta.get_tracker(), "tracker10.bin");
 
+		log_printf("reading\n");
 		tracker_test_context contextb;
 		u.load_tracker_from_binary_file(&contextb.get_tracker(), "tracker10.bin");
 		assert(contexta.get_tracker() == contextb.get_tracker());

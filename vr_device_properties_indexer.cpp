@@ -186,6 +186,5 @@ void DevicePropertiesIndexer::ReadFromStream(EncodeStream &s)
 	decode(x, s);
 	assert(x == 33);
 	PropertiesIndexer::ReadFromStream(s);
-
 }
 

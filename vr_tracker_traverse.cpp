@@ -13,6 +13,7 @@
 #include "vr_tracker.h"
 #include "openvr_serialization.h"
 #include <fstream>
+#include <algorithm>
 
 using namespace vr_result;
 
@@ -274,7 +275,7 @@ vr_tracker_traverse::~vr_tracker_traverse()
 
 struct ConfigObserver : KeysObserver
 {
-	virtual void NewVRKeysUpdate(const VRKeysUpdate &e) override final
+	void NewVRKeysUpdate(const VRKeysUpdate &e) final
 	{
 		config_events.push_back(e);
 	}
@@ -404,7 +405,8 @@ struct header_t
 
 inline uint64_t pad_size(uint64_t in)
 {
-	return (in + 3) & ~0x3;
+	return in;
+	// for valgrind, try and not use padding at allreturn (in + 3) & ~0x3;
 }
 
 bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const char *filename)
@@ -429,13 +431,13 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 		visitor.m_stream = &a;
 
 		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
-		FILE *pf = fopen("c:\\temp\\one.bin", "wb");
+		FILE *pf = fopen("one.bin", "wb");
 		fwrite(debuga, 1, a.buf_pos, pf);
 		fclose(pf);
 
 		a.reset_buf_pos();
 		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
-		pf = fopen("c:\\temp\\two.bin", "wb");
+		pf = fopen("two.bin", "wb");
 		fwrite(debuga, 1, a.buf_pos, pf);
 		fclose(pf);
 		free(debuga);
@@ -450,7 +452,7 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	header.state_update_bits_size = m_pimpl->calc_state_update_bits_size(tracker);
 
 	header.summary_offset           = sizeof(header);
-	header.registry_offset          = header.summary_offset     + pad_size(header.registry_size);
+	header.registry_offset          = header.summary_offset     	+ pad_size(header.summary_size);
 	header.keys_offset              = header.registry_offset	+ pad_size(header.registry_size);
 	header.state_offset             = header.keys_offset		+ pad_size(header.keys_size);
 	header.events_offset            = header.state_offset		+ pad_size(header.state_size);
@@ -458,6 +460,10 @@ bool vr_tracker_traverse::save_tracker_to_binary_file(vr_tracker *tracker, const
 	header.keys_updates_offset      = header.time_stamps_offset + pad_size(header.time_stamps_size);
 	header.state_update_bits_offset = header.keys_updates_offset + pad_size(header.keys_updates_size);
 	header.updates_offset           = header.state_update_bits_offset + pad_size(header.state_update_bits_size);
+	printf("summary offset %lld\n", header.summary_offset);
+	printf("registry offset %lld\n", header.registry_offset);
+	printf("keys offset %lld\n", header.keys_offset);
+	printf("state offset  %lld\n", header.state_offset);
 
 	std::time_t start = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 #ifdef _WIN32
@@ -565,7 +571,6 @@ bool vr_tracker_traverse::load_tracker_from_binary_file(vr_tracker *tracker, con
 					visitor.m_stream = &e;
 					visitor.registry = &tracker->m_state_registry;
 					traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, tracker, &m_pimpl->null_wrappers);
-					
 				}
 				{
 					EncodeStream e(big_buf + header.events_offset, header.events_size, false);
@@ -598,7 +603,6 @@ bool vr_tracker_traverse::load_tracker_from_binary_file(vr_tracker *tracker, con
 
 				// write derived values
 				tracker->m_last_updated_frame_number = tracker->m_save_summary.last_encoded_frame;
-
 			}
 		}
 		else
@@ -622,8 +626,6 @@ void vr_tracker_traverse::streamer(vr_tracker *tracker, const char *filename)
 		// write key updates
 		// write state update bits
 		// write  state update blocks
-
-
 }
 #endif
 // if every timestamp had also a list of objects that were updated

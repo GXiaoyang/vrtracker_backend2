@@ -609,6 +609,7 @@ void compare_against_ref()
 		// assign
 		segmented_list<T, N> segmented_assign;
 		segmented_assign = segmented_list0;
+		assert(segmented_list0 == segmented_assign);
 		assert(std::equal(segmented_list0.begin(), segmented_list0.end(), ref_list.begin()));
 
 		// copy
@@ -863,8 +864,10 @@ static void move_test()
 
 	{
 		//assignment operator
+printf("urp\n");
 		segmented_list<int, 1024, SimpleAllocator<int>> segmented_list2;
 		segmented_list2 = segmented_list<int, 1024, SimpleAllocator<int>>(1024, allocatorA);
+printf("nurp\n");
 	}
 	
 

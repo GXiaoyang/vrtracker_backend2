@@ -197,7 +197,7 @@ VROverlayCursor::GetOverlayFlag(VROverlayHandle_t ulOverlayHandle, VROverlayFlag
 		err = key->return_code;
 		if (key->is_present())
 		{
-			int bit_pos = (int)eOverlayFlag;
+			int bit_pos = static_cast<int>(eOverlayFlag);
 			uint32_t mask = 0x1 << (bit_pos);	// weird in the lowest bit isn't used
 			uint32_t flags = key->val;
 			if ((mask & flags) != 0)
@@ -240,7 +240,7 @@ vr::EVROverlayError VROverlayCursor::GetOverlayImageData(
 				*punHeight = height->val;
 			}
 
-			uint8_t *ptr = (uint8_t*)pvBuffer;
+			uint8_t *ptr = static_cast<uint8_t*>(pvBuffer);
 			if (!util_vector_to_return_buf_rc(&data->val, ptr, unBufferSize, nullptr))
 			{
 				rc = VROverlayError_ArrayTooSmall;
@@ -420,7 +420,7 @@ vr::EVROverlayError VROverlayCursor::GetOverlayTransformTrackedDeviceComponent(
 			}
 			if (!util_vector_to_return_buf_rc(&name->val, pchComponentName, unComponentNameSize, nullptr))
 			{
-				rc = VROverlayError_ArrayTooSmall; // TODO: verify this is what happens if the buffer is too small
+				rc = VROverlayError_ArrayTooSmall; // TODO(sean): verify this is what happens if the buffer is too small
 			}
 		}
 		else

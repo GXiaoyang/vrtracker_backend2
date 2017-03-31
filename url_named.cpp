@@ -1,6 +1,5 @@
 #include "url_named.h"
 
 
-using namespace base;
 
-const URL& URL::EMPTY_URL = URL();
+const base::URL& base::URL::EMPTY_URL = base::URL();

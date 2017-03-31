@@ -10,7 +10,7 @@ namespace vr_result
 
 	struct TrackedCameraWrapper
 	{
-		TrackedCameraWrapper(IVRTrackedCamera *taci_in)
+		explicit TrackedCameraWrapper(IVRTrackedCamera *taci_in)
 			: taci(taci_in)
 		{}
 

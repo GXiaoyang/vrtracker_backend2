@@ -4,5 +4,5 @@
 
 struct VRNotificationsCursor : public VRNotificationsCppStub
 {
-	VRNotificationsCursor(CursorContext *context) {}
+	explicit VRNotificationsCursor(CursorContext *context) {}
 };

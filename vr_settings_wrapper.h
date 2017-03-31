@@ -10,7 +10,7 @@ namespace vr_result
 
 	struct SettingsWrapper
 	{
-		SettingsWrapper(IVRSettings *setti_in)
+		explicit SettingsWrapper(IVRSettings *setti_in)
 			: setti(setti_in)
 		{}
 

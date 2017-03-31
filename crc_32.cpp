@@ -110,7 +110,7 @@ uint32_t updateCRC32(unsigned char ch, uint32_t crc)
 
 uint32_t crc32buf(char *buf, size_t len)
 {
-	register uint32_t oldcrc32;
+	uint32_t oldcrc32;
 
 	oldcrc32 = 0xFFFFFFFF;
 
@@ -120,6 +120,5 @@ uint32_t crc32buf(char *buf, size_t len)
 	}
 
 	return ~oldcrc32;
-
 }
 

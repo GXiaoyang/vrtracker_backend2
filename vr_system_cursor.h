@@ -10,7 +10,7 @@ class VRSystemCursor : public VRSystemCppStub
 	DevicePropertiesIndexer *m_property_indexer;
 
 public:
-	VRSystemCursor(CursorContext *context);
+	explicit VRSystemCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
 	void GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight) override;

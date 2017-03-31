@@ -9,7 +9,7 @@ public:
 	vr_result::compositor_state &state_ref;
 	vr_result::compositor_iterator &iter_ref;
 
-	VRCompositorCursor(CursorContext *context);
+	explicit VRCompositorCursor(CursorContext *context);
 	void SynchronizeChildVectors();
 
 	vr::ETrackingUniverseOrigin GetTrackingSpace() override;

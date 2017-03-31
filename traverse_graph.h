@@ -141,6 +141,8 @@ static void visit_component_on_controller_schema(
 
 	if (visitor->visit_source_interfaces() )
 	{
+		//memset(&transforms, 0, sizeof(transforms)); // valgrind
+		//memset(&transforms_scroll_wheel, 0, sizeof(transforms_scroll_wheel)); // valgrind
 		if (!controller_state.is_present())
 		{
 			transforms.return_code = false;
@@ -268,6 +270,7 @@ static void visit_controller_state(visitor_fn *visitor,
 		if (visitor->visit_source_interfaces())
 		{
 			DevicePose<bool> synced_pose;
+			memset(&synced_pose, 0, sizeof(synced_pose)); // or valgrind complains on serialization
 
 			wrap->GetControllerStateWithPose(
 				vr::TrackingUniverseSeated, controller_index, &controller_state, &synced_pose);

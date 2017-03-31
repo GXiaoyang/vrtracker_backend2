@@ -28,7 +28,9 @@
 struct vr_keys
 {
 	vr_keys()
-	{}
+	{
+		memset(&m_data, 0, sizeof(m_data));
+	}
 
 	vr_keys(const vr_keys &) = delete;
 

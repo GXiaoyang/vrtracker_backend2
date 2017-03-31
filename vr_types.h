@@ -57,6 +57,10 @@ using VREventList = time_indexed_vector<VREncodableEvent, segmented_list_1024, s
 
 struct VRKeysUpdate
 {
+	VRKeysUpdate()
+		: iparam1(0)
+	{}
+
 	enum KeysUpdateType
 	{
 		NEW_APP_KEY

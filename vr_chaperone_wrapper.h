@@ -10,7 +10,7 @@ namespace vr_result
 
 	struct ChaperoneWrapper
 	{
-		ChaperoneWrapper(IVRChaperone *chapi_in)
+		explicit ChaperoneWrapper(IVRChaperone *chapi_in)
 			: chapi(chapi_in)
 		{}
 
@@ -20,6 +20,7 @@ namespace vr_result
 		inline HmdVector2<bool> GetPlayAreaSize()
 		{
 			HmdVector2<bool> result;
+                        //memset(&result, 0, sizeof(result)); // valgrind
 			result.return_code = chapi->GetPlayAreaSize(&result.val.v[0], &result.val.v[1]);
 			return result;
 		}
@@ -27,6 +28,7 @@ namespace vr_result
 		inline HmdQuad<bool> GetPlayAreaRect()
 		{
 			HmdQuad<bool> result;
+                        //memset(&result, 0, sizeof(result)); // valgrind
 			result.return_code = chapi->GetPlayAreaRect(&result.val);
 			return result;
 		}
