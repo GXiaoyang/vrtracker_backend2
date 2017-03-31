@@ -16,10 +16,10 @@ struct vr_tmp_vector_base
 };
 
 template<typename T>
-struct vr_tmp_vector : tmp_vector<T, VRFinalAllocatorType, VRTMPSize>, vr_tmp_vector_base
+struct vr_tmp_vector : tmp_vector2<T, VRTMPSize>, vr_tmp_vector_base
 {
 	vr_tmp_vector()
-		: tmp_vector<T, VRFinalAllocatorType, VRTMPSize>(m_global_pool, VRFinalAllocatorType())
+		: tmp_vector2<T, VRTMPSize>(m_global_pool)
 	{}
 	
 	vr_tmp_vector(int)	// int is a flag to indicate not to create from a pool
@@ -27,7 +27,7 @@ struct vr_tmp_vector : tmp_vector<T, VRFinalAllocatorType, VRTMPSize>, vr_tmp_ve
 
 	vr_tmp_vector & operator = (vr_tmp_vector &&rhs)
 	{
-		tmp_vector<T, VRFinalAllocatorType, VRTMPSize>::operator=(std::move(rhs));
+		tmp_vector2<T, VRTMPSize>::operator=(std::move(rhs));
 		return *this;
 	}
 

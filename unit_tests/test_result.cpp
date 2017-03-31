@@ -86,9 +86,9 @@ static void test_type_checks()
 	free(b.data());
 
 	tmp_vector_pool<1024> my_pool;
-	typedef tmp_vector<char, std::allocator<char>, 1024> tmp_string;
+	typedef tmp_vector2<char, 1024> tmp_string;
 
-	tmp_string v(&my_pool, std::allocator<char>());
+	tmp_string v(&my_pool);
 	static_assert(detail::SupportsData<tmp_string>::value, "has data");
 	static_assert(Result<tmp_string, NoReturnCode>::value_is_container, "Result knows tmp_strings are containers");
 	static_assert(Result<gsl::span<int>, NoReturnCode>::value_is_container, "Result knows that spans are containers");
