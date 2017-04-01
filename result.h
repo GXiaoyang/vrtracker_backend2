@@ -30,7 +30,6 @@ bool constexpr IsValueContainer()
 
 struct NoReturnCode {};
 
-
 template <typename ReturnCode>
 struct ValidReturnCode
 {
@@ -314,7 +313,6 @@ void val_decode(ElementType &e, BaseStream &stream,
 {
 	stream.read_from_stream(&e, sizeof(e));
 }
-
 
 // utilities
 template <typename T, typename R>

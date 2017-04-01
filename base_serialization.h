@@ -2,6 +2,7 @@
 // serialization to memory routines.  A block of memory and a counter.
 //
 #pragma once
+#include "platform.h"
 #include <cstdint>
 #include <vector>
 #include <memory.h>
@@ -13,7 +14,7 @@
 #include <map>
 
 // has an index supports virtual serialization
-using serialization_id = uint16_t;
+
 
 class RegisteredSerializable
 {
@@ -73,7 +74,7 @@ public:
 		map_lock.unlock(); 
 #endif
 		auto iter = registered.push_back(p); 
-		serialization_id id = std::distance(registered.begin(), iter);
+		serialization_id id = size_as_serialization_id(std::distance(registered.begin(), iter));
 		p->set_serialization_index(id);
 		return id;
 	}

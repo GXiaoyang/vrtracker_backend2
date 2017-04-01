@@ -23,26 +23,22 @@ namespace vr_result
 			return *s;
 		}
 
-
 		inline TMPString<EVRRenderModelError>& GetRenderModelThumbnailURL(const char *render_model_name, TMPString<EVRRenderModelError> *s)
 		{
 			query_vector_rccount(s, remi, &IVRRenderModels::GetRenderModelThumbnailURL, render_model_name);
 			return *s;
 		}
 
-
 		inline TMPString<EVRRenderModelError>& GetRenderModelOriginalPath(const char *render_model_name, TMPString<EVRRenderModelError> *s)
 		{
 			query_vector_rccount(s, remi, &IVRRenderModels::GetRenderModelOriginalPath, render_model_name);
 			return *s;
 		}
- 
 
 		inline int GetComponentCount(const char *render_model_name)
 		{
 			return remi->GetComponentCount(render_model_name);
 		}
-
 
 		inline TMPString<> &GetComponentModelName(
 			const char *render_model_name, uint32_t unComponentIndex, TMPString<> *s)
@@ -50,7 +46,6 @@ namespace vr_result
 			query_vector_rccount(s, remi, &IVRRenderModels::GetComponentName, render_model_name, unComponentIndex);
 			return *s;
 		}
-
 
 		inline Uint64<> GetComponentButtonMask(const char *render_model_name, const char *component_name)
 		{
@@ -62,7 +57,6 @@ namespace vr_result
 			query_vector_zero_means_not_present(s, remi, &IVRRenderModels::GetComponentRenderModelName, render_model_name, component_name);
 			return *s;
 		}
-
 
 		inline void GetComponentState(const char *render_model_name, const char *component_name,
 			const VRControllerState_t &controller_state,

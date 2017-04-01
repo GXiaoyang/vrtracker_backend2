@@ -18,11 +18,16 @@ namespace plat
 
 typedef uint64_t time_stamp_t;
 typedef int time_index_t;
-
+using serialization_id = uint16_t;
 
 template <typename T>
 constexpr int size_as_int(const T &size_in) {
 	return static_cast<int>(size_in);
+}
+
+template <typename T>
+constexpr int size_as_serialization_id(const T &size_in) {
+	return static_cast<serialization_id>(size_in);
 }
 
 #include <stdint.h>
