@@ -1,16 +1,15 @@
 //
-// tracker_decode_visitor: reads entire tracker state from a stream
+// capture_encode_visitor: writes entire capture state to a stream
 //
 #pragma once
 #include "time_containers.h"
 #include "vr_types.h"
 
-struct tracker_decode_visitor 
+struct capture_encode_visitor 
 {
-	tracker_decode_visitor()
+	capture_encode_visitor()
 	{}
 	BaseStream *m_stream;
-	SerializableRegistry *registry;		// register objects by an id so they can be found for serialization and deserialization
 
 	//
 	// visit interfaces
@@ -26,7 +25,7 @@ struct tracker_decode_visitor
 	template <typename T>
 	inline void start_vector(const base::URL &vector_name, T &vec) 
 	{
-		vec.decode_size(*m_stream);
+		vec.encode_size(*m_stream);	// writes the vector and it's identity
 	}
 
 	template <typename T>
@@ -41,14 +40,12 @@ struct tracker_decode_visitor
 	template <typename HistoryVectorType>
 	void visit_node(HistoryVectorType &history_node) 
 	{
-		history_node.decode(*m_stream);
+		history_node.encode(*m_stream);
 	}
 
-	template <typename ParentVectorType>
-	void spawn_child(ParentVectorType &parent_vector, const std::string &child_name)
+	template <typename ParentVectorType> void spawn_child(ParentVectorType &vector, const std::string &child_name) 
 	{
-		base::URL child_url(parent_vector.make_url_for_child(child_name));
-		parent_vector.emplace_back(child_url, registry);
+		assert(0);
 	}
 };
 

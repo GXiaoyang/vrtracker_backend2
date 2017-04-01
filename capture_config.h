@@ -6,7 +6,7 @@
 // unless he tells me, then I need to "spy" it out
 //
 // its meant to be more of a hint than part of the database - ie don't add dependencies to this
-struct TrackerConfig	// aka Hints
+struct CaptureConfig	// aka Hints
 {
 	float nearz;					// intercept: GetProjectionMatrix
 	float farz;

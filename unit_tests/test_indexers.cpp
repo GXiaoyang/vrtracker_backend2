@@ -1,5 +1,5 @@
 #include "vr_applications_indexer.h"
-#include "tracker_test_context.h"
+#include "capture_test_context.h"
 #include <thread>
 #include "vr_applications_wrapper.h"
 std::atomic<int> app_reader_done;
@@ -74,7 +74,7 @@ void app_lookup_perf_test(ApplicationsIndexer *ai, vr_result::ApplicationsWrappe
 
 void TEST_INDEXERS()
 {
-	tracker_test_context context;
+	capture_test_context context;
 
 	vr_result::ApplicationsWrapper wrap(context.raw_vr_interfaces().appi);
 	ApplicationsIndexer ai;

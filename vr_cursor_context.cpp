@@ -1,14 +1,14 @@
 #include "vr_cursor_context.h"
-#include "vr_tracker.h"
+#include "capture.h"
 
-CursorContext::CursorContext(vr_tracker *tracker)
+CursorContext::CursorContext(capture *capture)
 	:
-	m_current_frame(tracker->get_last_updated_frame()),
+	m_current_frame(capture->get_last_updated_frame()),
 	m_last_event_frame_returned(m_current_frame - 1),
-	m_state(&tracker->m_state),
-	m_vr_events(&tracker->m_vr_events),
-	m_keys(&tracker->m_keys),
-	m_tracker(tracker)
+	m_state(&capture->m_state),
+	m_vr_events(&capture->m_vr_events),
+	m_keys(&capture->m_keys),
+	m_capture(capture)
 {
 }
 
@@ -17,8 +17,8 @@ time_index_t CursorContext::ChangeFrame(time_index_t new_frame)
 	if (new_frame == m_current_frame)
 		return m_current_frame;
 
-	if (new_frame > m_tracker->get_last_updated_frame())
-		new_frame = m_tracker->get_last_updated_frame();
+	if (new_frame > m_capture->get_last_updated_frame())
+		new_frame = m_capture->get_last_updated_frame();
 
 	m_current_frame = new_frame;
 	m_last_event_frame_returned = new_frame - 1;

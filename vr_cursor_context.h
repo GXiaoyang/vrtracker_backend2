@@ -8,11 +8,11 @@
 // CursorContext: hold the shared internal state required by the vr_xxxx_cursor objects.
 //                simulates the event queue for the current frame
 
-struct vr_tracker;
+struct capture;
 
 struct CursorContext
 {
-	explicit CursorContext(vr_tracker *);
+	explicit CursorContext(capture *);
 
 	// if new frame > then the greatest processed frame, the greatest processed
 	// frame is used
@@ -33,5 +33,5 @@ private:
 	vr_result::vr_state *m_state;
 	VREventList *m_vr_events;
 	vr_keys *m_keys;
-	vr_tracker *m_tracker;
+	capture *m_capture;
 };

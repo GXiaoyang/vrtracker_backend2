@@ -10,7 +10,7 @@ void test_cursors()
 int main()
 {
 	test_cursors();
-	log_printf("test_vr_tracker tests done\n");
+	log_printf("test_capture tests done\n");
 }
 #endif
 

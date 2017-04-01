@@ -4,18 +4,18 @@
 
 //
 // VRcursor has:
-//		pointers to parts of the state tracker
-//      a set of iterators into that state tracker.
-// There can be more than one cursor pointing into the same state tracker
+//		pointers to parts of the state capture
+//      a set of iterators into that state capture.
+// There can be more than one cursor pointing into the same state capture
 //
 
-struct vr_tracker;
+struct capture;
 
 struct VRCursor
 {
 	VRCursor() : pimpl(nullptr) {}
 
-	void Init(vr_tracker *tracker);
+	void Init(capture *capture);
 
 	void SeekToFrame(time_index_t framenumber);
 	time_index_t GetFrame() const;

@@ -15,13 +15,13 @@
 
 #include "vr_cursor_context.h"
 #include "vr_schema.h"
-#include "vr_tracker.h"
+#include "capture.h"
 
 struct VRCursor::VRCursorImpl
 {
-	explicit VRCursorImpl(vr_tracker *tracker)
+	explicit VRCursorImpl(capture *capture)
 		:
-		m_context(tracker),
+		m_context(capture),
 		m_system_cursor(&m_context),
 		m_applications_cursor(&m_context),
 		m_settings_cursor(&m_context),
@@ -57,15 +57,15 @@ struct VRCursor::VRCursorImpl
 
 //
 // VRcursor has:
-//		a pointer to the state tracker
-//      a set of iterators into that state tracker.
+//		a pointer to the state capture
+//      a set of iterators into that state capture.
 //
 //
-// There can be more than one cursor pointing into the same state tracker
+// There can be more than one cursor pointing into the same state capture
 //
-void VRCursor::Init(vr_tracker *tracker)
+void VRCursor::Init(capture *capture)
 {
-	pimpl = new VRCursor::VRCursorImpl(tracker);
+	pimpl = new VRCursor::VRCursorImpl(capture);
 }
 
 void VRCursor::SeekToFrame(time_index_t framenumber)

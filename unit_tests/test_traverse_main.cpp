@@ -5,11 +5,11 @@
 #include "log.h"
 
 extern void UPDATE_USE_CASE();
-extern void test_tracker_serialization();
+extern void test_capture_serialization();
 
 void test_traverse()
 {
-	test_tracker_serialization();
+	test_capture_serialization();
 	UPDATE_USE_CASE();
 }
 
@@ -17,7 +17,7 @@ void test_traverse()
 int main()
 {
 	test_traverse();
-	log_printf("test_vr_tracker tests done\n");
+	log_printf("test_capture tests done\n");
 }
 #endif
 

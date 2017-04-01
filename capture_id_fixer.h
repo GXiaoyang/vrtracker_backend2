@@ -1,14 +1,14 @@
 //
-// tracker_id_fixer : traverse the graph and make sure everyone has the correct id
+// capture_id_fixer : traverse the graph and make sure everyone has the correct id
 //
 #pragma once
 #include "time_containers.h"
 #include "vr_types.h"
 #include <unordered_map>
 
-struct tracker_id_fixer_visitor 
+struct capture_id_fixer 
 {
-	tracker_id_fixer_visitor()
+	capture_id_fixer()
 	{}
 
 	std::unordered_map<std::string, serialization_id> url2id;

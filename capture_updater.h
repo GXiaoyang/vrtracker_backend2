@@ -1,14 +1,14 @@
 #pragma once
-// tracker_update_visitor:
+// capture_update_visitor:
 //  * this is the key comparison class used when querying and updating vr state
-//    it is fed to the traverse graph logic by the vr_tracker_updater which then
+//    it is fed to the traverse graph logic by the capture_updater which then
 //    invokes it's visit interfaces
 
 #include "time_containers.h"
 #include "vr_types.h"
 
 // CONCURRENCY: needs to be multi writer safe since jobs are sharing the same visitor
-struct tracker_update_visitor 
+struct capture_update_visitor 
 {
 public:
 	time_index_t m_frame_number;
@@ -22,7 +22,7 @@ public:
 	VRBitset updated_node_bits;
 public:
 
-	tracker_update_visitor(time_index_t t)
+	capture_update_visitor(time_index_t t)
 		:	m_frame_number(t)
 	{}
 

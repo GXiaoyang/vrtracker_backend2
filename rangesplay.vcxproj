@@ -167,12 +167,17 @@
   <ItemGroup>
     <ClInclude Include="BaseStream.h" />
     <ClInclude Include="base_serialization.h" />
+    <ClInclude Include="capture.h" />
+    <ClInclude Include="capture_config.h" />
+    <ClInclude Include="capture_decoder.h" />
+    <ClInclude Include="capture_encoder.h" />
+    <ClInclude Include="capture_id_fixer.h" />
+    <ClInclude Include="capture_traverser.h" />
+    <ClInclude Include="capture_updater.h" />
     <ClInclude Include="crc_32.h" />
     <ClInclude Include="dynamic_bitset.hpp" />
     <ClInclude Include="FileStream.h" />
     <ClInclude Include="MemoryStream.h" />
-    <ClInclude Include="tracker_decode_visitor.h" />
-    <ClInclude Include="tracker_encode_visitor.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="openvr_broker.h" />
     <ClInclude Include="openvr_cppstub.h" />
@@ -190,11 +195,8 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="time_containers.h" />
     <ClInclude Include="tmp_vector.h" />
-    <ClInclude Include="tracker_config.h" />
-    <ClInclude Include="tracker_id_fixer_visitor.h" />
     <ClInclude Include="traverse_graph.h" />
-    <ClInclude Include="unit_tests\tracker_test_context.h" />
-    <ClInclude Include="tracker_update_visitor.h" />
+    <ClInclude Include="unit_tests\capture_test_context.h" />
     <ClInclude Include="vr_applications_cursor.h" />
     <ClInclude Include="vr_applications_indexer.h" />
     <ClInclude Include="vr_applications_properties_indexer.h" />
@@ -233,11 +235,9 @@
     <ClInclude Include="vr_tmp_vector.h" />
     <ClInclude Include="vr_tracked_camera_cursor.h" />
     <ClInclude Include="vr_tracked_camera_wrapper.h" />
-    <ClInclude Include="vr_tracker.h" />
     <ClInclude Include="typehelper.h" />
     <ClInclude Include="url_named.h" />
     <ClInclude Include="vr_keys.h" />
-    <ClInclude Include="vr_tracker_traverse.h" />
     <ClInclude Include="vr_types.h" />
     <ClInclude Include="vr_schema.h" />
     <ClInclude Include="vr_system_wrapper.h" />
@@ -248,6 +248,8 @@
     <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp" />
     <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp" />
     <ClCompile Include="base_serialization.cpp" />
+    <ClCompile Include="capture_config.cpp" />
+    <ClCompile Include="capture_traverser.cpp" />
     <ClCompile Include="crc_32.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
@@ -260,9 +262,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="tracker_config.cpp" />
+    <ClCompile Include="unit_tests\capture_test_context.cpp" />
     <ClCompile Include="unit_tests\test_base_main.cpp" />
     <ClCompile Include="unit_tests\test_base_stream.cpp" />
+    <ClCompile Include="unit_tests\test_capture_class.cpp" />
+    <ClCompile Include="unit_tests\test_capture_main.cpp" />
+    <ClCompile Include="unit_tests\test_capture_serialization.cpp" />
     <ClCompile Include="unit_tests\test_cursors.cpp" />
     <ClCompile Include="unit_tests\test_cursors_main.cpp" />
     <ClCompile Include="unit_tests\test_gui_usecase.cpp" />
@@ -270,15 +275,11 @@
     <ClCompile Include="unit_tests\test_result.cpp" />
     <ClCompile Include="unit_tests\test_schema_common.cpp" />
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />
-    <ClCompile Include="unit_tests\test_tracker_class.cpp" />
-    <ClCompile Include="unit_tests\test_tracker_serialization.cpp" />
     <ClCompile Include="unit_tests\test_slab_allocator.cpp" />
     <ClCompile Include="unit_tests\test_time_containers.cpp" />
     <ClCompile Include="unit_tests\test_time_containers_main.cpp" />
-    <ClCompile Include="unit_tests\test_tracker_main.cpp" />
     <ClCompile Include="unit_tests\test_traverse_main.cpp" />
     <ClCompile Include="unit_tests\test_vr_keys_main.cpp" />
-    <ClCompile Include="unit_tests\tracker_test_context.cpp" />
     <ClCompile Include="unit_tests\UPDATE.cpp" />
     <ClCompile Include="url_named.cpp" />
     <ClCompile Include="vr_applications_cursor.cpp" />
@@ -304,7 +305,6 @@
     <ClCompile Include="vr_system_cursor.cpp" />
     <ClCompile Include="vr_tmp_vector.cpp" />
     <ClCompile Include="vr_tracked_camera_cursor.cpp" />
-    <ClCompile Include="vr_tracker_traverse.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

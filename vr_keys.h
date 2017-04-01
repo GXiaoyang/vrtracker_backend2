@@ -4,7 +4,7 @@
 // root node for a set of indexes that need to be tracked 
 // 
 //
-#include "tracker_config.h"
+#include "capture_config.h"
 #include "vr_device_properties_indexer.h"
 #include "vr_overlay_indexer.h"
 #include "vr_applications_indexer.h"
@@ -90,7 +90,7 @@ struct vr_keys
 	SettingsIndexer &GetSettingsIndexer() { return m_settings_indexer; }
 	MimeTypesIndexer &GetMimeTypesIndexer() { return m_mime_types_indexer; }
 
-	void Init(const TrackerConfig &c)
+	void Init(const CaptureConfig &c)
 	{
 		m_overlay_indexer.Init(c.overlay_keys, c.num_overlays);
 		m_resources_indexer.Init(c.resource_filenames, c.resource_directories, c.num_resources);

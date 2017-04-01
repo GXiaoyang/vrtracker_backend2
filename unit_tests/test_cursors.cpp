@@ -1,14 +1,14 @@
 #include "vr_system_cursor.h"
 #include "vr_compositor_cursor.h"
-#include "tracker_test_context.h"
+#include "capture_test_context.h"
 #include "vr_cursor_context.h"
-#include "vr_tracker_traverse.h"
+#include "capture_traverser.h"
 #include <set>
 
-static void do_read(tracker_test_context *test_context, int unique_reads)
+static void do_read(capture_test_context *test_context, int unique_reads)
 {
 	// create a cursor
-	CursorContext cursor_context(&test_context->get_tracker());
+	CursorContext cursor_context(&test_context->get_capture());
 	VRSystemCursor system(&cursor_context);
 
 	// wait until there is some data to read
@@ -34,25 +34,25 @@ static void do_read(tracker_test_context *test_context, int unique_reads)
 }
 
 std::atomic<int> readers_done;
-static void writer_thread(tracker_test_context *test_context, bool parallel)
+static void writer_thread(capture_test_context *test_context, bool parallel)
 {
-	vr_tracker_traverse u;
+	capture_traverser u;
 	while (!readers_done)
 	{
 		if (parallel)
 		{
-			u.update_tracker_parallel(&test_context->get_tracker(), &test_context->raw_vr_interfaces());
+			u.update_capture_parallel(&test_context->get_capture(), &test_context->raw_vr_interfaces());
 		}
 		else
 		{
-			u.update_tracker_sequential(&test_context->get_tracker(), &test_context->raw_vr_interfaces());
+			u.update_capture_sequential(&test_context->get_capture(), &test_context->raw_vr_interfaces());
 		}
 		
 		std::this_thread::yield();
 	}
 }
 
-static void launch_readers(tracker_test_context *test_context, int unique_reads)
+static void launch_readers(capture_test_context *test_context, int unique_reads)
 {
 	std::vector<std::thread> threads;
 
@@ -69,7 +69,7 @@ static void launch_readers(tracker_test_context *test_context, int unique_reads)
 }
 
 // test that multiple cursors can run simultaneously
-static void test_simultaneous_cursors(tracker_test_context *test_context)
+static void test_simultaneous_cursors(capture_test_context *test_context)
 {
 	std::thread writer(writer_thread, test_context, true);
 	launch_readers(test_context, 10);
@@ -100,23 +100,23 @@ float time_seek(
 }
 
 // test that seek time is linear or better
-static void test_seek_time(tracker_test_context *test_context)
+static void test_seek_time(capture_test_context *test_context)
 {
 	// update 1000 frames
 	// measure time from 0->10
 	// measure time from 0->100
 	// measure time from 0->1000
 
-	CursorContext cursor_context(&test_context->get_tracker());
+	CursorContext cursor_context(&test_context->get_capture());
 	VRCompositorCursor compi(&cursor_context);
-	vr_tracker_traverse u;
+	capture_traverser u;
 	int target_number_of_frames = 1000;
 	log_printf("collecting %d frames\n", target_number_of_frames);
 
 	
 	while (cursor_context.GetCurrentFrame() < target_number_of_frames)
 	{
-		u.update_tracker_parallel(&test_context->get_tracker(), &test_context->raw_vr_interfaces());
+		u.update_capture_parallel(&test_context->get_capture(), &test_context->raw_vr_interfaces());
 		cursor_context.ChangeFrame(target_number_of_frames);
 		if (cursor_context.GetCurrentFrame() % 100 == 0)
 		{
@@ -148,7 +148,7 @@ static void test_seek_time(tracker_test_context *test_context)
 
 void TEST_SYSTEM_CURSOR()
 {
-	tracker_test_context test_context;
+	capture_test_context test_context;
 	test_context.ForceInitAll(); // make sure it's setup before splitting into separate threads
 
 	test_seek_time(&test_context);   

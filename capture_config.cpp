@@ -1,5 +1,5 @@
 #include "platform.h"
-#include "tracker_config.h"
+#include "capture_config.h"
 #include "memory.h"
 
 static const char *default_overlay_keys[] =
@@ -29,7 +29,7 @@ static const char *default_overlay_keys[] =
 	"system.dashboard.active.background",  // Sits behind active dashboard
 };
 
-void TrackerConfig::set_default()
+void CaptureConfig::set_default()
 {
 	nearz = 0.02f;
 	farz = 100.0f;
