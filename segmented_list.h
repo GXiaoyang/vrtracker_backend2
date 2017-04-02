@@ -108,6 +108,11 @@ public:
 		return begin()[i];
 	}
 
+	const T& operator[] (size_type i) const
+	{
+		return begin()[i];
+	}
+
 	template <typename iterator_type>
 	iterator_type find_end(iterator_type begin) const
 	{
@@ -322,9 +327,6 @@ printf("burp\n");
 		}
 	}
 
-	
-	
-
 	void reserve(size_type new_cap)
 	{
 		// todo: support reserve.  can't do it because
@@ -345,7 +347,6 @@ printf("burp\n");
 	{
 		T* buf = &m_segment_container.back()[m_size % SegmentSize];
 		new(buf) T(value);
-		//*buf = value;
 		grow_if_necessary();
 		m_size++;
 	}
@@ -353,7 +354,6 @@ printf("burp\n");
 private:
 	segment_container_type		m_segment_container;
 	std::atomic<size_type>		m_size;
-
 };
 
 // difference type - a type that can hold the distance between two iterators

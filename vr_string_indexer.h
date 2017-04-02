@@ -67,7 +67,7 @@ public:
 		return ref.c_str();
 	}
 
-	int get_index_for_string(const char *key)
+	int get_index_for_string(const char *key) const
 	{
 		int ret = -1;
 		if (key)

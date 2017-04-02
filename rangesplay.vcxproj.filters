@@ -58,8 +58,11 @@
     <Filter Include="Source Files\4 capture test">
       <UniqueIdentifier>{e0bcd322-c486-43c8-b615-5e03b101469a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\6 tracker">
+    <Filter Include="Source Files\6 controller">
       <UniqueIdentifier>{a1fac219-476f-4d82-b76a-8cb30b25f1c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\6 controller test">
+      <UniqueIdentifier>{2597a492-78ec-4e88-bf7e-4e62a30255f4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +300,9 @@
     <ClInclude Include="capture_traverser.h">
       <Filter>Source Files\5 traverse</Filter>
     </ClInclude>
+    <ClInclude Include="capture_controller.h">
+      <Filter>Source Files\6 controller</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -466,6 +472,15 @@
     </ClCompile>
     <ClCompile Include="unit_tests\test_capture_serialization.cpp">
       <Filter>Source Files\5 traverse test</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\controller_test_main.cpp">
+      <Filter>Source Files\6 controller test</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_controller.cpp">
+      <Filter>Source Files\6 controller test</Filter>
+    </ClCompile>
+    <ClCompile Include="capture_controller.cpp">
+      <Filter>Source Files\6 controller</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

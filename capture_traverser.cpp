@@ -274,11 +274,14 @@ struct ConfigObserver : KeysObserver
 	tbb::concurrent_vector<VRKeysUpdate> config_events;
 };
 
-void capture_traverser::update_capture_parallel(capture *capture, openvr_broker::open_vr_interfaces *interfaces)
+void capture_traverser::update_capture(capture *capture,
+	openvr_broker::open_vr_interfaces *interfaces,
+	time_stamp_t update_time,
+	bool parallel)
 {
 	time_index_t last_updated = capture->get_last_updated_frame();
-	capture_update_visitor update_visitor(last_updated + 1);
-	update_visitor.registry = &capture->m_state_registry;
+	capture_update_visitor update_visitor(last_updated + 1);			// setup the visitor with the new frame number
+	update_visitor.registry = &capture->m_state_registry;				// setup the visitor so he can register any new state objects
 
 	ConfigObserver config_observer;
 	capture->m_keys.RegisterObserver(&config_observer);
@@ -287,7 +290,15 @@ void capture_traverser::update_capture_parallel(capture *capture, openvr_broker:
 	wrappers.assign(interfaces);
 
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-	traverse_history_graph<named_task_group>(&update_visitor, capture, &wrappers);
+	if (parallel)
+	{
+		traverse_history_graph<named_task_group>(&update_visitor, capture, &wrappers);
+	}
+	else
+	{
+		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&update_visitor, capture, &wrappers);
+	}
+	
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	bool quiet = true;
 	if (!quiet)
@@ -315,31 +326,12 @@ void capture_traverser::update_capture_parallel(capture *capture, openvr_broker:
 	}
 	
 	// after update, log the frame_time
-	using us = std::chrono::duration<int64_t, std::micro>;
-	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - capture->m_start);
-	capture->m_time_stamps.push_back(frame_time.count());
+	capture->m_time_stamps.push_back(update_time);
 
 	// after update, finally update m_last_updated_frame_number
-	capture->m_last_updated_frame_number = update_visitor.get_frame_number();
+	capture->increment_last_updated_frame();
 }
 
-void capture_traverser::update_capture_sequential(capture *capture, openvr_broker::open_vr_interfaces *interfaces)
-{
-	time_index_t last_updated = capture->get_last_updated_frame();
-	capture_update_visitor update_visitor(last_updated + 1);
-	update_visitor.registry = &capture->m_state_registry;
-
-	WrapperSet wrappers;
-	wrappers.assign(interfaces);
-
-	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-	traverse_history_graph<ExecuteImmediatelyTaskGroup>(&update_visitor, capture, &wrappers);
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	log_printf("sequential update took %lld us.\n",
-		std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
-	
-	capture->m_last_updated_frame_number = last_updated + 1;
-}
 
 static const uint32_t HEADER_MAGIC = 0x7;
 
@@ -432,7 +424,7 @@ bool capture_traverser::save_capture_to_binary_file(capture *capture, const char
 #else
 	strcpy(capture->m_save_summary.start_date_string, ctime(&start));
 #endif
-	capture->m_save_summary.last_encoded_frame = capture->m_last_updated_frame_number;
+	capture->m_save_summary.last_encoded_frame = capture->get_last_updated_frame();
 
 	// LAST STEP after writing into the header is to write the crc
 	header.crc = crc32buf((char *)&header, sizeof(header));

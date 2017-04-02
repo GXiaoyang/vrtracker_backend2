@@ -16,6 +16,8 @@ namespace plat
 	}
 }
 
+using time_point_t = std::chrono::steady_clock::time_point;
+
 typedef uint64_t time_stamp_t;
 typedef int time_index_t;
 using serialization_id = uint16_t;

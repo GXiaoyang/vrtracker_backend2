@@ -15,7 +15,7 @@ void test_capture_serialization()
 	log_printf("start of test_capture_serialization\n");
 	capture_test_context::reset_globals();
 
-	capture_traverser u;
+	capture_traverser traverser;
 	{
 		capture_test_context contexta;
 		assert(contexta.get_capture() == contexta.get_capture());
@@ -31,10 +31,10 @@ void test_capture_serialization()
 		log_printf("serializing empty context\n");
 		// no updates
 		capture_test_context contexta;
-		u.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker0.bin");
+		traverser.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker0.bin");
 
 		capture_test_context contextb;
-		u.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker0.bin");
+		traverser.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker0.bin");
 		assert(contexta.get_capture() == contextb.get_capture());
 	}
 
@@ -43,12 +43,12 @@ void test_capture_serialization()
 		log_printf("serializing one update\n");
 		// one update
 		capture_test_context contexta;
-		u.update_capture_parallel(&contexta.get_capture(), &contexta.raw_vr_interfaces());
-		assert(u.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker1.bin"));
+		traverser.update_capture_parallel(&contexta.get_capture(), &contexta.raw_vr_interfaces(), 42);
+		assert(traverser.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker1.bin"));
 		//contexta.get_capture().m_state_registry.dump();
 		
 		capture_test_context contextb;
-		assert(u.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker1.bin"));
+		assert(traverser.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker1.bin"));
 		assert(contexta.get_capture() == contextb.get_capture());
 	}
 	capture_test_context::reset_globals();
@@ -58,14 +58,14 @@ void test_capture_serialization()
 		capture_test_context contexta;
 		for (int i = 0; i < 10; i++)
 		{
-			u.update_capture_parallel(&contexta.get_capture(), &contexta.raw_vr_interfaces());
+			traverser.update_capture_parallel(&contexta.get_capture(), &contexta.raw_vr_interfaces(), i);
 		}
 		log_printf("writing\n");
-		u.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker10.bin");
+		traverser.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker10.bin");
 
 		log_printf("reading\n");
 		capture_test_context contextb;
-		u.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker10.bin");
+		traverser.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker10.bin");
 		assert(contexta.get_capture() == contextb.get_capture());
 	}
 	capture_test_context::reset_globals();

@@ -169,6 +169,7 @@
     <ClInclude Include="base_serialization.h" />
     <ClInclude Include="capture.h" />
     <ClInclude Include="capture_config.h" />
+    <ClInclude Include="capture_controller.h" />
     <ClInclude Include="capture_decoder.h" />
     <ClInclude Include="capture_encoder.h" />
     <ClInclude Include="capture_id_fixer.h" />
@@ -249,6 +250,7 @@
     <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp" />
     <ClCompile Include="base_serialization.cpp" />
     <ClCompile Include="capture_config.cpp" />
+    <ClCompile Include="capture_controller.cpp" />
     <ClCompile Include="capture_traverser.cpp" />
     <ClCompile Include="crc_32.cpp" />
     <ClCompile Include="log.cpp" />
@@ -263,11 +265,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="unit_tests\capture_test_context.cpp" />
+    <ClCompile Include="unit_tests\controller_test_main.cpp" />
     <ClCompile Include="unit_tests\test_base_main.cpp" />
     <ClCompile Include="unit_tests\test_base_stream.cpp" />
     <ClCompile Include="unit_tests\test_capture_class.cpp" />
     <ClCompile Include="unit_tests\test_capture_main.cpp" />
     <ClCompile Include="unit_tests\test_capture_serialization.cpp" />
+    <ClCompile Include="unit_tests\test_controller.cpp" />
     <ClCompile Include="unit_tests\test_cursors.cpp" />
     <ClCompile Include="unit_tests\test_cursors_main.cpp" />
     <ClCompile Include="unit_tests\test_gui_usecase.cpp" />

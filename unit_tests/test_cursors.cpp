@@ -41,11 +41,11 @@ static void writer_thread(capture_test_context *test_context, bool parallel)
 	{
 		if (parallel)
 		{
-			u.update_capture_parallel(&test_context->get_capture(), &test_context->raw_vr_interfaces());
+			u.update_capture_parallel(&test_context->get_capture(), &test_context->raw_vr_interfaces(), 0);
 		}
 		else
 		{
-			u.update_capture_sequential(&test_context->get_capture(), &test_context->raw_vr_interfaces());
+			u.update_capture_sequential(&test_context->get_capture(), &test_context->raw_vr_interfaces(), 0);
 		}
 		
 		std::this_thread::yield();
@@ -116,7 +116,7 @@ static void test_seek_time(capture_test_context *test_context)
 	
 	while (cursor_context.GetCurrentFrame() < target_number_of_frames)
 	{
-		u.update_capture_parallel(&test_context->get_capture(), &test_context->raw_vr_interfaces());
+		u.update_capture_parallel(&test_context->get_capture(), &test_context->raw_vr_interfaces(), 0);
 		cursor_context.ChangeFrame(target_number_of_frames);
 		if (cursor_context.GetCurrentFrame() % 100 == 0)
 		{

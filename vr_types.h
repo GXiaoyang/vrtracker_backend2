@@ -42,6 +42,12 @@ struct  VRBitset : public boost::dynamic_bitset<uint64_t, std::allocator<uint64_
 // need to support encode to serialize it
 struct VREncodableEvent : vr::VREvent_t 
 {
+	VREncodableEvent() = default;
+
+	VREncodableEvent(const vr::VREvent_t &rhs)
+		: vr::VREvent_t(rhs)
+	{
+	}
 	void encode(BaseStream &e) const
 	{
 		e.write_to_stream(this, sizeof(vr::VREvent_t));
@@ -57,14 +63,23 @@ using VREventList = time_indexed_vector<VREncodableEvent, segmented_list_1024, V
 
 struct VRKeysUpdate
 {
+	enum KeysUpdateType
+	{
+		NEW_APP_KEY,			// sparam1: app_key
+		NEW_SETTING,			//sparam1: name, sparam2: section, iparam: setting type
+		NEW_DEVICE_PROPERTY,	// ditto
+		NEW_RESOURCE,			// sparam1: name sparam2: directory
+		NEW_OVERLAY,			// sparam1: overlay_name
+	};
+
 	VRKeysUpdate()
 		: iparam1(0)
 	{}
 
-	enum KeysUpdateType
-	{
-		NEW_APP_KEY
-	};
+	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in)
+		: update_type(update_type_in), sparam1(sparam1_in)
+	{}
+	
 
 	bool operator==(const VRKeysUpdate &rhs) const
 	{
@@ -83,6 +98,8 @@ struct VRKeysUpdate
 	{
 		return !(*this == rhs);
 	}
+
+	static VRKeysUpdate make_new_overlay(std::string overlay_name) { return VRKeysUpdate(NEW_OVERLAY, overlay_name); }
 
 	KeysUpdateType update_type;
 	uint32_t iparam1;

@@ -7,6 +7,7 @@ extern void test_keys();
 extern void test_capture();
 extern void test_traverse();
 extern void test_cursors();
+extern void test_controller();
 
 int main()
 {
@@ -16,6 +17,7 @@ int main()
 	test_capture();
 	test_traverse();
 	test_cursors();
+	test_controller();
 
 	log_printf("all tests done\n");
 }

@@ -36,7 +36,7 @@ public:
 
 	void update_presence(vr_result::OverlayWrapper *ow);
 
-	int get_index_for_key(const char *key)
+	int get_index_for_key(const char *key) const
 	{
 		return m_string_indexer.get_index_for_string(key);
 	}

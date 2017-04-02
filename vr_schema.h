@@ -441,7 +441,6 @@ namespace vr_result
 				INIT(overlay_is_active_dashboard),
 				INIT(overlay_texture_size),
 				INIT(overlay_dashboard_scene_process)
-				//,
 				//INIT(events)
 			{}
 
@@ -475,8 +474,7 @@ namespace vr_result
 			TIMENODE<Bool<>> overlay_is_active_dashboard;
 			TIMENODE<Uint32Size<EVROverlayError>> overlay_texture_size;
 			TIMENODE<Uint32<EVROverlayError>> overlay_dashboard_scene_process;
-			//TIMENODE<VREvent<>> events;	// experiment
-
+			VREventList events;
 		};
 
 		struct overlay_schema : schema<is_iterator>

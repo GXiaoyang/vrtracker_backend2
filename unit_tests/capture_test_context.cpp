@@ -15,7 +15,6 @@ void capture_test_context::reset_globals()
 
 capture_test_context::capture_test_context()
 	: 
-	//s(1024 * 1024 * 32),	// todo - put textures onto their own slab (2048*2048*4 = 16MB)
 	m_config(nullptr),
 	m_capture(nullptr),
 	m_interfaces(nullptr)
@@ -42,12 +41,6 @@ capture_test_context::~capture_test_context()
 	delete m_capture;
 	delete m_interfaces;
 }
-#if 0
-const tmp_vector_pool<VRTMPSize> *capture_test_context::get_tmp_pool() const
-{
-	return &m_tmp_pool;
-}
-#endif
 
 CaptureConfig &capture_test_context::get_config()
 {
