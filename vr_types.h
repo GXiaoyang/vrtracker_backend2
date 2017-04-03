@@ -72,26 +72,31 @@ struct VRKeysUpdate
 		NEW_DEVICE_PROPERTY,	// ditto
 		NEW_RESOURCE,			// sparam1: name sparam2: directory
 		NEW_OVERLAY,			// sparam1: overlay_name
+		MODIFY_NEARZ_FARZ,		// fparm0, fparam1
 	};
 
 	VRKeysUpdate()
-		: iparam1(0), iparam2(0)
+		: iparam1(0), iparam2(0), fparam1(0), fparam2(0)
 	{}
 
 	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in)
-		: update_type(update_type_in), iparam1(0), iparam2(0), sparam1(sparam1_in)
+		: update_type(update_type_in), iparam1(0), iparam2(0), fparam1(0), fparam2(0), sparam1(sparam1_in)
 	{}
 	
 	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in, const std::string &sparam2_in)
-		: update_type(update_type_in), iparam1(0), iparam2(0), sparam1(sparam1_in), sparam2(sparam2_in)
+		: update_type(update_type_in), iparam1(0), iparam2(0), fparam1(0), fparam2(0), sparam1(sparam1_in), sparam2(sparam2_in)
 	{}
 
 	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in, int iparam_in, const std::string &sparam2_in)
-		: update_type(update_type_in), iparam1(iparam_in), iparam2(0), sparam1(sparam1_in), sparam2(sparam2_in)
+		: update_type(update_type_in), iparam1(iparam_in), iparam2(0), fparam1(0), fparam2(0), sparam1(sparam1_in), sparam2(sparam2_in)
 	{}
 
 	VRKeysUpdate(KeysUpdateType update_type_in, int iparam1_in, const std::string &sparam1_in, int iparam2_in)
-		: update_type(update_type_in), iparam1(iparam1_in), iparam2(iparam2_in), sparam1(sparam1_in)
+		: update_type(update_type_in), iparam1(iparam1_in), iparam2(iparam2_in), fparam1(0), fparam2(0), sparam1(sparam1_in)
+	{}
+
+	VRKeysUpdate(KeysUpdateType update_type_in, float fparam1_in, float fparam2_in)
+		: update_type(update_type_in), iparam1(0), iparam2(0), fparam1(fparam1_in), fparam2(fparam2_in)
 	{}
 
 	bool operator==(const VRKeysUpdate &rhs) const
@@ -101,6 +106,10 @@ struct VRKeysUpdate
 		if (iparam1 != rhs.iparam1)
 			return false;
 		if (iparam2 != rhs.iparam2)
+			return false;
+		if (fparam1 != rhs.fparam1)
+			return false;
+		if (fparam2 != rhs.fparam2)
 			return false;
 		if (sparam1 != rhs.sparam1)
 			return false;
@@ -133,15 +142,26 @@ struct VRKeysUpdate
 		return VRKeysUpdate(NEW_RESOURCE, name, directory);
 	}
 
+	static VRKeysUpdate make_modify_nearz_farz(float nearz, float farz)
+	{
+		return VRKeysUpdate(MODIFY_NEARZ_FARZ, nearz, farz);
+	}
+
+
 	KeysUpdateType update_type;
-	uint32_t iparam1;
-	uint32_t iparam2;
+	int iparam1;
+	int iparam2;
+	float fparam1;
+	float fparam2;
 	std::string sparam1;
 	std::string sparam2;
 	void encode(BaseStream &e) const
 	{
 		e.write_to_stream(&update_type, sizeof(update_type));
 		e.write_to_stream(&iparam1, sizeof(iparam1));
+		e.write_to_stream(&iparam2, sizeof(iparam2));
+		e.write_to_stream(&fparam1, sizeof(fparam1));
+		e.write_to_stream(&fparam2, sizeof(fparam2));
 		e.contiguous_container_out_to_stream(sparam1);
 		e.contiguous_container_out_to_stream(sparam2);
 	}
@@ -150,6 +170,9 @@ struct VRKeysUpdate
 	{
 		e.read_from_stream(&update_type, sizeof(update_type));
 		e.read_from_stream(&iparam1, sizeof(iparam1));
+		e.read_from_stream(&iparam2, sizeof(iparam2));
+		e.read_from_stream(&fparam1, sizeof(fparam1));
+		e.read_from_stream(&fparam2, sizeof(fparam2));
 		e.contiguous_container_from_stream(sparam1);
 		e.contiguous_container_from_stream(sparam2);
 	}

@@ -63,6 +63,8 @@ void test_controller()
 
 			// check the overlay key took effect after update
 			assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) != -1);
+			// check that the update log grew
+			assert(size_as_int(model.m_keys_updates.size()) > num_key_updates_before);
 		}
 
 		// add an app key
@@ -82,6 +84,8 @@ void test_controller()
 
 			// check the overlay key took effect after update
 			assert(model.m_keys.GetApplicationsIndexer().get_index_for_key(test_key) != -1);
+			// check that the update log grew
+			assert(size_as_int(model.m_keys_updates.size()) > num_key_updates_before);
 		}
 
 		// add a setting
@@ -104,6 +108,8 @@ void test_controller()
 
 			// check the overlay key took effect after update
 			assert(model.m_keys.GetSettingsIndexer().setting_exists(test_section, test_setting_type, test_setting));
+			// check that the update log grew
+			assert(size_as_int(model.m_keys_updates.size()) > num_key_updates_before);
 		}
 
 		// add a device property
@@ -125,6 +131,8 @@ void test_controller()
 
 			// check the overlay key took effect after update
 			assert(model.m_keys.GetDevicePropertiesIndexer().property_exists(test_prop_type, test_prop_name));
+			// check that the update log grew
+			assert(size_as_int(model.m_keys_updates.size()) > num_key_updates_before);
 		}
 
 		// add a resource
@@ -146,7 +154,34 @@ void test_controller()
 
 			// check the overlay key took effect after update
 			assert(model.m_keys.GetResourcesIndexer().resource_key_exists(test_resource_name.c_str(), test_resource_directory.c_str()));
-			
+			// check that the update log grew
+			assert(size_as_int(model.m_keys_updates.size()) > num_key_updates_before);
+		}
+
+		// nearz farz
+		{
+			int num_key_updates_before = model.m_keys_updates.size();
+
+			float test_nearz = 11.f;
+			float test_farz = 12.f;
+
+			assert(model.m_keys.GetNearZ() != test_nearz);	// since the number are quite strange should not fire
+			assert(model.m_keys.GetFarZ() != test_farz);
+
+			VRKeysUpdate modify_nearzfarz = VRKeysUpdate::make_modify_nearz_farz(test_nearz, test_farz);
+			controller.enqueue_new_key(modify_nearzfarz);
+
+			// check it hasn't taken effect yet
+			assert(model.m_keys.GetNearZ() != test_nearz);	// since the number are quite strange should not fire
+			assert(model.m_keys.GetFarZ() != test_farz);
+
+			controller.update();
+
+			// check the change took effect after update
+			assert(model.m_keys.GetNearZ() == test_nearz);	// since the number are quite strange should not fire
+			assert(model.m_keys.GetFarZ() == test_farz);
+			// check that the update log grew
+			assert(size_as_int(model.m_keys_updates.size()) > num_key_updates_before);
 		}
 
 	}

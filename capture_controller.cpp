@@ -99,10 +99,11 @@ struct pending_key_update : public capture_controller::pending_controller_update
 			case VRKeysUpdate::NEW_OVERLAY:
 				target->m_keys.GetOverlayIndexer().add_overlay_key(m_key_update.sparam1.c_str());
 				break;
-			
+			case VRKeysUpdate::MODIFY_NEARZ_FARZ:
+				target->m_keys.UpdateNearFar(m_key_update.fparam1, m_key_update.fparam2);
+				break;
 			default:
-				assert(0); // the key has to do it's work
-							// assert 0
+				assert(0);  //
 		}
 
 		target->m_keys_updates.emplace_back(target->get_last_updated_frame() + 1, m_key_update);

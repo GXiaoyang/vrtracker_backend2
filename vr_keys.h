@@ -166,8 +166,8 @@ struct vr_keys
 	float GetPredictedSecondsToPhoton() const { return m_data.predicted_seconds_to_photon; }
 	int GetNumBoundsColors() const { return m_data.num_bounds_colors; }
 	float GetCollisionBoundsFadeDistance() const { return m_data.collision_bounds_fade_distance; }
-	uint32_t GetFrameTimingFramesAgo() const { return m_data.frame_timing_frames_ago; }
-	uint32_t GetFrameTimingsNumFrames() const { return m_data.frame_timings_num_frames; }
+	int GetFrameTimingFramesAgo() const { return m_data.frame_timing_frames_ago; }
+	int GetFrameTimingsNumFrames() const { return m_data.frame_timings_num_frames; }
 
 private:
 	struct KeyData {
@@ -178,8 +178,8 @@ private:
 		float predicted_seconds_to_photon;
 		int num_bounds_colors;
 		float collision_bounds_fade_distance;
-		uint32_t frame_timing_frames_ago;
-		uint32_t frame_timings_num_frames;
+		int frame_timing_frames_ago;
+		int frame_timings_num_frames;
 	} m_data;
 
 	OverlayIndexer m_overlay_indexer;
