@@ -19,6 +19,10 @@ public:
 		return !(*this == rhs);
 	}
 
+	bool resource_key_exists(const char *resource_name, const char *resource_directory) const;
+
+	void add_resource(const char *resource_name, const char *resource_directory);
+
 	void Init(const char **resource_filenames, const char **initial_resources_dirs, int num_names);
 	void WriteToStream(BaseStream &s) const;
 	void ReadFromStream(BaseStream &s);
@@ -35,7 +39,8 @@ public:
 		return m_resource_directories[index].c_str();
 	}
 
-	int get_num_resources() {
+	int get_num_resources() const
+	{
 		return size_as_int(m_resource_filenames.size());
 	}
 

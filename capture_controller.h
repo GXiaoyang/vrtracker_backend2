@@ -39,7 +39,7 @@ private:
 	// serializes access to update() - only one global update at a time (internally update can be multi-threaded)
 	std::mutex m_update_lock;
 
-	// serializes access to the update queues
+	// serializes access to the update queue.  A single queue is used to preserve time order
 	std::mutex m_queue_lock;
 	std::vector<pending_controller_update *> m_pending_updates;
 	

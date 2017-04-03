@@ -29,6 +29,8 @@ public:
 		int num_float_properties, const char **float_names, int *float_enum_values
 	);
 
+	bool property_exists(PropertySettingType prop_type, const char *name) const;
+
 	// spawns new name
 	void AddCustomProperty(PropertySettingType prop_type, const char *name, int val);
 
@@ -128,7 +130,10 @@ private:
 		int size;
 	} default_property_table[NUM_PROP_TYPES];
 
+	// holds indexes to allow properties to be stepped from 0..n-1
 	std::unordered_map<int, int> enum2index[NUM_PROP_TYPES];
+
+	// custom properties
 	std::vector<std::string> custom_names[NUM_PROP_TYPES];
 	std::vector<int> custom_enum_values[NUM_PROP_TYPES];
 };

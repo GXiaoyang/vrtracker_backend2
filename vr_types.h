@@ -11,6 +11,7 @@
 #include "segmented_list.h"
 #include "dynamic_bitset.hpp"
 #include "vr_settings_indexer.h"
+#include "vr_properties_indexer.h"
 #include <openvr.h>
 
 using VRTimestampVector = segmented_list<time_stamp_t, VR_LARGE_SEGMENT_SIZE, VRAllocatorTemplate<time_stamp_t>>;
@@ -74,15 +75,23 @@ struct VRKeysUpdate
 	};
 
 	VRKeysUpdate()
-		: iparam1(0)
+		: iparam1(0), iparam2(0)
 	{}
 
 	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in)
-		: update_type(update_type_in), sparam1(sparam1_in)
+		: update_type(update_type_in), iparam1(0), iparam2(0), sparam1(sparam1_in)
 	{}
 	
+	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in, const std::string &sparam2_in)
+		: update_type(update_type_in), iparam1(0), iparam2(0), sparam1(sparam1_in), sparam2(sparam2_in)
+	{}
+
 	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in, int iparam_in, const std::string &sparam2_in)
-		: update_type(update_type_in), sparam1(sparam1_in), iparam1(iparam_in), sparam2(sparam2_in)
+		: update_type(update_type_in), iparam1(iparam_in), iparam2(0), sparam1(sparam1_in), sparam2(sparam2_in)
+	{}
+
+	VRKeysUpdate(KeysUpdateType update_type_in, int iparam1_in, const std::string &sparam1_in, int iparam2_in)
+		: update_type(update_type_in), iparam1(iparam1_in), iparam2(iparam2_in), sparam1(sparam1_in)
 	{}
 
 	bool operator==(const VRKeysUpdate &rhs) const
@@ -90,6 +99,8 @@ struct VRKeysUpdate
 		if (update_type != rhs.update_type)
 			return false;
 		if (iparam1 != rhs.iparam1)
+			return false;
+		if (iparam2 != rhs.iparam2)
 			return false;
 		if (sparam1 != rhs.sparam1)
 			return false;
@@ -112,8 +123,19 @@ struct VRKeysUpdate
 		return VRKeysUpdate(NEW_SETTING, section_name, static_cast<int>(setting_type), setting_name);
 	}
 
+	static VRKeysUpdate make_new_device_property(PropertiesIndexer::PropertySettingType setting_type, const std::string&setting_name, int val)
+	{
+		return VRKeysUpdate(NEW_DEVICE_PROPERTY, static_cast<int>(setting_type), setting_name, val);
+	}
+
+	static VRKeysUpdate make_new_resource(const std::string &name, const std::string directory)
+	{
+		return VRKeysUpdate(NEW_RESOURCE, name, directory);
+	}
+
 	KeysUpdateType update_type;
 	uint32_t iparam1;
+	uint32_t iparam2;
 	std::string sparam1;
 	std::string sparam2;
 	void encode(BaseStream &e) const

@@ -81,20 +81,23 @@ struct vr_keys
 		m_applications_indexer.UnRegisterObserver(o);
 	}
 
+	const DevicePropertiesIndexer &GetDevicePropertiesIndexer() const { return m_device_properties_indexer; }
 	DevicePropertiesIndexer &GetDevicePropertiesIndexer() { return m_device_properties_indexer; }
 
 	const OverlayIndexer	&GetOverlayIndexer() const { return m_overlay_indexer; }
 	OverlayIndexer	&GetOverlayIndexer() { return m_overlay_indexer; }
 
-	ApplicationsIndexer &GetApplicationsIndexer() { return m_applications_indexer; }
 	const ApplicationsIndexer &GetApplicationsIndexer() const { return m_applications_indexer; }
+	ApplicationsIndexer &GetApplicationsIndexer() { return m_applications_indexer; }
 
 	ApplicationsPropertiesIndexer &GetApplicationsPropertiesIndexer() { return m_applications_properties_indexer; }
 
+	const ResourcesIndexer &GetResourcesIndexer() const { return m_resources_indexer; }
 	ResourcesIndexer &GetResourcesIndexer() { return m_resources_indexer; }
 
-	SettingsIndexer &GetSettingsIndexer() { return m_settings_indexer; }
 	const SettingsIndexer &GetSettingsIndexer() const { return m_settings_indexer; }
+	SettingsIndexer &GetSettingsIndexer() { return m_settings_indexer; }
+	
 
 	MimeTypesIndexer &GetMimeTypesIndexer() { return m_mime_types_indexer; }
 

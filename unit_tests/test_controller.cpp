@@ -105,5 +105,49 @@ void test_controller()
 			// check the overlay key took effect after update
 			assert(model.m_keys.GetSettingsIndexer().setting_exists(test_section, test_setting_type, test_setting));
 		}
+
+		// add a device property
+		{
+			int num_key_updates_before = model.m_keys_updates.size();
+
+			PropertiesIndexer::PropertySettingType test_prop_type = PropertiesIndexer::PROP_FLOAT;
+			const char *test_prop_name = "test_device_prop";
+
+			assert(!model.m_keys.GetDevicePropertiesIndexer().property_exists(test_prop_type, test_prop_name));
+			VRKeysUpdate new_device_property = VRKeysUpdate::make_new_device_property(test_prop_type, test_prop_name, 9999999);
+			controller.enqueue_new_key(new_device_property);
+
+			// check it hasn't taken effect yet
+			assert(model.m_keys_updates.size() == num_key_updates_before);
+			assert(!model.m_keys.GetDevicePropertiesIndexer().property_exists(test_prop_type, test_prop_name));
+
+			controller.update();
+
+			// check the overlay key took effect after update
+			assert(model.m_keys.GetDevicePropertiesIndexer().property_exists(test_prop_type, test_prop_name));
+		}
+
+		// add a resource
+		{
+			int num_key_updates_before = model.m_keys_updates.size();
+
+			std::string test_resource_name = "test_resource";
+			std::string test_resource_directory = "c:\\test_resource";
+			
+			assert(!model.m_keys.GetResourcesIndexer().resource_key_exists(test_resource_name.c_str(), test_resource_directory.c_str()));
+			VRKeysUpdate new_resource = VRKeysUpdate::make_new_resource(test_resource_name, test_resource_directory);
+			controller.enqueue_new_key(new_resource);
+
+			// check it hasn't taken effect yet
+			assert(model.m_keys_updates.size() == num_key_updates_before);
+			assert(!model.m_keys.GetResourcesIndexer().resource_key_exists(test_resource_name.c_str(), test_resource_directory.c_str()));
+
+			controller.update();
+
+			// check the overlay key took effect after update
+			assert(model.m_keys.GetResourcesIndexer().resource_key_exists(test_resource_name.c_str(), test_resource_directory.c_str()));
+			
+		}
+
 	}
 }

@@ -546,7 +546,7 @@ void spawn_check(
 	if (size_as_int(vec.size()) < num_props)
 	{
 		vec.reserve(num_props);
-		for (int index = 0; index < num_props; index++)
+		for (int index = vec.size(); index < num_props; index++)
 		{
 			const char *prop_name = indexer->GetName(prop_type, index);
 			visitor->spawn_child(vec, prop_name);
@@ -1488,7 +1488,7 @@ static void visit_per_controller_state(visitor_fn *visitor,
 		if (ss->cameraframetypes.size() < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES)
 		{
 			ss->cameraframetypes.reserve(EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES);
-			for (int i = 0; i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
+			for (int i = ss->cameraframetypes.size(); i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
 			{
 				const char *child_name = FrameTypeToGroupName(EVRTrackedCameraFrameType(i));
 				visitor->spawn_child(ss->cameraframetypes, child_name);

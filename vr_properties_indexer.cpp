@@ -53,13 +53,34 @@ void PropertiesIndexer::AddCustomPropertiesArray(PropertySettingType setting_typ
 	}
 }
 
+// O(N) search since this is not typically used
+bool PropertiesIndexer::property_exists(PropertySettingType prop_type, const char *name) const
+{
+	// is it in the default property table?
+	int num_default_props = default_property_table[prop_type].size;
+	for (int i = 0; i < num_default_props; ++i)
+	{
+		if (strcmp(default_property_table[prop_type].rows[i].name, name) == 0)
+		{
+			return true;
+		}
+	}
+
+	// is it in the custom properties table
+	return std::find(begin(custom_names[prop_type]), end(custom_names[prop_type]), name) != custom_names[prop_type].end();
+}
+
 void PropertiesIndexer::AddCustomProperty(PropertySettingType prop_type, const char *name, int val)
 {
 	assert(enum2index[prop_type].find(val) == enum2index[prop_type].end());
-	custom_names[prop_type].push_back(name);
-	custom_enum_values[prop_type].push_back(val);
-	int index = enum2index[prop_type].size();
-	enum2index[prop_type].insert({ val, index });
+
+	if (!property_exists(prop_type, name))
+	{
+		custom_names[prop_type].push_back(name);
+		custom_enum_values[prop_type].push_back(val);
+		int index = enum2index[prop_type].size();	// assign an index to allows the properties to be stepped from 0..n-1
+		enum2index[prop_type].insert({ val, index });
+	}
 }
 
 void PropertiesIndexer::AddCustomProperties(

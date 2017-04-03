@@ -69,7 +69,7 @@ public:
 #ifdef _DEBUG
 		map_lock.lock();
 		map.find(p->get_serialization_url());
-		assert(map.find(p->get_serialization_url()) == map.end());
+		assert(map.find(p->get_serialization_url()) == map.end()); // assert no duplicates
 		map.insert({ p->get_serialization_url(), p });
 		map_lock.unlock(); 
 #endif

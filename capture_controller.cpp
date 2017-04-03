@@ -80,15 +80,26 @@ struct pending_key_update : public capture_controller::pending_controller_update
 			case VRKeysUpdate::NEW_APP_KEY:
 				target->m_keys.GetApplicationsIndexer().add_app_key(m_key_update.sparam1.c_str());
 				break;
-			case VRKeysUpdate::NEW_OVERLAY: 
-				target->m_keys.GetOverlayIndexer().add_overlay_key(m_key_update.sparam1.c_str());
-				break;
+			
 			case VRKeysUpdate::NEW_SETTING:
 				target->m_keys.GetSettingsIndexer().AddCustomSetting(
 					m_key_update.sparam1.c_str(), 
 					static_cast<SettingsIndexer::SectionSettingType>(m_key_update.iparam1), 
 					m_key_update.sparam2.c_str());
 				break;
+			case VRKeysUpdate::NEW_DEVICE_PROPERTY:
+				target->m_keys.GetDevicePropertiesIndexer().AddCustomProperty(
+					static_cast<PropertiesIndexer::PropertySettingType>(m_key_update.iparam1),
+					m_key_update.sparam1.c_str(),
+					m_key_update.iparam2);
+				break;
+			case VRKeysUpdate::NEW_RESOURCE:
+				target->m_keys.GetResourcesIndexer().add_resource(m_key_update.sparam1.c_str(), m_key_update.sparam2.c_str());
+				break;
+			case VRKeysUpdate::NEW_OVERLAY:
+				target->m_keys.GetOverlayIndexer().add_overlay_key(m_key_update.sparam1.c_str());
+				break;
+			
 			default:
 				assert(0); // the key has to do it's work
 							// assert 0
