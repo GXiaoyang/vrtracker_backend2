@@ -10,6 +10,7 @@
 #include "result.h"
 #include "segmented_list.h"
 #include "dynamic_bitset.hpp"
+#include "vr_settings_indexer.h"
 #include <openvr.h>
 
 using VRTimestampVector = segmented_list<time_stamp_t, VR_LARGE_SEGMENT_SIZE, VRAllocatorTemplate<time_stamp_t>>;
@@ -80,6 +81,9 @@ struct VRKeysUpdate
 		: update_type(update_type_in), sparam1(sparam1_in)
 	{}
 	
+	VRKeysUpdate(KeysUpdateType update_type_in, const std::string &sparam1_in, int iparam_in, const std::string &sparam2_in)
+		: update_type(update_type_in), sparam1(sparam1_in), iparam1(iparam_in), sparam2(sparam2_in)
+	{}
 
 	bool operator==(const VRKeysUpdate &rhs) const
 	{
@@ -99,7 +103,14 @@ struct VRKeysUpdate
 		return !(*this == rhs);
 	}
 
-	static VRKeysUpdate make_new_overlay(std::string overlay_name) { return VRKeysUpdate(NEW_OVERLAY, overlay_name); }
+	static VRKeysUpdate make_new_app(const std::string& app_key) { return VRKeysUpdate(NEW_APP_KEY, app_key); }
+	static VRKeysUpdate make_new_overlay(const std::string& overlay_name) { return VRKeysUpdate(NEW_OVERLAY, overlay_name); }
+	
+	static VRKeysUpdate make_new_setting(const std::string& section_name, SettingsIndexer::SectionSettingType setting_type, 
+						const std::string&setting_name) 
+	{
+		return VRKeysUpdate(NEW_SETTING, section_name, static_cast<int>(setting_type), setting_name);
+	}
 
 	KeysUpdateType update_type;
 	uint32_t iparam1;

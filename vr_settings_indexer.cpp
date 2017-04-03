@@ -336,6 +336,18 @@ const struct section_def_t
 static const int DEFAULT_SECTIONS_TABLE_SIZE = sizeof(default_section_defs) / sizeof(default_section_defs[0]);
 
 
+bool SettingsIndexer::setting_exists(const char *section_name_in, SectionSettingType section_type, const char *setting_name_in) const
+{
+	auto section_iter = name2section.find(section_name_in);
+	if (section_iter != name2section.end())
+	{
+		const string2int &field_map(sections[section_iter->second].typed_data[section_type].fieldname2index);
+		auto field_iter = field_map.find(setting_name_in);
+		return field_iter != field_map.end();
+	}
+	return false;
+}
+
 // setting clients use string sections and string names to find them
 bool SettingsIndexer::AddCustomSetting(const char *section_name_in, SectionSettingType section_type, const char *setting_name_in)
 {

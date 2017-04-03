@@ -3,11 +3,17 @@
 #include "capture.h"
 #include "openvr.h"
 
+#include "capture_test_context.h"
+
 void test_controller()
 {
 	{
+		capture_test_context x;
+		x.ForceInitAll();
+
 		capture_controller controller;
 		CaptureConfig config;
+		config.set_default();
 		controller.init(config);
 		
 		// zero updates:
@@ -41,24 +47,63 @@ void test_controller()
 		assert(model.m_vr_events.size() == 1);
 
 		// add an overlay key
-		int num_key_updates_before = model.m_keys_updates.size();
+		{
+			int num_key_updates_before = model.m_keys_updates.size();
 
-		const char *test_key = "test_overlay";
-		assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) == -1);
-		VRKeysUpdate new_overlay = VRKeysUpdate::make_new_overlay(test_key);
-		controller.enqueue_new_key(new_overlay);
+			const char *test_key = "test_overlay";
+			assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) == -1);
+			VRKeysUpdate new_overlay = VRKeysUpdate::make_new_overlay(test_key);
+			controller.enqueue_new_key(new_overlay);
 
-		// check it hasn't taken effect
-		assert(model.m_keys_updates.size() == num_key_updates_before);
-		assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) == -1);
+			// check it hasn't taken effect
+			assert(model.m_keys_updates.size() == num_key_updates_before);
+			assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) == -1);
 
-		controller.update();
+			controller.update();
 
-		// check the overlay key took effect after update
-		assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) != -1);
+			// check the overlay key took effect after update
+			assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) != -1);
+		}
 
+		// add an app key
+		{
+			int num_key_updates_before = model.m_keys_updates.size();
 
-		void enqueue_key_configuration(const VRKeysUpdate &update);
+			const char *test_key = "test_key";
+			assert(model.m_keys.GetApplicationsIndexer().get_index_for_key(test_key) == -1);
+			VRKeysUpdate new_app = VRKeysUpdate::make_new_app(test_key);
+			controller.enqueue_new_key(new_app);
 
+			// check it hasn't taken effect yet
+			assert(model.m_keys_updates.size() == num_key_updates_before);
+			assert(model.m_keys.GetApplicationsIndexer().get_index_for_key(test_key) == -1);
+
+			controller.update();
+
+			// check the overlay key took effect after update
+			assert(model.m_keys.GetApplicationsIndexer().get_index_for_key(test_key) != -1);
+		}
+
+		// add a setting
+		{
+			int num_key_updates_before = model.m_keys_updates.size();
+
+			const char *test_section = "test_section";
+			SettingsIndexer::SectionSettingType test_setting_type = SettingsIndexer::SETTING_TYPE_BOOL;
+			const char *test_setting = "test_setting_key";
+
+			assert(!model.m_keys.GetSettingsIndexer().setting_exists(test_section, test_setting_type, test_setting));
+			VRKeysUpdate new_setting = VRKeysUpdate::make_new_setting(test_section, test_setting_type, test_setting);
+			controller.enqueue_new_key(new_setting);
+
+			// check it hasn't taken effect yet
+			assert(model.m_keys_updates.size() == num_key_updates_before);
+			assert(!model.m_keys.GetSettingsIndexer().setting_exists(test_section, test_setting_type, test_setting));
+
+			controller.update();
+
+			// check the overlay key took effect after update
+			assert(model.m_keys.GetSettingsIndexer().setting_exists(test_section, test_setting_type, test_setting));
+		}
 	}
 }

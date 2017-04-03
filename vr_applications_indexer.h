@@ -36,9 +36,14 @@ public:
 		return m_string_indexer.get_string_for_index(app_index, count);
 	}
 
-	int get_index_for_key(const char *key)
+	int get_index_for_key(const char *key) const
 	{
 		return m_string_indexer.get_index_for_string(key);
+	}
+
+	void add_app_key(const char *key)
+	{
+		m_string_indexer.add_key_to_set(key, nullptr);
 	}
 
 	// access number of currently 'live' indexes

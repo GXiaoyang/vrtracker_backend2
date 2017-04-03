@@ -11,13 +11,14 @@ extern void test_controller();
 
 int main()
 {
+	test_controller();
 	test_base();
 	test_time_containers();
 	test_keys();
 	test_capture();
 	test_traverse();
 	test_cursors();
-	test_controller();
+	
 
 	log_printf("all tests done\n");
 }

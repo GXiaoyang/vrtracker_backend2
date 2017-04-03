@@ -75,11 +75,26 @@ struct pending_key_update : public capture_controller::pending_controller_update
 
 	void apply(capture *target) override
 	{
-		assert(0); // the key has to do it's work
-		// assert 0
+		switch (m_key_update.update_type)
+		{
+			case VRKeysUpdate::NEW_APP_KEY:
+				target->m_keys.GetApplicationsIndexer().add_app_key(m_key_update.sparam1.c_str());
+				break;
+			case VRKeysUpdate::NEW_OVERLAY: 
+				target->m_keys.GetOverlayIndexer().add_overlay_key(m_key_update.sparam1.c_str());
+				break;
+			case VRKeysUpdate::NEW_SETTING:
+				target->m_keys.GetSettingsIndexer().AddCustomSetting(
+					m_key_update.sparam1.c_str(), 
+					static_cast<SettingsIndexer::SectionSettingType>(m_key_update.iparam1), 
+					m_key_update.sparam2.c_str());
+				break;
+			default:
+				assert(0); // the key has to do it's work
+							// assert 0
+		}
 
 		target->m_keys_updates.emplace_back(target->get_last_updated_frame() + 1, m_key_update);
-
 		us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(m_time - target->m_start);
 		target->m_time_stamps.emplace_back(frame_time.count());
 		target->increment_last_updated_frame();
@@ -105,9 +120,13 @@ void capture_controller::update()
 
 	m_update_lock.lock();
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+	if (m_model.get_num_updates() == 0)
+	{
+		m_model.m_start = start;
+	}
 	using us = std::chrono::duration<int64_t, std::micro>;
 	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - m_model.m_start);
-	m_traverser.update_capture_parallel(&m_model, &m_interfaces, frame_time.count());
+	m_traverser.update_capture_sequential(&m_model, &m_interfaces, frame_time.count());
 	m_update_lock.unlock();
 }
 

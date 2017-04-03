@@ -46,6 +46,11 @@ public:
 		return m_string_indexer.get_string_for_index(overlay_index);
 	}
 
+	void add_overlay_key(const char *key)
+	{
+		m_string_indexer.add_key_to_set(key, nullptr);
+	}
+
 	int get_num_overlays()
 	{
 		return m_string_indexer.size();

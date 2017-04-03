@@ -57,7 +57,7 @@ public:
 	time_index_t get_closest_time_index(time_stamp_t val) const
 	{
 		auto iter = last_item_less_than_or_equal_to(m_time_stamps.begin(), m_time_stamps.end(), val);
-		return std::distance(m_time_stamps.begin(), m_time_stamps.end());
+		return std::distance(m_time_stamps.begin(), iter);
 	}
 
 	// lookup a timestamp using an index

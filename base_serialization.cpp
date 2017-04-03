@@ -8,8 +8,7 @@ SerializableRegistry::SerializableRegistry(const SerializableRegistry &rhs)
 	map(rhs.map),
 #endif
 	registered(rhs.registered)
-{
-}
+{}
 
 SerializableRegistry &SerializableRegistry::operator=(const SerializableRegistry& rhs)
 {

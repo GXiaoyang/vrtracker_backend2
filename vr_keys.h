@@ -41,8 +41,7 @@ struct vr_keys
 		m_settings_indexer(rhs.m_settings_indexer),
 		m_device_properties_indexer(rhs.m_device_properties_indexer),
 		m_mime_types_indexer(rhs.m_mime_types_indexer)
-	{
-	}
+	{}
 
 	bool operator == (const vr_keys &rhs) const
 	{
@@ -88,10 +87,15 @@ struct vr_keys
 	OverlayIndexer	&GetOverlayIndexer() { return m_overlay_indexer; }
 
 	ApplicationsIndexer &GetApplicationsIndexer() { return m_applications_indexer; }
+	const ApplicationsIndexer &GetApplicationsIndexer() const { return m_applications_indexer; }
+
 	ApplicationsPropertiesIndexer &GetApplicationsPropertiesIndexer() { return m_applications_properties_indexer; }
 
 	ResourcesIndexer &GetResourcesIndexer() { return m_resources_indexer; }
+
 	SettingsIndexer &GetSettingsIndexer() { return m_settings_indexer; }
+	const SettingsIndexer &GetSettingsIndexer() const { return m_settings_indexer; }
+
 	MimeTypesIndexer &GetMimeTypesIndexer() { return m_mime_types_indexer; }
 
 	void Init(const CaptureConfig &c)

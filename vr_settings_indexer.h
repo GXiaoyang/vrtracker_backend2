@@ -42,6 +42,8 @@ public:
 		return !(*this == rhs);
 	}
 
+	bool setting_exists(const char *section_name_in, SectionSettingType section_type, const char *setting_name_in) const;
+
 	// spawns new section|settings
 	bool AddCustomSetting(const char *section_name_in, SectionSettingType section_type, const char *setting_name_in);
 
