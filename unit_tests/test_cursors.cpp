@@ -113,7 +113,6 @@ static void test_seek_time(capture_test_context *test_context)
 	int target_number_of_frames = 1000;
 	log_printf("collecting %d frames\n", target_number_of_frames);
 
-	
 	while (cursor_context.GetCurrentFrame() < target_number_of_frames)
 	{
 		u.update_capture_parallel(&test_context->get_capture(), &test_context->raw_vr_interfaces(), 0);

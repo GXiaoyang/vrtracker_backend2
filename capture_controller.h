@@ -20,8 +20,8 @@ struct capture_controller
 	//  
 	bool init(const CaptureConfig &c);
 
-	// apply any enqueued events
-	// update
+	// apply any enqueued configuration events
+	// update the model
 	void update();
 
 	const capture &get_model() { return m_model; };

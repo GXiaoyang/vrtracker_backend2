@@ -180,10 +180,14 @@
     <ClInclude Include="FileStream.h" />
     <ClInclude Include="MemoryStream.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="openvr_bridge.h" />
+    <ClInclude Include="openvr_bridge_internal.h" />
     <ClInclude Include="openvr_broker.h" />
     <ClInclude Include="openvr_cppstub.h" />
+    <ClInclude Include="openvr_dll_client.h" />
     <ClInclude Include="openvr_serialization.h" />
     <ClInclude Include="openvr_softcompare.h" />
+    <ClInclude Include="openvr_stream.h" />
     <ClInclude Include="platform.h" />
     <ClInclude Include="range.h" />
     <ClInclude Include="range_algorithm.h" />
@@ -255,8 +259,10 @@
     <ClCompile Include="crc_32.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="openvr_bridge.cpp" />
     <ClCompile Include="openvr_broker.cpp" />
     <ClCompile Include="openvr_cppstub.cpp" />
+    <ClCompile Include="openvr_dll_client.cpp" />
     <ClCompile Include="slab_allocator.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -274,8 +280,11 @@
     <ClCompile Include="unit_tests\test_controller.cpp" />
     <ClCompile Include="unit_tests\test_cursors.cpp" />
     <ClCompile Include="unit_tests\test_cursors_main.cpp" />
+    <ClCompile Include="unit_tests\test_dll_client.cpp" />
     <ClCompile Include="unit_tests\test_gui_usecase.cpp" />
     <ClCompile Include="unit_tests\test_indexers.cpp" />
+    <ClCompile Include="unit_tests\test_openvr_api_monitor.cpp" />
+    <ClCompile Include="unit_tests\test_openvr_bridge.cpp" />
     <ClCompile Include="unit_tests\test_result.cpp" />
     <ClCompile Include="unit_tests\test_schema_common.cpp" />
     <ClCompile Include="unit_tests\test_segmented_list.cpp" />

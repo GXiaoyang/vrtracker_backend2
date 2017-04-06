@@ -8,9 +8,12 @@ extern void test_capture();
 extern void test_traverse();
 extern void test_cursors();
 extern void test_controller();
+extern void test_monitor();
 
 int main()
 {
+	test_monitor();
+
 	test_controller();
 	test_base();
 	test_time_containers();
@@ -18,7 +21,5 @@ int main()
 	test_capture();
 	test_traverse();
 	test_cursors();
-	
-
 	log_printf("all tests done\n");
 }

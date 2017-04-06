@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rangesplay", "rangesplay.vcxproj", "{7B45C8F5-6522-475E-A489-97DA38882275}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openvr_api2", "openvr_api2\openvr_api2.vcxproj", "{F7DFA0F2-4A84-45C1-A9ED-336C99736943}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{7B45C8F5-6522-475E-A489-97DA38882275}.Release|x64.Build.0 = Release|x64
 		{7B45C8F5-6522-475E-A489-97DA38882275}.Release|x86.ActiveCfg = Release|Win32
 		{7B45C8F5-6522-475E-A489-97DA38882275}.Release|x86.Build.0 = Release|Win32
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Debug|x64.ActiveCfg = Debug|x64
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Debug|x64.Build.0 = Debug|x64
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Debug|x86.ActiveCfg = Debug|Win32
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Debug|x86.Build.0 = Debug|Win32
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Release|x64.ActiveCfg = Release|x64
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Release|x64.Build.0 = Release|x64
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Release|x86.ActiveCfg = Release|Win32
+		{F7DFA0F2-4A84-45C1-A9ED-336C99736943}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

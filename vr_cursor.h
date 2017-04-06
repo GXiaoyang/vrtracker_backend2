@@ -17,9 +17,12 @@ struct VRCursor
 
 	void Init(capture *capture);
 
+	// seek to the past
 	void SeekToFrame(time_index_t framenumber);
 	time_index_t GetFrame() const;
 
+	// clients of the vr cursor use the following interfaces
+	// to make queries in the past
 	openvr_broker::open_vr_interfaces& interfaces() { return m_interfaces; }
 
 private:
