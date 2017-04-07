@@ -12,9 +12,7 @@ void test_controller()
 		x.ForceInitAll();
 
 		capture_controller controller;
-		CaptureConfig config;
-		config.set_default();
-		controller.init(config);
+		controller.init(x.get_capture(), x.raw_vr_interfaces());
 		
 		// zero updates:
 		// check that number of frames collected is zero

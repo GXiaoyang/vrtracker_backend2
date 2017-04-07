@@ -249,9 +249,6 @@
     <ClInclude Include="vr_resources_cursor.h">
       <Filter>Source Files\6 cursor</Filter>
     </ClInclude>
-    <ClInclude Include="vr_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
-    </ClInclude>
     <ClInclude Include="vr_notifications_cursor.h">
       <Filter>Source Files\6 cursor</Filter>
     </ClInclude>
@@ -306,9 +303,6 @@
     <ClInclude Include="capture_traverser.h">
       <Filter>Source Files\5 traverse</Filter>
     </ClInclude>
-    <ClInclude Include="capture_controller.h">
-      <Filter>Source Files\6 controller</Filter>
-    </ClInclude>
     <ClInclude Include="openvr_dll_client.h">
       <Filter>Source Files\7 openvr_api_monitor</Filter>
     </ClInclude>
@@ -318,8 +312,11 @@
     <ClInclude Include="openvr_stream.h">
       <Filter>Source Files\7 openvr_api_monitor</Filter>
     </ClInclude>
-    <ClInclude Include="openvr_bridge_internal.h">
-      <Filter>Source Files\7 openvr_api_monitor</Filter>
+    <ClInclude Include="capture_controller.h">
+      <Filter>Source Files\6 controller</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_cursor_controller.h">
+      <Filter>Source Files\6 cursor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -411,9 +408,6 @@
       <Filter>Source Files\6 cursor</Filter>
     </ClCompile>
     <ClCompile Include="vr_resources_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
-    </ClCompile>
-    <ClCompile Include="vr_cursor.cpp">
       <Filter>Source Files\6 cursor</Filter>
     </ClCompile>
     <ClCompile Include="vr_cursor_context.cpp">
@@ -514,6 +508,12 @@
     </ClCompile>
     <ClCompile Include="unit_tests\test_openvr_bridge.cpp">
       <Filter>Source Files\7 openvr_api_monitor_test</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_cursor_controller.cpp">
+      <Filter>Source Files\6 cursor</Filter>
+    </ClCompile>
+    <ClCompile Include="platform.cpp">
+      <Filter>Source Files\1 base</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -6,16 +6,18 @@
 // VRcursor has:
 //		pointers to parts of the state capture
 //      a set of iterators into that state capture.
-// There can be more than one cursor pointing into the same state capture
+// There can be more than one cursor controller pointing into the same state capture
 //
 
 struct capture;
 
-struct VRCursor
+struct vr_cursor_controller
 {
-	VRCursor() : pimpl(nullptr) {}
+	vr_cursor_controller() : pimpl(nullptr) {}
 
-	void Init(capture *capture);
+	void init(capture *capture);
+
+	void advance_one_frame();
 
 	// seek to the past
 	void SeekToFrame(time_index_t framenumber);

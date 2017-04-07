@@ -1,25 +1,18 @@
 #include "capture_controller.h"
 #include <chrono>
 
+using us = std::chrono::duration<int64_t, std::micro>;
+
 capture_controller::capture_controller()
 {
 }
 
-bool capture_controller::init(const CaptureConfig &c)
+void capture_controller::init(const capture &c, const openvr_broker::open_vr_interfaces &interfaces)
 {
-	m_model.m_keys.Init(c);
-	char *error;
-	bool acquired = openvr_broker::acquire_interfaces("raw", &m_interfaces, &error);
-	if (!acquired)
-	{
-		log_printf("error! %s", error);
-		return false;
-	}
-	return true;
+	m_model = c;
+	m_interfaces = interfaces;
 }
 
-
-using us = std::chrono::duration<int64_t, std::micro>;
 
 struct capture_controller::pending_controller_update
 {

@@ -1,4 +1,4 @@
-#include "vr_cursor.h"
+#include "vr_cursor_controller.h"
 #include "vr_system_cursor.h"
 #include "vr_applications_cursor.h"
 #include "vr_settings_cursor.h"
@@ -17,7 +17,7 @@
 #include "vr_schema.h"
 #include "capture.h"
 
-struct VRCursor::VRCursorImpl
+struct vr_cursor_controller::VRCursorImpl
 {
 	explicit VRCursorImpl(capture *capture)
 		:
@@ -63,17 +63,23 @@ struct VRCursor::VRCursorImpl
 //
 // There can be more than one cursor pointing into the same state capture
 //
-void VRCursor::Init(capture *capture)
+void vr_cursor_controller::init(capture *capture)
 {
-	pimpl = new VRCursor::VRCursorImpl(capture);
+	pimpl = new VRCursorImpl(capture);
 }
 
-void VRCursor::SeekToFrame(time_index_t framenumber)
+void vr_cursor_controller::SeekToFrame(time_index_t framenumber)
 {
 	pimpl->m_context.ChangeFrame(framenumber);
 }
 
-time_index_t VRCursor::GetFrame() const
+time_index_t vr_cursor_controller::GetFrame() const
 {
 	return pimpl->m_context.GetCurrentFrame();
+}
+
+void vr_cursor_controller::advance_one_frame()
+{
+	time_index_t a = pimpl->m_context.GetCurrentFrame();
+	pimpl->m_context.ChangeFrame(a + 1);
 }

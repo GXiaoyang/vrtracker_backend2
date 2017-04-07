@@ -2,26 +2,103 @@
 #include "vr_types.h"
 #include "openvr_softcompare.h"
 #include "log.h"
+#include "vr_cursor_controller.h"
+#include "capture_controller.h"
 
 openvr_bridge::openvr_bridge()
+	: 
+		m_down_stream_capture_controller(nullptr),
+		m_cursor_controller(nullptr),
+		m_lockstep_capture_controller(nullptr),
+		m_lock_step_train_tracker(false),
+		m_spy_mode(false),
+		m_snapshot_playback_mode(false),
+		m_events_since_last_refresh(false)
 {
-
+	m_up_stream.sysi = this;
+	m_up_stream.appi = this;
+	m_up_stream.seti = this;
+	m_up_stream.chapi = this;
+	m_up_stream.chapsi = this;
+	m_up_stream.compi = this;
+	m_up_stream.noti = this;
+	m_up_stream.ovi = this;
+	m_up_stream.remi = this;
+	m_up_stream.exdi = this;
+	m_up_stream.taci = this;
+	m_up_stream.screeni = this;
+	m_up_stream.resi = this;
 }
 
-
-void openvr_bridge::refresh_capture()
+void openvr_bridge::set_down_stream_interface(const openvr_broker::open_vr_interfaces& interfaces)
 {
-
+	m_down_stream = interfaces;
 }
 
-void openvr_bridge::update_vr_config_near_far(float fNearZ, float fFarZ)
+void openvr_bridge::set_down_stream_capture_controller(capture_controller *down_stream_capture)
 {
+	m_down_stream_capture_controller = down_stream_capture;
+}
+const capture_controller *openvr_bridge::get_down_stream_capture_controller() const
+{
+	return m_down_stream_capture_controller;
+}
 
+void openvr_bridge::set_aux_texture_down_stream_interface(vr::IVRCompositor *texture_down_stream)
+{
+	m_aux_compositor = texture_down_stream;
+}
+
+void openvr_bridge::refresh_lockstep_capture()
+{
+	if (m_lockstep_capture_controller)
+	{
+		m_lockstep_capture_controller->update();
+	}
 }
 
 void openvr_bridge::capture_vr_event(const vr::VREvent_t &e)
 {
+	if (m_down_stream_capture_controller)
+	{
+		m_down_stream_capture_controller->enqueue_event(e);
+	}
+}
 
+void openvr_bridge::update_vr_config_near_far(float nearz, float farz)
+{
+	if (m_down_stream_capture_controller)
+	{
+		float cur_farz = m_down_stream_capture_controller->get_model().m_keys.GetFarZ();
+		float cur_nearz = m_down_stream_capture_controller->get_model().m_keys.GetNearZ();
+
+		if (farz != cur_farz || nearz != cur_nearz)
+		{
+			m_down_stream_capture_controller->enqueue_new_key(VRKeysUpdate::make_modify_nearz_farz(nearz, farz));
+			m_down_stream_capture_controller->update();
+		}
+	}
+}
+
+void openvr_bridge::update_vr_config_setting(const char *section, SettingsIndexer::SectionSettingType setting_type, const char *key)
+{
+	if (m_down_stream_capture_controller)
+	{
+		const SettingsIndexer &indexer(m_down_stream_capture_controller->get_model().m_keys.GetSettingsIndexer());
+		if (!indexer.setting_exists(section, setting_type, key))
+		{
+			m_down_stream_capture_controller->enqueue_new_key(VRKeysUpdate::make_new_setting(section, setting_type, key));
+			m_down_stream_capture_controller->update();
+		}
+	}
+}
+
+void openvr_bridge::advance_cursor_one_frame()
+{
+	if (m_cursor_controller)
+	{
+		m_cursor_controller->advance_one_frame();
+	}
 }
 
 static void ReportFailure(const char *string, const char *file, int line)
@@ -107,9 +184,9 @@ openvr_broker::open_vr_interfaces m_lock_step_tracker;
 static openvr_bridge openvr_bridgeInstance;
 static openvr_bridge openvr_bridgeInstance;
 static openvr_bridge openvr_bridgeInstance;
-static VRApplicationsBridge VRApplicationsBridgeInstance;
-static VRChaperoneBridge VRChaperoneBridgeInstance;
-static VRChaperoneSetupBridge VRChaperoneSetupBridgeInstance;
+static openvr_bridge openvr_bridgeInstance;
+static openvr_bridge openvr_bridgeInstance;
+static openvr_bridge openvr_bridgeInstance;
 static openvr_bridge openvr_bridgeInstance;
 static openvr_bridge openvr_bridgeInstance;
 static openvr_bridge openvr_bridgeInstance;
@@ -121,10 +198,10 @@ static openvr_bridge openvr_bridgeInstance;
 static void *upstream_interfaces_Bridge[] =
 {
 &openvr_bridgeInstance,
-&VRApplicationsBridgeInstance,
 &openvr_bridgeInstance,
-&VRChaperoneBridgeInstance,
-&VRChaperoneSetupBridgeInstance,
+&openvr_bridgeInstance,
+&openvr_bridgeInstance,
+&openvr_bridgeInstance,
 &openvr_bridgeInstance,
 &openvr_bridgeInstance,
 &openvr_bridgeInstance,
@@ -196,7 +273,7 @@ static void InitTrackerFromFile()
 	}
 }
 
-static void refresh_capture()
+static void refresh_lockstep_capture()
 {
 	capture_vr_state(tracker, *raw.cpp_interfaces());
 	set_cursor_to_end_frame(tracker, cursor);
@@ -210,10 +287,10 @@ static void SaveTracker()
 static void AssignStaticInstancesToDownstream(openvr_broker::open_vr_interfaces *downstream)
 {
 	openvr_bridgeInstance.SetSYSI(downstream->sysi);
-	VRApplicationsBridgeInstance.SetAPPI(downstream->appi);
+	openvr_bridgeInstance.SetAPPI(downstream->appi);
 	openvr_bridgeInstance.SetSETI(downstream->seti);
-	VRChaperoneBridgeInstance.SetCHAPI(downstream->chapi);
-	VRChaperoneSetupBridgeInstance.SetCHAPSI(downstream->chapsi);
+	openvr_bridgeInstance.SetCHAPI(downstream->chapi);
+	openvr_bridgeInstance.SetCHAPSI(downstream->chapsi);
 	openvr_bridgeInstance.SetCOMPI(downstream->compi);
 	openvr_bridgeInstance.SetNOTI(downstream->noti);
 	openvr_bridgeInstance.SetOVI(downstream->ovi);
@@ -250,7 +327,7 @@ public:
 		}
 		if (m_snapshot_record_mode)
 		{
-			refresh_capture();
+			refresh_lockstep_capture();
 		}
 		
 	}
@@ -297,7 +374,7 @@ void openvr_bridge::GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t 
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   uint32_t tw, th;
 	   m_lock_step_tracker.sysi->GetRecommendedRenderTargetSize(&tw, &th);
 	   TRAIN_TRACKER_ASSERT(tw == *pnWidth);
@@ -311,17 +388,18 @@ struct vr::HmdMatrix44_t openvr_bridge::GetProjectionMatrix(vr::EVREye eEye, flo
 {
 	LOG_ENTRY("BridgeGetProjectionMatrix");
 
+	if (m_spy_mode)
+	{
+		update_vr_config_near_far(fNearZ, fFarZ);
+	}
+
 	struct vr::HmdMatrix44_t rc;
 	rc = m_down_stream.sysi->GetProjectionMatrix(eEye, fNearZ, fFarZ);
-
-   if (m_spy_mode)
-   {
-	   update_vr_config_near_far(fNearZ, fFarZ);
-   }
+   
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::HmdMatrix44_t rc2 = m_lock_step_tracker.sysi->GetProjectionMatrix(eEye, fNearZ, fFarZ);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
    }
@@ -337,7 +415,7 @@ void openvr_bridge::GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * pf
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   float pf[4];
 
 	   m_lock_step_tracker.sysi->GetProjectionRaw(eEye, &pf[0], &pf[1], &pf[2], &pf[3]);
@@ -359,7 +437,7 @@ bool openvr_bridge::ComputeDistortion(vr::EVREye eEye, float fU, float fV, struc
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   struct vr::DistortionCoordinates_t tracker_distortion;
 	   m_lock_step_tracker.sysi->ComputeDistortion(eEye, fU, fV, &tracker_distortion);
 	   if (pDistortionCoordinates)
@@ -379,7 +457,7 @@ struct vr::HmdMatrix34_t openvr_bridge::GetEyeToHeadTransform(vr::EVREye eEye)
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::HmdMatrix34_t rc2 = m_lock_step_tracker.sysi->GetEyeToHeadTransform(eEye);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
    }
@@ -396,7 +474,7 @@ bool openvr_bridge::GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint6
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   float pfSeconds;
 	   uint64_t pulCounter;
 	   bool rc2;
@@ -422,7 +500,7 @@ int32_t openvr_bridge::GetD3D9AdapterIndex()
     
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   int32_t tracker_adapter;
 	   tracker_adapter = m_lock_step_tracker.sysi->GetD3D9AdapterIndex();
 	   TRAIN_TRACKER_ASSERT(tracker_adapter == rc);
@@ -439,7 +517,7 @@ void openvr_bridge::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   int32_t ttracker;
 	   m_lock_step_tracker.sysi->GetDXGIOutputInfo(&ttracker);
 	   TRAIN_TRACKER_ASSERT(*pnAdapterIndex == ttracker);
@@ -456,7 +534,7 @@ bool openvr_bridge::IsDisplayOnDesktop()
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   bool rc2;
 	   rc2 = m_lock_step_tracker.sysi->IsDisplayOnDesktop();
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
@@ -490,7 +568,7 @@ void openvr_bridge::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin 
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::TrackedDevicePose_t *tmp = (struct vr::TrackedDevicePose_t *)malloc(sizeof(vr::TrackedDevicePose_t) * unTrackedDevicePoseArrayCount);
 	   memset(tmp, 0, unTrackedDevicePoseArrayCount * sizeof(unTrackedDevicePoseArrayCount));
 	   m_lock_step_tracker.sysi->GetDeviceToAbsoluteTrackingPose(eOrigin, fPredictedSecondsToPhotonsFromNow, tmp, unTrackedDevicePoseArrayCount);
@@ -522,7 +600,7 @@ struct vr::HmdMatrix34_t openvr_bridge::GetSeatedZeroPoseToStandingAbsoluteTrack
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::HmdMatrix34_t rc2 = m_lock_step_tracker.sysi->GetSeatedZeroPoseToStandingAbsoluteTrackingPose();
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
    }
@@ -539,7 +617,7 @@ struct vr::HmdMatrix34_t openvr_bridge::GetRawZeroPoseToStandingAbsoluteTracking
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::HmdMatrix34_t rc2 = m_lock_step_tracker.sysi->GetRawZeroPoseToStandingAbsoluteTrackingPose();
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
    }
@@ -563,7 +641,7 @@ uint32_t openvr_bridge::GetSortedTrackedDeviceIndicesOfClass(vr::ETrackedDeviceC
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::TrackedDeviceIndex_t * tmp = (vr::TrackedDeviceIndex_t *) malloc(sizeof(vr::TrackedDeviceIndex_t) * unTrackedDeviceIndexArrayCount);
 	   uint32_t rc2 = m_lock_step_tracker.sysi->GetSortedTrackedDeviceIndicesOfClass(eTrackedDeviceClass,
 		   tmp, unTrackedDeviceIndexArrayCount, unRelativeToTrackedDeviceIndex);																							;
@@ -580,7 +658,7 @@ vr::EDeviceActivityLevel openvr_bridge::GetTrackedDeviceActivityLevel(vr::Tracke
    
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::EDeviceActivityLevel rc2 = m_lock_step_tracker.sysi->GetTrackedDeviceActivityLevel(unDeviceId);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
    }
@@ -604,7 +682,7 @@ void openvr_bridge::ApplyTransform(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::TrackedDevicePose_t pose2;
 	   memset(&pose2, 0, sizeof(pose2));
 	   m_lock_step_tracker.sysi->ApplyTransform(&pose2, pTrackedDevicePose, pTransform);
@@ -623,7 +701,7 @@ vr::TrackedDeviceIndex_t openvr_bridge::GetTrackedDeviceIndexForControllerRole(v
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::TrackedDeviceIndex_t tracker_rc = m_lock_step_tracker.sysi->GetTrackedDeviceIndexForControllerRole(unDeviceType);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
    }
@@ -640,7 +718,7 @@ vr::ETrackedControllerRole openvr_bridge::GetControllerRoleForTrackedDeviceIndex
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::ETrackedControllerRole tracker_rc = m_lock_step_tracker.sysi->GetControllerRoleForTrackedDeviceIndex(unDeviceIndex);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
    }
@@ -657,7 +735,7 @@ vr::ETrackedDeviceClass openvr_bridge::GetTrackedDeviceClass(vr::TrackedDeviceIn
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::ETrackedDeviceClass tracker_rc = m_lock_step_tracker.sysi->GetTrackedDeviceClass(unDeviceIndex);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
    }
@@ -674,7 +752,7 @@ bool openvr_bridge::IsTrackedDeviceConnected(vr::TrackedDeviceIndex_t unDeviceIn
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   bool tracker_rc = m_lock_step_tracker.sysi->IsTrackedDeviceConnected(unDeviceIndex);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
    }
@@ -692,7 +770,7 @@ bool openvr_bridge::GetBoolTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDevi
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::ETrackedPropertyError tracker_err;
 	   bool tracker_rc = m_lock_step_tracker.sysi->GetBoolTrackedDeviceProperty(unDeviceIndex, prop, &tracker_err);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
@@ -715,7 +793,7 @@ float openvr_bridge::GetFloatTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDe
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::ETrackedPropertyError tracker_err;
 	   float tracker_rc = m_lock_step_tracker.sysi->GetFloatTrackedDeviceProperty(unDeviceIndex, prop, &tracker_err);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
@@ -737,7 +815,7 @@ int32_t openvr_bridge::GetInt32TrackedDeviceProperty(vr::TrackedDeviceIndex_t un
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::ETrackedPropertyError tracker_err;
 	   int32_t tracker_rc = m_lock_step_tracker.sysi->GetInt32TrackedDeviceProperty(unDeviceIndex, prop, &tracker_err);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
@@ -758,7 +836,7 @@ uint64_t openvr_bridge::GetUint64TrackedDeviceProperty(vr::TrackedDeviceIndex_t 
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::ETrackedPropertyError tracker_err;
 	   uint64_t tracker_rc = m_lock_step_tracker.sysi->GetUint64TrackedDeviceProperty(unDeviceIndex, prop, &tracker_err);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
@@ -781,7 +859,7 @@ struct vr::HmdMatrix34_t openvr_bridge::GetMatrix34TrackedDeviceProperty(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::ETrackedPropertyError tracker_err;
 	   vr::HmdMatrix34_t tracker_rc = m_lock_step_tracker.sysi->GetMatrix34TrackedDeviceProperty(unDeviceIndex, prop, &tracker_err);
 	   TRAIN_TRACKER_ASSERT(tracker_rc == rc);
@@ -805,7 +883,7 @@ uint32_t openvr_bridge::GetStringTrackedDeviceProperty(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   char *tracker_buf = (char *)malloc(unBufferSize);
 	   vr::ETrackedPropertyError tracker_err;
 	   uint32_t tracker_rc = m_lock_step_tracker.sysi->GetStringTrackedDeviceProperty(
@@ -834,37 +912,33 @@ const char * openvr_bridge::GetPropErrorNameFromEnum(vr::ETrackedPropertyError e
    LOG_EXIT_RC(rc, "BridgeGetPropErrorNameFromEnum");
 }
 
+// 
 void openvr_bridge::process_poll_next_event_value(bool poll_rc, vr::VREvent_t * pEvent)
 {
-	// HandleEmptyQueue
-	if (poll_rc == false)
+	if (poll_rc == false)  // Empty event-queue case
 	{
 		if (m_snapshot_record_mode && m_events_since_last_refresh)
 		{
-			refresh_capture();
+			refresh_lockstep_capture();
 			m_events_since_last_refresh = false; // clear flag
 		}
 	}
-	else
+	else  // non-empty event queue case
 	{
-		if (m_snapshot_record_mode)
-		{
-			capture_vr_event(*pEvent);
-		}
+		capture_vr_event(*pEvent);
 		m_events_since_last_refresh = true; // mark a flag so a state capture is taken once the queue is emptied
 	}
 }
 
 bool openvr_bridge::PollNextEvent(struct vr::VREvent_t * pEvent, uint32_t uncbVREvent)
 {
-   LOG_ENTRY("BridgePollNextEvent");
+	LOG_ENTRY("BridgePollNextEvent");
 
-   bool rc;
+	bool rc;
 	rc = m_down_stream.sysi->PollNextEvent(pEvent, uncbVREvent);
-
 	process_poll_next_event_value(rc, pEvent);
    
-   LOG_EXIT_RC(rc, "BridgePollNextEvent");
+	LOG_EXIT_RC(rc, "BridgePollNextEvent");
 }
 
 bool openvr_bridge::PollNextEventWithPose(vr::ETrackingUniverseOrigin eOrigin, struct vr::VREvent_t * pEvent, uint32_t uncbVREvent, vr::TrackedDevicePose_t * pTrackedDevicePose)
@@ -895,7 +969,7 @@ struct vr::HiddenAreaMesh_t openvr_bridge::GetHiddenAreaMesh(vr::EVREye eEye, vr
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 
 	   struct vr::HiddenAreaMesh_t tracker_rc = m_lock_step_tracker.sysi->GetHiddenAreaMesh(eEye, type);
 	   TRAIN_TRACKER_ASSERT(tracker_rc.unTriangleCount == rc.unTriangleCount);
@@ -925,7 +999,7 @@ bool openvr_bridge::GetControllerState(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::VRControllerState_t tracker_state;
 	   bool tracker_rc = m_lock_step_tracker.sysi->GetControllerState(unControllerDeviceIndex,
 									&tracker_state, sizeof(vr::VRControllerState_t));
@@ -952,7 +1026,7 @@ bool openvr_bridge::GetControllerStateWithPose(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::VRControllerState_t tracker_controller_state;
 	   vr::TrackedDevicePose_t tracker_pose;
 
@@ -1014,7 +1088,7 @@ bool openvr_bridge::IsInputFocusCapturedByAnotherProcess()
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   bool tracker_rc = m_lock_step_tracker.sysi->IsInputFocusCapturedByAnotherProcess();
 	   TRAIN_TRACKER_ASSERT(rc == tracker_rc);
    }
@@ -1059,7 +1133,7 @@ void openvr_bridge::GetWindowBounds(int32_t * pnX, int32_t * pnY, uint32_t * pnW
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   int32_t i[2];
 	   uint32_t j[2];
 	   m_lock_step_tracker.exdi->GetWindowBounds(&i[0], &i[1], &j[0], &j[1]);
@@ -1174,416 +1248,416 @@ vr::EVRTrackedCameraError openvr_bridge::ReleaseVideoStreamTextureGL(vr::Tracked
    LOG_EXIT_RC(rc, "BridgeReleaseVideoStreamTextureGL");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::AddApplicationManifest(const char * pchApplicationManifestFullPath, bool bTemporary)
+vr::EVRApplicationError openvr_bridge::AddApplicationManifest(const char * pchApplicationManifestFullPath, bool bTemporary)
 {
    LOG_ENTRY("BridgeAddApplicationManifest");
-   vr::EVRApplicationError rc = m_appi->AddApplicationManifest(pchApplicationManifestFullPath,bTemporary);
+   vr::EVRApplicationError rc = m_down_stream.appi->AddApplicationManifest(pchApplicationManifestFullPath,bTemporary);
    LOG_EXIT_RC(rc, "BridgeAddApplicationManifest");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::RemoveApplicationManifest(const char * pchApplicationManifestFullPath)
+vr::EVRApplicationError openvr_bridge::RemoveApplicationManifest(const char * pchApplicationManifestFullPath)
 {
    LOG_ENTRY("BridgeRemoveApplicationManifest");
-   vr::EVRApplicationError rc = m_appi->RemoveApplicationManifest(pchApplicationManifestFullPath);
+   vr::EVRApplicationError rc = m_down_stream.appi->RemoveApplicationManifest(pchApplicationManifestFullPath);
    LOG_EXIT_RC(rc, "BridgeRemoveApplicationManifest");
 }
 
-bool VRApplicationsBridge::IsApplicationInstalled(const char * pchAppKey)
+bool openvr_bridge::IsApplicationInstalled(const char * pchAppKey)
 {
    LOG_ENTRY("BridgeIsApplicationInstalled");
-   bool rc = m_appi->IsApplicationInstalled(pchAppKey);
+   bool rc = m_down_stream.appi->IsApplicationInstalled(pchAppKey);
    LOG_EXIT_RC(rc, "BridgeIsApplicationInstalled");
 }
 
-uint32_t VRApplicationsBridge::GetApplicationCount()
+uint32_t openvr_bridge::GetApplicationCount()
 {
    LOG_ENTRY("BridgeGetApplicationCount");
-   uint32_t rc = m_appi->GetApplicationCount();
+   uint32_t rc = m_down_stream.appi->GetApplicationCount();
    LOG_EXIT_RC(rc, "BridgeGetApplicationCount");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::GetApplicationKeyByIndex(uint32_t unApplicationIndex, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
+vr::EVRApplicationError openvr_bridge::GetApplicationKeyByIndex(uint32_t unApplicationIndex, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
 {
    LOG_ENTRY("BridgeGetApplicationKeyByIndex");
-   vr::EVRApplicationError rc = m_appi->GetApplicationKeyByIndex(unApplicationIndex,pchAppKeyBuffer,unAppKeyBufferLen);
+   vr::EVRApplicationError rc = m_down_stream.appi->GetApplicationKeyByIndex(unApplicationIndex,pchAppKeyBuffer,unAppKeyBufferLen);
    LOG_EXIT_RC(rc, "BridgeGetApplicationKeyByIndex");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::GetApplicationKeyByProcessId(uint32_t unProcessId, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
+vr::EVRApplicationError openvr_bridge::GetApplicationKeyByProcessId(uint32_t unProcessId, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
 {
    LOG_ENTRY("BridgeGetApplicationKeyByProcessId");
-   vr::EVRApplicationError rc = m_appi->GetApplicationKeyByProcessId(unProcessId,pchAppKeyBuffer,unAppKeyBufferLen);
+   vr::EVRApplicationError rc = m_down_stream.appi->GetApplicationKeyByProcessId(unProcessId,pchAppKeyBuffer,unAppKeyBufferLen);
    LOG_EXIT_RC(rc, "BridgeGetApplicationKeyByProcessId");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::LaunchApplication(const char * pchAppKey)
+vr::EVRApplicationError openvr_bridge::LaunchApplication(const char * pchAppKey)
 {
    LOG_ENTRY("BridgeLaunchApplication");
-   vr::EVRApplicationError rc = m_appi->LaunchApplication(pchAppKey);
+   vr::EVRApplicationError rc = m_down_stream.appi->LaunchApplication(pchAppKey);
    LOG_EXIT_RC(rc, "BridgeLaunchApplication");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::LaunchTemplateApplication(const char * pchTemplateAppKey, const char * pchNewAppKey, const struct vr::AppOverrideKeys_t * pKeys, uint32_t unKeys)
+vr::EVRApplicationError openvr_bridge::LaunchTemplateApplication(const char * pchTemplateAppKey, const char * pchNewAppKey, const struct vr::AppOverrideKeys_t * pKeys, uint32_t unKeys)
 {
    LOG_ENTRY("BridgeLaunchTemplateApplication");
-   vr::EVRApplicationError rc = m_appi->LaunchTemplateApplication(pchTemplateAppKey,pchNewAppKey,pKeys,unKeys);
+   vr::EVRApplicationError rc = m_down_stream.appi->LaunchTemplateApplication(pchTemplateAppKey,pchNewAppKey,pKeys,unKeys);
    LOG_EXIT_RC(rc, "BridgeLaunchTemplateApplication");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::LaunchApplicationFromMimeType(const char * pchMimeType, const char * pchArgs)
+vr::EVRApplicationError openvr_bridge::LaunchApplicationFromMimeType(const char * pchMimeType, const char * pchArgs)
 {
    LOG_ENTRY("BridgeLaunchApplicationFromMimeType");
-   vr::EVRApplicationError rc = m_appi->LaunchApplicationFromMimeType(pchMimeType,pchArgs);
+   vr::EVRApplicationError rc = m_down_stream.appi->LaunchApplicationFromMimeType(pchMimeType,pchArgs);
    LOG_EXIT_RC(rc, "BridgeLaunchApplicationFromMimeType");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::LaunchDashboardOverlay(const char * pchAppKey)
+vr::EVRApplicationError openvr_bridge::LaunchDashboardOverlay(const char * pchAppKey)
 {
    LOG_ENTRY("BridgeLaunchDashboardOverlay");
-   vr::EVRApplicationError rc = m_appi->LaunchDashboardOverlay(pchAppKey);
+   vr::EVRApplicationError rc = m_down_stream.appi->LaunchDashboardOverlay(pchAppKey);
    LOG_EXIT_RC(rc, "BridgeLaunchDashboardOverlay");
 }
 
-bool VRApplicationsBridge::CancelApplicationLaunch(const char * pchAppKey)
+bool openvr_bridge::CancelApplicationLaunch(const char * pchAppKey)
 {
    LOG_ENTRY("BridgeCancelApplicationLaunch");
-   bool rc = m_appi->CancelApplicationLaunch(pchAppKey);
+   bool rc = m_down_stream.appi->CancelApplicationLaunch(pchAppKey);
    LOG_EXIT_RC(rc, "BridgeCancelApplicationLaunch");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::IdentifyApplication(uint32_t unProcessId, const char * pchAppKey)
+vr::EVRApplicationError openvr_bridge::IdentifyApplication(uint32_t unProcessId, const char * pchAppKey)
 {
    LOG_ENTRY("BridgeIdentifyApplication");
-   vr::EVRApplicationError rc = m_appi->IdentifyApplication(unProcessId,pchAppKey);
+   vr::EVRApplicationError rc = m_down_stream.appi->IdentifyApplication(unProcessId,pchAppKey);
    LOG_EXIT_RC(rc, "BridgeIdentifyApplication");
 }
 
-uint32_t VRApplicationsBridge::GetApplicationProcessId(const char * pchAppKey)
+uint32_t openvr_bridge::GetApplicationProcessId(const char * pchAppKey)
 {
    LOG_ENTRY("BridgeGetApplicationProcessId");
-   uint32_t rc = m_appi->GetApplicationProcessId(pchAppKey);
+   uint32_t rc = m_down_stream.appi->GetApplicationProcessId(pchAppKey);
    LOG_EXIT_RC(rc, "BridgeGetApplicationProcessId");
 }
 
-const char * VRApplicationsBridge::GetApplicationsErrorNameFromEnum(vr::EVRApplicationError error)
+const char * openvr_bridge::GetApplicationsErrorNameFromEnum(vr::EVRApplicationError error)
 {
    LOG_ENTRY("BridgeGetApplicationsErrorNameFromEnum");
-   const char * rc = m_appi->GetApplicationsErrorNameFromEnum(error);
+   const char * rc = m_down_stream.appi->GetApplicationsErrorNameFromEnum(error);
    LOG_EXIT_RC(rc, "BridgeGetApplicationsErrorNameFromEnum");
 }
 
-uint32_t VRApplicationsBridge::GetApplicationPropertyString(const char * pchAppKey, vr::EVRApplicationProperty eProperty, char * pchPropertyValueBuffer, uint32_t unPropertyValueBufferLen, vr::EVRApplicationError * peError)
+uint32_t openvr_bridge::GetApplicationPropertyString(const char * pchAppKey, vr::EVRApplicationProperty eProperty, char * pchPropertyValueBuffer, uint32_t unPropertyValueBufferLen, vr::EVRApplicationError * peError)
 {
    LOG_ENTRY("BridgeGetApplicationPropertyString");
-   uint32_t rc = m_appi->GetApplicationPropertyString(pchAppKey,eProperty,pchPropertyValueBuffer,unPropertyValueBufferLen,peError);
+   uint32_t rc = m_down_stream.appi->GetApplicationPropertyString(pchAppKey,eProperty,pchPropertyValueBuffer,unPropertyValueBufferLen,peError);
    LOG_EXIT_RC(rc, "BridgeGetApplicationPropertyString");
 }
 
-bool VRApplicationsBridge::GetApplicationPropertyBool(const char * pchAppKey, vr::EVRApplicationProperty eProperty, vr::EVRApplicationError * peError)
+bool openvr_bridge::GetApplicationPropertyBool(const char * pchAppKey, vr::EVRApplicationProperty eProperty, vr::EVRApplicationError * peError)
 {
    LOG_ENTRY("BridgeGetApplicationPropertyBool");
-   bool rc = m_appi->GetApplicationPropertyBool(pchAppKey,eProperty,peError);
+   bool rc = m_down_stream.appi->GetApplicationPropertyBool(pchAppKey,eProperty,peError);
    LOG_EXIT_RC(rc, "BridgeGetApplicationPropertyBool");
 }
 
-uint64_t VRApplicationsBridge::GetApplicationPropertyUint64(const char * pchAppKey, vr::EVRApplicationProperty eProperty, vr::EVRApplicationError * peError)
+uint64_t openvr_bridge::GetApplicationPropertyUint64(const char * pchAppKey, vr::EVRApplicationProperty eProperty, vr::EVRApplicationError * peError)
 {
    LOG_ENTRY("BridgeGetApplicationPropertyUint64");
-   uint64_t rc = m_appi->GetApplicationPropertyUint64(pchAppKey,eProperty,peError);
+   uint64_t rc = m_down_stream.appi->GetApplicationPropertyUint64(pchAppKey,eProperty,peError);
    LOG_EXIT_RC(rc, "BridgeGetApplicationPropertyUint64");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::SetApplicationAutoLaunch(const char * pchAppKey, bool bAutoLaunch)
+vr::EVRApplicationError openvr_bridge::SetApplicationAutoLaunch(const char * pchAppKey, bool bAutoLaunch)
 {
    LOG_ENTRY("BridgeSetApplicationAutoLaunch");
-   vr::EVRApplicationError rc = m_appi->SetApplicationAutoLaunch(pchAppKey,bAutoLaunch);
+   vr::EVRApplicationError rc = m_down_stream.appi->SetApplicationAutoLaunch(pchAppKey,bAutoLaunch);
    LOG_EXIT_RC(rc, "BridgeSetApplicationAutoLaunch");
 }
 
-bool VRApplicationsBridge::GetApplicationAutoLaunch(const char * pchAppKey)
+bool openvr_bridge::GetApplicationAutoLaunch(const char * pchAppKey)
 {
    LOG_ENTRY("BridgeGetApplicationAutoLaunch");
-   bool rc = m_appi->GetApplicationAutoLaunch(pchAppKey);
+   bool rc = m_down_stream.appi->GetApplicationAutoLaunch(pchAppKey);
    LOG_EXIT_RC(rc, "BridgeGetApplicationAutoLaunch");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::SetDefaultApplicationForMimeType(const char * pchAppKey, const char * pchMimeType)
+vr::EVRApplicationError openvr_bridge::SetDefaultApplicationForMimeType(const char * pchAppKey, const char * pchMimeType)
 {
    LOG_ENTRY("BridgeSetDefaultApplicationForMimeType");
-   vr::EVRApplicationError rc = m_appi->SetDefaultApplicationForMimeType(pchAppKey,pchMimeType);
+   vr::EVRApplicationError rc = m_down_stream.appi->SetDefaultApplicationForMimeType(pchAppKey,pchMimeType);
    LOG_EXIT_RC(rc, "BridgeSetDefaultApplicationForMimeType");
 }
 
-bool VRApplicationsBridge::GetDefaultApplicationForMimeType(const char * pchMimeType, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
+bool openvr_bridge::GetDefaultApplicationForMimeType(const char * pchMimeType, char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
 {
    LOG_ENTRY("BridgeGetDefaultApplicationForMimeType");
-   bool rc = m_appi->GetDefaultApplicationForMimeType(pchMimeType,pchAppKeyBuffer,unAppKeyBufferLen);
+   bool rc = m_down_stream.appi->GetDefaultApplicationForMimeType(pchMimeType,pchAppKeyBuffer,unAppKeyBufferLen);
    LOG_EXIT_RC(rc, "BridgeGetDefaultApplicationForMimeType");
 }
 
-bool VRApplicationsBridge::GetApplicationSupportedMimeTypes(const char * pchAppKey, char * pchMimeTypesBuffer, uint32_t unMimeTypesBuffer)
+bool openvr_bridge::GetApplicationSupportedMimeTypes(const char * pchAppKey, char * pchMimeTypesBuffer, uint32_t unMimeTypesBuffer)
 {
    LOG_ENTRY("BridgeGetApplicationSupportedMimeTypes");
-   bool rc = m_appi->GetApplicationSupportedMimeTypes(pchAppKey,pchMimeTypesBuffer,unMimeTypesBuffer);
+   bool rc = m_down_stream.appi->GetApplicationSupportedMimeTypes(pchAppKey,pchMimeTypesBuffer,unMimeTypesBuffer);
    LOG_EXIT_RC(rc, "BridgeGetApplicationSupportedMimeTypes");
 }
 
-uint32_t VRApplicationsBridge::GetApplicationsThatSupportMimeType(const char * pchMimeType, char * pchAppKeysThatSupportBuffer, uint32_t unAppKeysThatSupportBuffer)
+uint32_t openvr_bridge::GetApplicationsThatSupportMimeType(const char * pchMimeType, char * pchAppKeysThatSupportBuffer, uint32_t unAppKeysThatSupportBuffer)
 {
    LOG_ENTRY("BridgeGetApplicationsThatSupportMimeType");
-   uint32_t rc = m_appi->GetApplicationsThatSupportMimeType(pchMimeType,pchAppKeysThatSupportBuffer,unAppKeysThatSupportBuffer);
+   uint32_t rc = m_down_stream.appi->GetApplicationsThatSupportMimeType(pchMimeType,pchAppKeysThatSupportBuffer,unAppKeysThatSupportBuffer);
    LOG_EXIT_RC(rc, "BridgeGetApplicationsThatSupportMimeType");
 }
 
-uint32_t VRApplicationsBridge::GetApplicationLaunchArguments(uint32_t unHandle, char * pchArgs, uint32_t unArgs)
+uint32_t openvr_bridge::GetApplicationLaunchArguments(uint32_t unHandle, char * pchArgs, uint32_t unArgs)
 {
    LOG_ENTRY("BridgeGetApplicationLaunchArguments");
-   uint32_t rc = m_appi->GetApplicationLaunchArguments(unHandle,pchArgs,unArgs);
+   uint32_t rc = m_down_stream.appi->GetApplicationLaunchArguments(unHandle,pchArgs,unArgs);
    LOG_EXIT_RC(rc, "BridgeGetApplicationLaunchArguments");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::GetStartingApplication(char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
+vr::EVRApplicationError openvr_bridge::GetStartingApplication(char * pchAppKeyBuffer, uint32_t unAppKeyBufferLen)
 {
    LOG_ENTRY("BridgeGetStartingApplication");
-   vr::EVRApplicationError rc = m_appi->GetStartingApplication(pchAppKeyBuffer,unAppKeyBufferLen);
+   vr::EVRApplicationError rc = m_down_stream.appi->GetStartingApplication(pchAppKeyBuffer,unAppKeyBufferLen);
    LOG_EXIT_RC(rc, "BridgeGetStartingApplication");
 }
 
-vr::EVRApplicationTransitionState VRApplicationsBridge::GetTransitionState()
+vr::EVRApplicationTransitionState openvr_bridge::GetTransitionState()
 {
    LOG_ENTRY("BridgeGetTransitionState");
-   vr::EVRApplicationTransitionState rc = m_appi->GetTransitionState();
+   vr::EVRApplicationTransitionState rc = m_down_stream.appi->GetTransitionState();
    LOG_EXIT_RC(rc, "BridgeGetTransitionState");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::PerformApplicationPrelaunchCheck(const char * pchAppKey)
+vr::EVRApplicationError openvr_bridge::PerformApplicationPrelaunchCheck(const char * pchAppKey)
 {
    LOG_ENTRY("BridgePerformApplicationPrelaunchCheck");
-   vr::EVRApplicationError rc = m_appi->PerformApplicationPrelaunchCheck(pchAppKey);
+   vr::EVRApplicationError rc = m_down_stream.appi->PerformApplicationPrelaunchCheck(pchAppKey);
    LOG_EXIT_RC(rc, "BridgePerformApplicationPrelaunchCheck");
 }
 
-const char * VRApplicationsBridge::GetApplicationsTransitionStateNameFromEnum(vr::EVRApplicationTransitionState state)
+const char * openvr_bridge::GetApplicationsTransitionStateNameFromEnum(vr::EVRApplicationTransitionState state)
 {
    LOG_ENTRY("BridgeGetApplicationsTransitionStateNameFromEnum");
-   const char * rc = m_appi->GetApplicationsTransitionStateNameFromEnum(state);
+   const char * rc = m_down_stream.appi->GetApplicationsTransitionStateNameFromEnum(state);
    LOG_EXIT_RC(rc, "BridgeGetApplicationsTransitionStateNameFromEnum");
 }
 
-bool VRApplicationsBridge::IsQuitUserPromptRequested()
+bool openvr_bridge::IsQuitUserPromptRequested()
 {
    LOG_ENTRY("BridgeIsQuitUserPromptRequested");
-   bool rc = m_appi->IsQuitUserPromptRequested();
+   bool rc = m_down_stream.appi->IsQuitUserPromptRequested();
    LOG_EXIT_RC(rc, "BridgeIsQuitUserPromptRequested");
 }
 
-vr::EVRApplicationError VRApplicationsBridge::LaunchInternalProcess(const char * pchBinaryPath, const char * pchArguments, const char * pchWorkingDirectory)
+vr::EVRApplicationError openvr_bridge::LaunchInternalProcess(const char * pchBinaryPath, const char * pchArguments, const char * pchWorkingDirectory)
 {
    LOG_ENTRY("BridgeLaunchInternalProcess");
-   vr::EVRApplicationError rc = m_appi->LaunchInternalProcess(pchBinaryPath,pchArguments,pchWorkingDirectory);
+   vr::EVRApplicationError rc = m_down_stream.appi->LaunchInternalProcess(pchBinaryPath,pchArguments,pchWorkingDirectory);
    LOG_EXIT_RC(rc, "BridgeLaunchInternalProcess");
 }
 
-uint32_t VRApplicationsBridge::GetCurrentSceneProcessId()
+uint32_t openvr_bridge::GetCurrentSceneProcessId()
 {
    LOG_ENTRY("BridgeGetCurrentSceneProcessId");
-   uint32_t rc = m_appi->GetCurrentSceneProcessId();
+   uint32_t rc = m_down_stream.appi->GetCurrentSceneProcessId();
    LOG_EXIT_RC(rc, "BridgeGetCurrentSceneProcessId");
 }
 
-vr::ChaperoneCalibrationState VRChaperoneBridge::GetCalibrationState()
+vr::ChaperoneCalibrationState openvr_bridge::GetCalibrationState()
 {
    LOG_ENTRY("BridgeGetCalibrationState");
-   vr::ChaperoneCalibrationState rc = m_chapi->GetCalibrationState();
+   vr::ChaperoneCalibrationState rc = m_down_stream.chapi->GetCalibrationState();
    LOG_EXIT_RC(rc, "BridgeGetCalibrationState");
 }
 
-bool VRChaperoneBridge::GetPlayAreaSize(float * pSizeX, float * pSizeZ)
+bool openvr_bridge::GetPlayAreaSize(float * pSizeX, float * pSizeZ)
 {
    LOG_ENTRY("BridgeGetPlayAreaSize");
-   bool rc = m_chapi->GetPlayAreaSize(pSizeX,pSizeZ);
+   bool rc = m_down_stream.chapi->GetPlayAreaSize(pSizeX,pSizeZ);
    LOG_EXIT_RC(rc, "BridgeGetPlayAreaSize");
 }
 
-bool VRChaperoneBridge::GetPlayAreaRect(struct vr::HmdQuad_t * rect)
+bool openvr_bridge::GetPlayAreaRect(struct vr::HmdQuad_t * rect)
 {
    LOG_ENTRY("BridgeGetPlayAreaRect");
-   bool rc = m_chapi->GetPlayAreaRect(rect);
+   bool rc = m_down_stream.chapi->GetPlayAreaRect(rect);
    LOG_EXIT_RC(rc, "BridgeGetPlayAreaRect");
 }
 
-void VRChaperoneBridge::ReloadInfo()
+void openvr_bridge::ReloadInfo()
 {
    LOG_ENTRY("BridgeReloadInfo");
-   m_chapi->ReloadInfo();
+   m_down_stream.chapi->ReloadInfo();
    LOG_EXIT("BridgeReloadInfo");
 }
 
-void VRChaperoneBridge::SetSceneColor(struct vr::HmdColor_t color)
+void openvr_bridge::SetSceneColor(struct vr::HmdColor_t color)
 {
    LOG_ENTRY("BridgeSetSceneColor");
-   m_chapi->SetSceneColor(color);
+   m_down_stream.chapi->SetSceneColor(color);
    LOG_EXIT("BridgeSetSceneColor");
 }
 
-void VRChaperoneBridge::GetBoundsColor(struct vr::HmdColor_t * pOutputColorArray, int nNumOutputColors, float flCollisionBoundsFadeDistance, struct vr::HmdColor_t * pOutputCameraColor)
+void openvr_bridge::GetBoundsColor(struct vr::HmdColor_t * pOutputColorArray, int nNumOutputColors, float flCollisionBoundsFadeDistance, struct vr::HmdColor_t * pOutputCameraColor)
 {
    LOG_ENTRY("BridgeGetBoundsColor");
-   m_chapi->GetBoundsColor(pOutputColorArray,nNumOutputColors,flCollisionBoundsFadeDistance,pOutputCameraColor);
+   m_down_stream.chapi->GetBoundsColor(pOutputColorArray,nNumOutputColors,flCollisionBoundsFadeDistance,pOutputCameraColor);
    LOG_EXIT("BridgeGetBoundsColor");
 }
 
-bool VRChaperoneBridge::AreBoundsVisible()
+bool openvr_bridge::AreBoundsVisible()
 {
    LOG_ENTRY("BridgeAreBoundsVisible");
-   bool rc = m_chapi->AreBoundsVisible();
+   bool rc = m_down_stream.chapi->AreBoundsVisible();
    LOG_EXIT_RC(rc, "BridgeAreBoundsVisible");
 }
 
-void VRChaperoneBridge::ForceBoundsVisible(bool bForce)
+void openvr_bridge::ForceBoundsVisible(bool bForce)
 {
    LOG_ENTRY("BridgeForceBoundsVisible");
-   m_chapi->ForceBoundsVisible(bForce);
+   m_down_stream.chapi->ForceBoundsVisible(bForce);
    LOG_EXIT("BridgeForceBoundsVisible");
 }
 
-bool VRChaperoneSetupBridge::CommitWorkingCopy(vr::EChaperoneConfigFile configFile)
+bool openvr_bridge::CommitWorkingCopy(vr::EChaperoneConfigFile configFile)
 {
    LOG_ENTRY("BridgeCommitWorkingCopy");
-   bool rc = m_chapsi->CommitWorkingCopy(configFile);
+   bool rc = m_down_stream.chapsi->CommitWorkingCopy(configFile);
    LOG_EXIT_RC(rc, "BridgeCommitWorkingCopy");
 }
 
-void VRChaperoneSetupBridge::RevertWorkingCopy()
+void openvr_bridge::RevertWorkingCopy()
 {
    LOG_ENTRY("BridgeRevertWorkingCopy");
-   m_chapsi->RevertWorkingCopy();
+   m_down_stream.chapsi->RevertWorkingCopy();
    LOG_EXIT("BridgeRevertWorkingCopy");
 }
 
-bool VRChaperoneSetupBridge::GetWorkingPlayAreaSize(float * pSizeX, float * pSizeZ)
+bool openvr_bridge::GetWorkingPlayAreaSize(float * pSizeX, float * pSizeZ)
 {
    LOG_ENTRY("BridgeGetWorkingPlayAreaSize");
-   bool rc = m_chapsi->GetWorkingPlayAreaSize(pSizeX,pSizeZ);
+   bool rc = m_down_stream.chapsi->GetWorkingPlayAreaSize(pSizeX,pSizeZ);
    LOG_EXIT_RC(rc, "BridgeGetWorkingPlayAreaSize");
 }
 
-bool VRChaperoneSetupBridge::GetWorkingPlayAreaRect(struct vr::HmdQuad_t * rect)
+bool openvr_bridge::GetWorkingPlayAreaRect(struct vr::HmdQuad_t * rect)
 {
    LOG_ENTRY("BridgeGetWorkingPlayAreaRect");
-   bool rc = m_chapsi->GetWorkingPlayAreaRect(rect);
+   bool rc = m_down_stream.chapsi->GetWorkingPlayAreaRect(rect);
    LOG_EXIT_RC(rc, "BridgeGetWorkingPlayAreaRect");
 }
 
-bool VRChaperoneSetupBridge::GetWorkingCollisionBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t * punQuadsCount)
+bool openvr_bridge::GetWorkingCollisionBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t * punQuadsCount)
 {
    LOG_ENTRY("BridgeGetWorkingCollisionBoundsInfo");
-   bool rc = m_chapsi->GetWorkingCollisionBoundsInfo(pQuadsBuffer,punQuadsCount);
+   bool rc = m_down_stream.chapsi->GetWorkingCollisionBoundsInfo(pQuadsBuffer,punQuadsCount);
    LOG_EXIT_RC(rc, "BridgeGetWorkingCollisionBoundsInfo");
 }
 
-bool VRChaperoneSetupBridge::GetLiveCollisionBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t * punQuadsCount)
+bool openvr_bridge::GetLiveCollisionBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t * punQuadsCount)
 {
    LOG_ENTRY("BridgeGetLiveCollisionBoundsInfo");
-   bool rc = m_chapsi->GetLiveCollisionBoundsInfo(pQuadsBuffer,punQuadsCount);
+   bool rc = m_down_stream.chapsi->GetLiveCollisionBoundsInfo(pQuadsBuffer,punQuadsCount);
    LOG_EXIT_RC(rc, "BridgeGetLiveCollisionBoundsInfo");
 }
 
-bool VRChaperoneSetupBridge::GetWorkingSeatedZeroPoseToRawTrackingPose(struct vr::HmdMatrix34_t * pmatSeatedZeroPoseToRawTrackingPose)
+bool openvr_bridge::GetWorkingSeatedZeroPoseToRawTrackingPose(struct vr::HmdMatrix34_t * pmatSeatedZeroPoseToRawTrackingPose)
 {
    LOG_ENTRY("BridgeGetWorkingSeatedZeroPoseToRawTrackingPose");
-   bool rc = m_chapsi->GetWorkingSeatedZeroPoseToRawTrackingPose(pmatSeatedZeroPoseToRawTrackingPose);
+   bool rc = m_down_stream.chapsi->GetWorkingSeatedZeroPoseToRawTrackingPose(pmatSeatedZeroPoseToRawTrackingPose);
    LOG_EXIT_RC(rc, "BridgeGetWorkingSeatedZeroPoseToRawTrackingPose");
 }
 
-bool VRChaperoneSetupBridge::GetWorkingStandingZeroPoseToRawTrackingPose(struct vr::HmdMatrix34_t * pmatStandingZeroPoseToRawTrackingPose)
+bool openvr_bridge::GetWorkingStandingZeroPoseToRawTrackingPose(struct vr::HmdMatrix34_t * pmatStandingZeroPoseToRawTrackingPose)
 {
    LOG_ENTRY("BridgeGetWorkingStandingZeroPoseToRawTrackingPose");
-   bool rc = m_chapsi->GetWorkingStandingZeroPoseToRawTrackingPose(pmatStandingZeroPoseToRawTrackingPose);
+   bool rc = m_down_stream.chapsi->GetWorkingStandingZeroPoseToRawTrackingPose(pmatStandingZeroPoseToRawTrackingPose);
    LOG_EXIT_RC(rc, "BridgeGetWorkingStandingZeroPoseToRawTrackingPose");
 }
 
-void VRChaperoneSetupBridge::SetWorkingPlayAreaSize(float sizeX, float sizeZ)
+void openvr_bridge::SetWorkingPlayAreaSize(float sizeX, float sizeZ)
 {
    LOG_ENTRY("BridgeSetWorkingPlayAreaSize");
-   m_chapsi->SetWorkingPlayAreaSize(sizeX,sizeZ);
+   m_down_stream.chapsi->SetWorkingPlayAreaSize(sizeX,sizeZ);
    LOG_EXIT("BridgeSetWorkingPlayAreaSize");
 }
 
-void VRChaperoneSetupBridge::SetWorkingCollisionBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t unQuadsCount)
+void openvr_bridge::SetWorkingCollisionBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t unQuadsCount)
 {
    LOG_ENTRY("BridgeSetWorkingCollisionBoundsInfo");
-   m_chapsi->SetWorkingCollisionBoundsInfo(pQuadsBuffer,unQuadsCount);
+   m_down_stream.chapsi->SetWorkingCollisionBoundsInfo(pQuadsBuffer,unQuadsCount);
    LOG_EXIT("BridgeSetWorkingCollisionBoundsInfo");
 }
 
-void VRChaperoneSetupBridge::SetWorkingSeatedZeroPoseToRawTrackingPose(const struct vr::HmdMatrix34_t * pMatSeatedZeroPoseToRawTrackingPose)
+void openvr_bridge::SetWorkingSeatedZeroPoseToRawTrackingPose(const struct vr::HmdMatrix34_t * pMatSeatedZeroPoseToRawTrackingPose)
 {
    LOG_ENTRY("BridgeSetWorkingSeatedZeroPoseToRawTrackingPose");
-   m_chapsi->SetWorkingSeatedZeroPoseToRawTrackingPose(pMatSeatedZeroPoseToRawTrackingPose);
+   m_down_stream.chapsi->SetWorkingSeatedZeroPoseToRawTrackingPose(pMatSeatedZeroPoseToRawTrackingPose);
    LOG_EXIT("BridgeSetWorkingSeatedZeroPoseToRawTrackingPose");
 }
 
-void VRChaperoneSetupBridge::SetWorkingStandingZeroPoseToRawTrackingPose(const struct vr::HmdMatrix34_t * pMatStandingZeroPoseToRawTrackingPose)
+void openvr_bridge::SetWorkingStandingZeroPoseToRawTrackingPose(const struct vr::HmdMatrix34_t * pMatStandingZeroPoseToRawTrackingPose)
 {
    LOG_ENTRY("BridgeSetWorkingStandingZeroPoseToRawTrackingPose");
-   m_chapsi->SetWorkingStandingZeroPoseToRawTrackingPose(pMatStandingZeroPoseToRawTrackingPose);
+   m_down_stream.chapsi->SetWorkingStandingZeroPoseToRawTrackingPose(pMatStandingZeroPoseToRawTrackingPose);
    LOG_EXIT("BridgeSetWorkingStandingZeroPoseToRawTrackingPose");
 }
 
-void VRChaperoneSetupBridge::ReloadFromDisk(vr::EChaperoneConfigFile configFile)
+void openvr_bridge::ReloadFromDisk(vr::EChaperoneConfigFile configFile)
 {
    LOG_ENTRY("BridgeReloadFromDisk");
-   m_chapsi->ReloadFromDisk(configFile);
+   m_down_stream.chapsi->ReloadFromDisk(configFile);
    LOG_EXIT("BridgeReloadFromDisk");
 }
 
-bool VRChaperoneSetupBridge::GetLiveSeatedZeroPoseToRawTrackingPose(struct vr::HmdMatrix34_t * pmatSeatedZeroPoseToRawTrackingPose)
+bool openvr_bridge::GetLiveSeatedZeroPoseToRawTrackingPose(struct vr::HmdMatrix34_t * pmatSeatedZeroPoseToRawTrackingPose)
 {
    LOG_ENTRY("BridgeGetLiveSeatedZeroPoseToRawTrackingPose");
-   bool rc = m_chapsi->GetLiveSeatedZeroPoseToRawTrackingPose(pmatSeatedZeroPoseToRawTrackingPose);
+   bool rc = m_down_stream.chapsi->GetLiveSeatedZeroPoseToRawTrackingPose(pmatSeatedZeroPoseToRawTrackingPose);
    LOG_EXIT_RC(rc, "BridgeGetLiveSeatedZeroPoseToRawTrackingPose");
 }
 
-void VRChaperoneSetupBridge::SetWorkingCollisionBoundsTagsInfo(uint8_t * pTagsBuffer, uint32_t unTagCount)
+void openvr_bridge::SetWorkingCollisionBoundsTagsInfo(uint8_t * pTagsBuffer, uint32_t unTagCount)
 {
    LOG_ENTRY("BridgeSetWorkingCollisionBoundsTagsInfo");
-   m_chapsi->SetWorkingCollisionBoundsTagsInfo(pTagsBuffer,unTagCount);
+   m_down_stream.chapsi->SetWorkingCollisionBoundsTagsInfo(pTagsBuffer,unTagCount);
    LOG_EXIT("BridgeSetWorkingCollisionBoundsTagsInfo");
 }
 
-bool VRChaperoneSetupBridge::GetLiveCollisionBoundsTagsInfo(uint8_t * pTagsBuffer, uint32_t * punTagCount)
+bool openvr_bridge::GetLiveCollisionBoundsTagsInfo(uint8_t * pTagsBuffer, uint32_t * punTagCount)
 {
    LOG_ENTRY("BridgeGetLiveCollisionBoundsTagsInfo");
-   bool rc = m_chapsi->GetLiveCollisionBoundsTagsInfo(pTagsBuffer,punTagCount);
+   bool rc = m_down_stream.chapsi->GetLiveCollisionBoundsTagsInfo(pTagsBuffer,punTagCount);
    LOG_EXIT_RC(rc, "BridgeGetLiveCollisionBoundsTagsInfo");
 }
 
-bool VRChaperoneSetupBridge::SetWorkingPhysicalBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t unQuadsCount)
+bool openvr_bridge::SetWorkingPhysicalBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t unQuadsCount)
 {
    LOG_ENTRY("BridgeSetWorkingPhysicalBoundsInfo");
-   bool rc = m_chapsi->SetWorkingPhysicalBoundsInfo(pQuadsBuffer,unQuadsCount);
+   bool rc = m_down_stream.chapsi->SetWorkingPhysicalBoundsInfo(pQuadsBuffer,unQuadsCount);
    LOG_EXIT_RC(rc, "BridgeSetWorkingPhysicalBoundsInfo");
 }
 
-bool VRChaperoneSetupBridge::GetLivePhysicalBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t * punQuadsCount)
+bool openvr_bridge::GetLivePhysicalBoundsInfo(struct vr::HmdQuad_t * pQuadsBuffer, uint32_t * punQuadsCount)
 {
    LOG_ENTRY("BridgeGetLivePhysicalBoundsInfo");
-   bool rc = m_chapsi->GetLivePhysicalBoundsInfo(pQuadsBuffer,punQuadsCount);
+   bool rc = m_down_stream.chapsi->GetLivePhysicalBoundsInfo(pQuadsBuffer,punQuadsCount);
    LOG_EXIT_RC(rc, "BridgeGetLivePhysicalBoundsInfo");
 }
 
-bool VRChaperoneSetupBridge::ExportLiveToBuffer(char * pBuffer, uint32_t * pnBufferLength)
+bool openvr_bridge::ExportLiveToBuffer(char * pBuffer, uint32_t * pnBufferLength)
 {
    LOG_ENTRY("BridgeExportLiveToBuffer");
-   bool rc = m_chapsi->ExportLiveToBuffer(pBuffer,pnBufferLength);
+   bool rc = m_down_stream.chapsi->ExportLiveToBuffer(pBuffer,pnBufferLength);
    LOG_EXIT_RC(rc, "BridgeExportLiveToBuffer");
 }
 
-bool VRChaperoneSetupBridge::ImportFromBufferToWorking(const char * pBuffer, uint32_t nImportFlags)
+bool openvr_bridge::ImportFromBufferToWorking(const char * pBuffer, uint32_t nImportFlags)
 {
    LOG_ENTRY("BridgeImportFromBufferToWorking");
-   bool rc = m_chapsi->ImportFromBufferToWorking(pBuffer,nImportFlags);
+   bool rc = m_down_stream.chapsi->ImportFromBufferToWorking(pBuffer,nImportFlags);
    LOG_EXIT_RC(rc, "BridgeImportFromBufferToWorking");
 }
 
@@ -1616,7 +1690,7 @@ vr::EVRCompositorError openvr_bridge::WaitGetPoses(struct vr::TrackedDevicePose_
 
    if (m_snapshot_record_mode)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
    }
 
    LOG_EXIT_RC(rc, "BridgeWaitGetPoses");
@@ -1644,9 +1718,9 @@ vr::EVRCompositorError openvr_bridge::Submit(
    LOG_ENTRY("BridgeSubmit");
    vr::EVRCompositorError rc = m_down_stream.compi->Submit(eEye,pTexture,pBounds,nSubmitFlags);
 
-   if (m_secondary_compositor)
+   if (m_aux_compositor)
    {
-	   vr::EVRCompositorError err = m_secondary_compositor->Submit(eEye, pTexture, pBounds, nSubmitFlags);
+	   vr::EVRCompositorError err = m_aux_compositor->Submit(eEye, pTexture, pBounds, nSubmitFlags);
 	   if (rc == vr::VRCompositorError_None && err != vr::VRCompositorError_None)
 	   {
 		   rc = err;
@@ -2497,7 +2571,7 @@ uint32_t openvr_bridge::GetRenderModelName(uint32_t unRenderModelIndex, char * p
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   uint32_t rc2 = m_lock_step_tracker.remi->GetRenderModelName(unRenderModelIndex, buf.data(), unRenderModelNameLen);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
 	   TRAIN_TRACKER_ASSERT(buf.same());	
@@ -2514,7 +2588,7 @@ uint32_t openvr_bridge::GetRenderModelCount()
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   uint32_t rc2 = m_lock_step_tracker.remi->GetRenderModelCount();
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
    }
@@ -2529,7 +2603,7 @@ uint32_t openvr_bridge::GetComponentCount(const char * pchRenderModelName)
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   uint32_t rc2 = m_lock_step_tracker.remi->GetComponentCount(pchRenderModelName);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
    }
@@ -2554,7 +2628,7 @@ uint32_t openvr_bridge::GetComponentName(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   uint32_t rc2 = m_lock_step_tracker.remi->GetComponentName(pchRenderModelName, unComponentIndex, buf.data(), unComponentNameLen);
 	   TRAIN_TRACKER_ASSERT(rc2 == rc);
 	   TRAIN_TRACKER_ASSERT(buf.same());
@@ -2570,7 +2644,7 @@ uint64_t openvr_bridge::GetComponentButtonMask(const char * pchRenderModelName, 
    uint64_t rc = m_down_stream.remi->GetComponentButtonMask(pchRenderModelName,pchComponentName);
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   uint64_t rc2 = m_lock_step_tracker.remi->GetComponentButtonMask(pchRenderModelName, pchComponentName);
 	   TRAIN_TRACKER_ASSERT(rc2 == rc);
    }
@@ -2594,7 +2668,7 @@ uint32_t openvr_bridge::GetComponentRenderModelName(const char * pchRenderModelN
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   uint32_t rc2 = m_lock_step_tracker.remi->GetComponentRenderModelName(
 		   pchRenderModelName, pchComponentName, buf.data(), unComponentRenderModelNameLen);
 
@@ -2618,7 +2692,7 @@ bool openvr_bridge::GetComponentState(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::RenderModel_ComponentState_t component_state2;
 	   bool rc2 = m_lock_step_tracker.remi->GetComponentState(
 		   pchRenderModelName, pchComponentName, pControllerState, pState, &component_state2);
@@ -2641,7 +2715,7 @@ bool openvr_bridge::RenderModelHasComponent(const char * pchRenderModelName, con
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   bool rc2 = m_lock_step_tracker.remi->RenderModelHasComponent(
 													pchRenderModelName, pchComponentName);
 
@@ -2667,7 +2741,7 @@ uint32_t openvr_bridge::GetRenderModelThumbnailURL(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::EVRRenderModelError error2;
 	   uint32_t rc2 = m_lock_step_tracker.remi->GetRenderModelThumbnailURL(
 		   pchRenderModelName, buf.data(), unThumbnailURLLen, &error2);
@@ -2697,7 +2771,7 @@ uint32_t openvr_bridge::GetRenderModelOriginalPath(
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::EVRRenderModelError error2;
 	   uint32_t rc2 = m_lock_step_tracker.remi->GetRenderModelOriginalPath(
 		   pchRenderModelName, buf.data(), unOriginalPathLen, &error2);
@@ -2747,13 +2821,13 @@ void openvr_bridge::SetBool(const char * pchSection, const char * pchSettingsKey
 {
    LOG_ENTRY("BridgeSetBool");
 
+   m_down_stream.seti->SetBool(pchSection, pchSettingsKey, bValue, peError);
+
    // spy for any new settings. todo: add this to getbool and all the other sets and gets
    if (m_spy_mode)
    {
-	   update_vr_config_bool_setting(pchSection, pchSettingsKey);
-   }
-
-   m_down_stream.seti->SetBool(pchSection,pchSettingsKey,bValue,peError);
+	   update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_BOOL, pchSettingsKey);
+   } 
 
    LOG_EXIT("BridgeSetBool");
 }
@@ -2762,13 +2836,15 @@ void openvr_bridge::SetInt32(const char * pchSection, const char * pchSettingsKe
 {
    LOG_ENTRY("BridgeSetInt32");
 
+   m_down_stream.seti->SetInt32(pchSection, pchSettingsKey, nValue, peError);
+
    // spy for any new settings. todo: add this to getbool and all the other sets and gets
    if (m_spy_mode)
    {
-	   update_vr_config_int32_setting(pchSection, pchSettingsKey);
+		update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_INT32, pchSettingsKey);
    }
 
-   m_down_stream.seti->SetInt32(pchSection,pchSettingsKey,nValue,peError);
+   
    LOG_EXIT("BridgeSetInt32");
 }
 
@@ -2776,12 +2852,15 @@ void openvr_bridge::SetFloat(const char * pchSection, const char * pchSettingsKe
 {
    LOG_ENTRY("BridgeSetFloat");
 
+   m_down_stream.seti->SetFloat(pchSection, pchSettingsKey, flValue, peError);
+
    if (m_spy_mode)
    {
-	   update_vr_config_float_setting(pchSection, pchSettingsKey);
+	   if (m_spy_mode)
+	   {
+		   update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_FLOAT, pchSettingsKey);
+	   }
    }
-
-   m_down_stream.seti->SetFloat(pchSection,pchSettingsKey,flValue,peError);
    LOG_EXIT("BridgeSetFloat");
 }
 
@@ -2789,12 +2868,13 @@ void openvr_bridge::SetString(const char * pchSection, const char * pchSettingsK
 {
    LOG_ENTRY("BridgeSetString");
 
+   m_down_stream.seti->SetString(pchSection,pchSettingsKey,pchValue,peError);
+
+   // make sure if it's being set that I'm capturing it
    if (m_spy_mode)
    {
-	   update_vr_config_string_setting(pchSection, pchSettingsKey);
+	   update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_STRING, pchSettingsKey);
    }
-
-   m_down_stream.seti->SetString(pchSection,pchSettingsKey,pchValue,peError);
 
    LOG_EXIT("BridgeSetString");
 }
@@ -2803,11 +2883,16 @@ bool openvr_bridge::GetBool(const char * pchSection, const char * pchSettingsKey
 {
    LOG_ENTRY("BridgeGetBool");
    
+   if (m_spy_mode)
+   {
+	   update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_BOOL, pchSettingsKey);
+   }
+
    bool rc = m_down_stream.seti->GetBool(pchSection,pchSettingsKey,peError);
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::EVRSettingsError tracker_error;
 	   bool rc2 = m_lock_step_tracker.seti->GetBool(pchSection, pchSettingsKey, &tracker_error);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
@@ -2823,11 +2908,17 @@ bool openvr_bridge::GetBool(const char * pchSection, const char * pchSettingsKey
 int32_t openvr_bridge::GetInt32(const char * pchSection, const char * pchSettingsKey, vr::EVRSettingsError * peError)
 {
    LOG_ENTRY("BridgeGetInt32");
+
+   if (m_spy_mode)
+   {
+	   update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_INT32, pchSettingsKey);
+   }
+
    int32_t rc = m_down_stream.seti->GetInt32(pchSection,pchSettingsKey,peError);
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::EVRSettingsError tracker_error;
 	   int32_t rc2 = m_lock_step_tracker.seti->GetInt32(pchSection, pchSettingsKey, &tracker_error);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
@@ -2845,11 +2936,16 @@ float openvr_bridge::GetFloat(const char * pchSection, const char * pchSettingsK
 {
    LOG_ENTRY("BridgeGetFloat");
    
+   if (m_spy_mode)
+   {
+	   update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_FLOAT, pchSettingsKey);
+   }
+
    float rc = m_down_stream.seti->GetFloat(pchSection,pchSettingsKey,peError);
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();
+	   refresh_lockstep_capture();
 	   vr::EVRSettingsError tracker_error;
 	   float rc2 = m_lock_step_tracker.seti->GetFloat(pchSection, pchSettingsKey, &tracker_error);
 	   TRAIN_TRACKER_ASSERT(rc == rc2);
@@ -2865,6 +2961,12 @@ float openvr_bridge::GetFloat(const char * pchSection, const char * pchSettingsK
 void openvr_bridge::GetString(const char * pchSection, const char * pchSettingsKey, char * pchValue, uint32_t unValueLen, vr::EVRSettingsError * peError)
 {
    LOG_ENTRY("BridgeGetString");
+
+   if (m_spy_mode)
+   {
+	   update_vr_config_setting(pchSection, SettingsIndexer::SETTING_TYPE_STRING, pchSettingsKey);
+   }
+
    TmpBuf buf;
    if (m_lock_step_train_tracker)
    {
@@ -2878,7 +2980,7 @@ void openvr_bridge::GetString(const char * pchSection, const char * pchSettingsK
 
    if (m_lock_step_train_tracker)
    {
-	   refresh_capture();   
+	   refresh_lockstep_capture();   
 	   vr::EVRSettingsError tracker_error;
 	   m_lock_step_tracker.seti->GetString(pchSection, pchSettingsKey, buf.data(), unValueLen, &tracker_error);
 	   if (peError)

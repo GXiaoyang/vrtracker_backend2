@@ -1,3 +1,5 @@
+#pragma once
+
 // capture_controller
 //
 //
@@ -14,11 +16,10 @@
 struct capture_controller
 {
 	capture_controller();
+	
+	// use an existing model
+	void init(const capture &c, const openvr_broker::open_vr_interfaces &interfaces);
 
-	// construct a capture object
-	// get the open_vr interfaces
-	//  
-	bool init(const CaptureConfig &c);
 
 	// apply any enqueued configuration events
 	// update the model

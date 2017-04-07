@@ -2,7 +2,7 @@
 // system wide definitions and typedefs
 //
 #pragma once 
-#include <thread>
+#include <string>
 #include <chrono>
 #include <cassert>
 #include <cstddef>
@@ -10,11 +10,11 @@
 
 namespace plat
 {
-	static void sleep_ms(unsigned long ms)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-	}
-}
+	void sleep_ms(unsigned long ms);
+	std::string make_temporary_filename(const std::string &key);
+	std::string make_temporary_filename();
+	
+};
 
 using time_point_t = std::chrono::steady_clock::time_point;
 

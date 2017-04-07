@@ -181,7 +181,6 @@
     <ClInclude Include="MemoryStream.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="openvr_bridge.h" />
-    <ClInclude Include="openvr_bridge_internal.h" />
     <ClInclude Include="openvr_broker.h" />
     <ClInclude Include="openvr_cppstub.h" />
     <ClInclude Include="openvr_dll_client.h" />
@@ -213,7 +212,7 @@
     <ClInclude Include="vr_compositor_cursor.h" />
     <ClInclude Include="vr_compositor_wrapper.h" />
     <ClInclude Include="vr_constants.h" />
-    <ClInclude Include="vr_cursor.h" />
+    <ClInclude Include="vr_cursor_controller.h" />
     <ClInclude Include="vr_cursor_common.h" />
     <ClInclude Include="vr_cursor_context.h" />
     <ClInclude Include="vr_device_properties_indexer.h" />
@@ -263,6 +262,7 @@
     <ClCompile Include="openvr_broker.cpp" />
     <ClCompile Include="openvr_cppstub.cpp" />
     <ClCompile Include="openvr_dll_client.cpp" />
+    <ClCompile Include="platform.cpp" />
     <ClCompile Include="slab_allocator.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -301,7 +301,7 @@
     <ClCompile Include="vr_chaperone_cursor.cpp" />
     <ClCompile Include="vr_chaperone_setup_cursor.cpp" />
     <ClCompile Include="vr_compositor_cursor.cpp" />
-    <ClCompile Include="vr_cursor.cpp" />
+    <ClCompile Include="vr_cursor_controller.cpp" />
     <ClCompile Include="vr_cursor_context.cpp" />
     <ClCompile Include="vr_device_properties_indexer.cpp" />
     <ClCompile Include="vr_extended_display_cursor.cpp" />

@@ -1,7 +1,18 @@
 #pragma once
 
 #include <openvr_broker.h>
-#include "openvr_bridge_internal.h"
+#include "vr_settings_indexer.h"
+
+// responsibilities
+//	* export an interface
+//  * bind to a configurable downstream interface
+// specials:
+//	* second texture downstream since sometimes you want to replay from a file, but view the output on device
+//  * configuration discovery.  since the bridge can see all the incoming queries, it can update the capture
+//    configuration to capture things of interest
+
+struct capture_controller;
+struct vr_cursor_controller;
 
 class openvr_bridge :
 	public vr::IVRSystem,
@@ -21,43 +32,59 @@ class openvr_bridge :
 public:
 	openvr_bridge();
 	openvr_broker::open_vr_interfaces &interfaces() { return m_up_stream; };
-	void set_down_stream_interface(openvr_broker::open_vr_interfaces* interfaces);
+	void set_down_stream_interface(const openvr_broker::open_vr_interfaces& interfaces);
+
+	void set_down_stream_capture_controller(capture_controller *down_stream_capture);
+	const capture_controller *get_down_stream_capture_controller() const;
 
 	// mirror texture submits here too
-	void set_second_texture_down_stream_interface(vr::IVRCompositor *texture_down_stream);
+	void set_aux_texture_down_stream_interface(vr::IVRCompositor *texture_down_stream);
 
 private:
-	openvr_broker::open_vr_interfaces m_up_stream;		// interfaces given to clients
+	openvr_broker::open_vr_interfaces m_up_stream;		// block of interfaces given to clients.  since
+														// this class implements them, it's just 13 different pointers
+														// to this instance
+
+
+														
+	void refresh_lockstep_capture();					// for lockstep
 
 	openvr_broker::open_vr_interfaces m_down_stream;	// my downstream interface.  
 														// e.g. could be a raw openvr interface or an interface into a
 														// recorded capture
 
-	bool m_lock_step_train_tracker;
+	capture_controller *m_down_stream_capture_controller;	// can be null, wants to be notified about config and events to capture
+	vr_cursor_controller *m_cursor_controller;				// can be null, wants to be advanced at the right time
+
+	capture_controller *m_lockstep_capture_controller;
 	openvr_broker::open_vr_interfaces m_lock_step_tracker;
 
+	vr::IVRCompositor *m_aux_compositor; // use to submit_frames_to_real_compositor_during_playback
+
+
+	bool m_lock_step_train_tracker;						// for debugging
 	bool m_spy_mode;
 	bool m_snapshot_playback_mode;
-
-	vr::IVRCompositor *m_secondary_compositor; // use to submit_frames_to_real_compositor_during_playback
-
 	bool m_snapshot_record_mode;
 	bool m_events_since_last_refresh;
 
 private:
 
-	void refresh_capture();
-
+	// these hooks apply when the downstream has a capture controller
+	//	(
+	//		these don't belong in the cursors, because the cursors are past references
+	//		these don't belong in the settings wrappers since the settings wrappers are only
+	//		used for polling queries
+	//		it is therefore the responsibility of the bridge in spymode to handle discovering desired configuration
+	//		over time
+	//  }
 	void process_poll_next_event_value(bool poll_rc, vr::VREvent_t * pEvent);
 	void advance_cursor_one_frame();
 	void capture_vr_event(const vr::VREvent_t &event);
 	void capture_vr_overlay_event(vr::VROverlayHandle_t overlay_handle, const vr::VREvent_t &event);
 
 	void update_vr_config_near_far(float nearz, float farz);
-	void update_vr_config_bool_setting(const char *section, const char *key);
-	void update_vr_config_int32_setting(const char *section, const char *key);
-	void update_vr_config_float_setting(const char *section, const char *key);
-	void update_vr_config_string_setting(const char *section, const char *key);
+	void update_vr_config_setting(const char *section, SettingsIndexer::SectionSettingType setting_type, const char *key);
 
 public:
 	void GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight) final;
