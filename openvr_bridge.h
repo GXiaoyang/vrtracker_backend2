@@ -53,7 +53,8 @@ private:
 														// e.g. could be a raw openvr interface or an interface into a
 														// recorded capture
 
-	capture_controller *m_down_stream_capture_controller;	// can be null, wants to be notified about config and events to capture
+	capture_controller *m_down_stream_capture_controller;	// can be null, if present, wants to be notified about config and events to capture
+
 	vr_cursor_controller *m_cursor_controller;				// can be null, wants to be advanced at the right time
 
 	capture_controller *m_lockstep_capture_controller;
@@ -80,6 +81,7 @@ private:
 	//  }
 	void process_poll_next_event_value(bool poll_rc, vr::VREvent_t * pEvent);
 	void advance_cursor_one_frame();
+	void update_capture_controller();
 	void capture_vr_event(const vr::VREvent_t &event);
 	void capture_vr_overlay_event(vr::VROverlayHandle_t overlay_handle, const vr::VREvent_t &event);
 

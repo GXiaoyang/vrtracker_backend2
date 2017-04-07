@@ -334,7 +334,7 @@ const char *openvr_dll_client::imp::call_RuntimePath()
 	if (runtime_path)
 	{
 		// interface version is valid
-		log_printf("runtime_path: %s\n", runtime_path);
+		//log_printf("runtime_path: %s\n", runtime_path);
 	}
 	else
 	{

@@ -119,12 +119,12 @@ inline bool softcompare_is_similar(
 		similar = false;
 	}
 
-	if (a.bPoseIsValid != b.bPoseIsValid)
+	if (a.bPoseIsValid && b.bPoseIsValid)
 	{
 		for (int i = 0; i < 3 && similar; i++)
 		{
-			similar = softcompare_is_similar(a.vAngularVelocity.v[i], b.vAngularVelocity.v[i], epsilon);
-			similar = softcompare_is_similar(a.vVelocity.v[i], b.vVelocity.v[i], epsilon);
+			similar = similar && softcompare_is_similar(a.vAngularVelocity.v[i], b.vAngularVelocity.v[i], epsilon);
+			similar = similar && softcompare_is_similar(a.vVelocity.v[i], b.vVelocity.v[i], epsilon);
 			for (int j = 0; j < 4 && similar; j++)
 			{
 				similar = softcompare_is_similar(a.mDeviceToAbsoluteTracking.m[i][j],

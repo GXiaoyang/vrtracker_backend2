@@ -273,7 +273,6 @@ public:
 	segmented_list& operator=(segmented_list&& rhs)
 	{
 		if (this != &rhs) {
-printf("burp\n");
 			swap(rhs);
 		}
 		return *this;

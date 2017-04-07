@@ -865,15 +865,9 @@ static void move_test()
 
 	{
 		//assignment operator
-printf("urp\n");
 		segmented_list<int, 1024, SimpleAllocator<int>> segmented_list2;
 		segmented_list2 = segmented_list<int, 1024, SimpleAllocator<int>>(1024, allocatorA);
-printf("nurp\n");
 	}
-	
-
-	
-
 }
 
 void TEST_SEGMENTED_LIST()

@@ -5,10 +5,11 @@
 #include "log.h"
 
 extern void test_dll_client();
-
+extern void test_openvr_bridge();
 
 void test_monitor()
 {
+	test_openvr_bridge();
 	test_dll_client();
 }
 

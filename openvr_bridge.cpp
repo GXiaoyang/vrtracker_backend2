@@ -49,11 +49,19 @@ void openvr_bridge::set_aux_texture_down_stream_interface(vr::IVRCompositor *tex
 	m_aux_compositor = texture_down_stream;
 }
 
+void openvr_bridge::update_capture_controller()
+{
+	if (m_down_stream_capture_controller)
+	{
+		m_down_stream_capture_controller->update();
+	}
+
+}
 void openvr_bridge::refresh_lockstep_capture()
 {
 	if (m_lockstep_capture_controller)
 	{
-		m_lockstep_capture_controller->update();
+		m_down_stream_capture_controller->update();
 	}
 }
 
@@ -745,9 +753,9 @@ vr::ETrackedDeviceClass openvr_bridge::GetTrackedDeviceClass(vr::TrackedDeviceIn
 
 bool openvr_bridge::IsTrackedDeviceConnected(vr::TrackedDeviceIndex_t unDeviceIndex)
 {
-   LOG_ENTRY("BridgeIsTrackedDeviceConnected");
+	LOG_ENTRY("BridgeIsTrackedDeviceConnected");
 
-   bool rc;
+	bool rc;
 	rc = m_down_stream.sysi->IsTrackedDeviceConnected(unDeviceIndex);
 
    if (m_lock_step_train_tracker)
@@ -917,10 +925,10 @@ void openvr_bridge::process_poll_next_event_value(bool poll_rc, vr::VREvent_t * 
 {
 	if (poll_rc == false)  // Empty event-queue case
 	{
-		if (m_snapshot_record_mode && m_events_since_last_refresh)
+		if (m_events_since_last_refresh)
 		{
-			refresh_lockstep_capture();
-			m_events_since_last_refresh = false; // clear flag
+			update_capture_controller();
+			m_events_since_last_refresh = false; // clear toggle
 		}
 	}
 	else  // non-empty event queue case
@@ -1688,10 +1696,7 @@ vr::EVRCompositorError openvr_bridge::WaitGetPoses(struct vr::TrackedDevicePose_
 	   advance_cursor_one_frame();
    }
 
-   if (m_snapshot_record_mode)
-   {
-	   refresh_lockstep_capture();
-   }
+   update_capture_controller();
 
    LOG_EXIT_RC(rc, "BridgeWaitGetPoses");
 }

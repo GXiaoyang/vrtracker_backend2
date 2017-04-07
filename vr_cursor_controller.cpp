@@ -66,6 +66,19 @@ struct vr_cursor_controller::VRCursorImpl
 void vr_cursor_controller::init(capture *capture)
 {
 	pimpl = new VRCursorImpl(capture);
+	m_interfaces.sysi = 	&pimpl->m_system_cursor;
+	m_interfaces.appi = 	&pimpl->m_applications_cursor;
+	m_interfaces.seti = 	&pimpl->m_settings_cursor;
+	m_interfaces.chapi = 	&pimpl->m_chaperone_cursor;
+	m_interfaces.chapsi = 	&pimpl->m_chaperone_setup_cursor;
+	m_interfaces.compi = 	&pimpl->m_compositor_cursor;
+	m_interfaces.noti = 	&pimpl->m_notifications_cursor;
+	m_interfaces.ovi = 		&pimpl->m_overlay_cursor;
+	m_interfaces.remi = 	&pimpl->m_rendermodels_cursor;
+	m_interfaces.exdi = 	&pimpl->m_extendeddisplay_cursor;
+	m_interfaces.taci = 	&pimpl->m_trackedcamera_cursor;
+	m_interfaces.screeni = 	&pimpl->m_screenshots_cursor;
+	m_interfaces.resi = 	&pimpl->m_resources_cursor;
 }
 
 void vr_cursor_controller::SeekToFrame(time_index_t framenumber)

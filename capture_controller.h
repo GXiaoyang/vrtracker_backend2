@@ -18,14 +18,14 @@ struct capture_controller
 	capture_controller();
 	
 	// use an existing model
-	void init(const capture &c, const openvr_broker::open_vr_interfaces &interfaces);
+	void init(capture *c, const openvr_broker::open_vr_interfaces &interfaces);
 
 
 	// apply any enqueued configuration events
 	// update the model
 	void update();
 
-	const capture &get_model() { return m_model; };
+	const capture &get_model() { return *m_model; };
 
 	void enqueue_new_key(const VRKeysUpdate &update);
 	void enqueue_event(const vr::VREvent_t &event_in);
@@ -33,7 +33,7 @@ struct capture_controller
 	
 	struct pending_controller_update;
 private:
-	capture m_model;
+	capture *m_model;
 	capture_traverser m_traverser;
 	openvr_broker::open_vr_interfaces m_interfaces;
 

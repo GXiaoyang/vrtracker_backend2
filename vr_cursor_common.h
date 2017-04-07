@@ -24,7 +24,7 @@ static void update_iter(T& cached_iterator, U &history_node, time_index_t cursor
 {
 	if (history_node.empty())
 	{
-		ABORT("error node is empty. this should happen to the cursor interfaces");
+		ABORT("error node is empty. this should not happen to the cursor interfaces");
 	}
 	
 	if (cached_iterator.initialized)

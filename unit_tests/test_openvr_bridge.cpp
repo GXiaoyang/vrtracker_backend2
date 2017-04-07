@@ -9,6 +9,7 @@
 #include "capture_controller.h"
 #include "capture_test_context.h"
 #include "vr_cursor_controller.h"
+#include "openvr_softcompare.h"
 #include "assert.h"
 
 void test_openvr_bridge()
@@ -26,7 +27,7 @@ void test_openvr_bridge()
 		// USE-CASE 0 create a bridge to nowhere. and uh. make sure it doesn't crash...
 		//
 		openvr_bridge bridge;
-		assert(bridge.interfaces().sysi == nullptr);
+		assert(bridge.interfaces().sysi != nullptr);  // this is a pointer to itself
 	}
 
 	{
@@ -37,7 +38,7 @@ void test_openvr_bridge()
 		openvr_bridge bridge;
 		bridge.set_down_stream_interface(*openvr_dll.cpp_interfaces());
 		bridge.interfaces().sysi->GetRecommendedRenderTargetSize(&width, &height); // test call using the block of interfaces
-		bridge.GetRecommendedRenderTargetSize(&width, &height); // call through the object
+		bridge.GetRecommendedRenderTargetSize(&width, &height); // call through the object (instead of through interfaces())
 		assert(bridge.get_down_stream_capture_controller() == nullptr); // this shouldnt be present
 	}
 
@@ -52,7 +53,7 @@ void test_openvr_bridge()
 		capture_test_context x;
 		x.ForceInitAll();
 		capture_controller controller;
-		controller.init(x.get_capture(), x.raw_vr_interfaces());
+		controller.init(&x.get_capture(), x.raw_vr_interfaces());
 
 		//
 		// construct a bridge to:
@@ -94,8 +95,12 @@ void test_openvr_bridge()
 		assert(r1 == r2);
 		if (r1 == vr::VRCompositorError_None)
 		{
-			// we can check that the poses matched too
-			assert(memcmp(poses1, poses2, sizeof(poses1) == 0));
+			// we can check that the poses are similar.  (it's not exact because the capture is only triggered by the GetPoses
+			// and doesnt actually store them)
+			for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
+			{
+				assert(softcompare_is_similar(poses1[i], poses2[i], .1f));
+			}
 		}
 	}
 
@@ -109,9 +114,11 @@ void test_openvr_bridge()
 
 		// step 1: make a capture file
 		{
+			capture_test_context x;
+			x.ForceInitAll();
 			capture_traverser t;
-			capture dummy;
-			t.save_capture_to_binary_file(&dummy, filename.c_str());
+			t.update_capture_parallel(&x.get_capture(), &x.raw_vr_interfaces(), 1); // update once
+			t.save_capture_to_binary_file(&x.get_capture(), filename.c_str());
 		}
 
 		// step 2. load the dummy file and bridge to it
@@ -123,7 +130,8 @@ void test_openvr_bridge()
 			vr_cursor_controller cursor_controller;
 			cursor_controller.init(&c);
 			
-			// a bridge that is into a cursor that refers to c
+			// a bridge that is into a cursor that refers to c -- expect it not to crash, but not much else 
+			// since the file is empty
 			openvr_bridge b;
 			b.set_down_stream_interface(cursor_controller.interfaces());
 			uint32_t width;

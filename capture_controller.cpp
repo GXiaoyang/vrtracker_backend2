@@ -7,7 +7,7 @@ capture_controller::capture_controller()
 {
 }
 
-void capture_controller::init(const capture &c, const openvr_broker::open_vr_interfaces &interfaces)
+void capture_controller::init(capture *c, const openvr_broker::open_vr_interfaces &interfaces)
 {
 	m_model = c;
 	m_interfaces = interfaces;
@@ -116,7 +116,7 @@ void capture_controller::update()
 
 	for (auto pending_update : m_pending_updates)
 	{
-		pending_update->apply(&m_model);
+		pending_update->apply(m_model);
 		delete pending_update;
 	}
 	m_pending_updates.clear();
@@ -125,13 +125,13 @@ void capture_controller::update()
 
 	m_update_lock.lock();
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-	if (m_model.get_num_updates() == 0)
+	if (m_model->get_num_updates() == 0)
 	{
-		m_model.m_start = start;
+		m_model->m_start = start;
 	}
 	using us = std::chrono::duration<int64_t, std::micro>;
-	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - m_model.m_start);
-	m_traverser.update_capture_sequential(&m_model, &m_interfaces, frame_time.count());
+	us frame_time = std::chrono::duration_cast<std::chrono::microseconds>(start - m_model->m_start);
+	m_traverser.update_capture_sequential(m_model, &m_interfaces, frame_time.count());
 	m_update_lock.unlock();
 }
 
