@@ -7,7 +7,7 @@
 //	* export an interface
 //  * bind to a configurable downstream interface
 // specials:
-//	* second texture downstream since sometimes you want to replay from a file, but view the output on device
+//	* second texture downstream since sometimes you want to replay from an old file, AND view the output on real device
 //  * configuration discovery.  since the bridge can see all the incoming queries, it can update the capture
 //    configuration to capture things of interest
 

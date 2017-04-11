@@ -28,32 +28,37 @@ void test_capture_serialization()
 	}
 
 	{
-		log_printf("serializing empty context\n");
+		std::string fname(plat::make_temporary_filename("tracker0.bin"));
+		log_printf("serializing empty context to %s\n", fname.c_str());
 		// no updates
 		capture_test_context contexta;
-		traverser.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker0.bin");
+		
+		traverser.save_capture_to_binary_file(&contexta.get_capture(), fname.c_str());
 
 		capture_test_context contextb;
-		traverser.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker0.bin");
+		traverser.load_capture_from_binary_file(&contextb.get_capture(), fname.c_str());
 		assert(contexta.get_capture() == contextb.get_capture());
 	}
 
 	capture_test_context::reset_globals();
 	{
-		log_printf("serializing one update\n");
+		std::string fname(plat::make_temporary_filename("tracker1.bin"));
+		log_printf("serializing one update to %s\n", fname.c_str());
 		// one update
 		capture_test_context contexta;
 		traverser.update_capture_parallel(&contexta.get_capture(), &contexta.raw_vr_interfaces(), 42);
-		assert(traverser.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker1.bin"));
+		
+		assert(traverser.save_capture_to_binary_file(&contexta.get_capture(), fname.c_str()));
 		//contexta.get_capture().m_state_registry.dump();
 		
 		capture_test_context contextb;
-		assert(traverser.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker1.bin"));
+		assert(traverser.load_capture_from_binary_file(&contextb.get_capture(), fname.c_str()));
 		assert(contexta.get_capture() == contextb.get_capture());
 	}
 	capture_test_context::reset_globals();
 	{
-		log_printf("serializing 10 updates\n");
+		std::string fname(plat::make_temporary_filename("tracker10.bin"));
+		log_printf("serializing 10 updates to %s\n", fname.c_str());
 		// ten updates ... 100mb with no textures... 600mb with textures
 		capture_test_context contexta;
 		for (int i = 0; i < 10; i++)
@@ -61,11 +66,12 @@ void test_capture_serialization()
 			traverser.update_capture_parallel(&contexta.get_capture(), &contexta.raw_vr_interfaces(), i);
 		}
 		log_printf("writing\n");
-		traverser.save_capture_to_binary_file(&contexta.get_capture(), "c:\\temp\\tracker10.bin");
+		
+		traverser.save_capture_to_binary_file(&contexta.get_capture(), fname.c_str());
 
 		log_printf("reading\n");
 		capture_test_context contextb;
-		traverser.load_capture_from_binary_file(&contextb.get_capture(), "c:\\temp\\tracker10.bin");
+		traverser.load_capture_from_binary_file(&contextb.get_capture(), fname.c_str());
 		assert(contexta.get_capture() == contextb.get_capture());
 	}
 	capture_test_context::reset_globals();

@@ -1,10 +1,12 @@
 #include "log.h"
 
-extern void TEST_INDEXERS();
+extern void test_app_indexer();
+extern void test_texture_indexer();
 
 void test_keys()
 {
-	TEST_INDEXERS();
+	test_texture_indexer();
+	test_app_indexer();
 }
 
 #ifdef TEST_VR_KEYS_MAIN

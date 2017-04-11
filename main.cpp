@@ -12,14 +12,14 @@ extern void test_monitor();
 
 int main()
 {
-	test_monitor();
+	test_keys();
 
+	test_traverse();
+	test_monitor();
 	test_controller();
 	test_base();
 	test_time_containers();
-	test_keys();
 	test_capture();
-	test_traverse();
 	test_cursors();
 	log_printf("all tests done\n");
 }

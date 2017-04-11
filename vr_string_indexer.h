@@ -22,6 +22,7 @@ public:
 	StringIndexer(const StringIndexer &rhs);
 	StringIndexer &operator=(const StringIndexer &rhs);
 
+	// value based equality
 	bool operator == (const StringIndexer &rhs) const
 	{
 		if (this == &rhs)

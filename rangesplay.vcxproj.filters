@@ -318,6 +318,9 @@
     <ClInclude Include="vr_cursor_controller.h">
       <Filter>Source Files\6 cursor</Filter>
     </ClInclude>
+    <ClInclude Include="vr_texture_indexer.h">
+      <Filter>Source Files\3 vr keys</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -437,9 +440,6 @@
     <ClCompile Include="unit_tests\test_time_containers_main.cpp">
       <Filter>Source Files\2 time_containers_unit_test</Filter>
     </ClCompile>
-    <ClCompile Include="unit_tests\test_indexers.cpp">
-      <Filter>Source Files\3 vr keys test</Filter>
-    </ClCompile>
     <ClCompile Include="unit_tests\test_vr_keys_main.cpp">
       <Filter>Source Files\3 vr keys test</Filter>
     </ClCompile>
@@ -514,6 +514,15 @@
     </ClCompile>
     <ClCompile Include="platform.cpp">
       <Filter>Source Files\1 base</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\lodepng\lodepng.cpp">
+      <Filter>Source Files\1 base</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_app_indexer.cpp">
+      <Filter>Source Files\3 vr keys test</Filter>
+    </ClCompile>
+    <ClCompile Include="unit_tests\test_texture_indexer.cpp">
+      <Filter>Source Files\3 vr keys test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

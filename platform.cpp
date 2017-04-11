@@ -8,7 +8,7 @@ void plat::sleep_ms(unsigned long ms)
 
 std::string plat::make_temporary_filename(const std::string &key)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	return std::string("c:\\temp\\" + key);
 #else
 	return std::string("/tmp/" + key);

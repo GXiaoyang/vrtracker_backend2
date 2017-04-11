@@ -16,7 +16,11 @@
 #include "vr_resources_wrapper.h"
 #include "vr_keys.h"
 #include "openvr_string.h"
-
+#include "lz4.h"
+#include "lz4hc.h"
+//#include "lizard_compress.h"
+#include "lodepng.h"
+#include "png.h"
 
 namespace vr_result
 {
@@ -1087,6 +1091,21 @@ static void visit_permodelcomponent(
 	visitor->end_group_node(ss->get_url(), component_index);
 }
 
+struct datablock
+{
+	char *data;
+	int cur_pos;
+};
+
+void png_user_write_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
+{
+	struct datablock *d = (struct datablock *) png_get_io_ptr(png_ptr);
+	memcpy(d->data, data, length);
+	d->cur_pos += length;
+}
+
+
+
 template <typename visitor_fn>
 static void visit_rendermodel(visitor_fn *visitor,
 	vr_state::rendermodel_schema *ss,
@@ -1112,6 +1131,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 			const uint16_t *rIndexData = nullptr;
 			uint32_t unTriangleCount = 0;
 			uint16_t unWidth, unHeight; // width and height of the texture map in pixels
+			uint32_t texture_size = 0;
 			unWidth = unHeight = 0;
 			const uint8_t *rubTextureMapData = nullptr;
 
@@ -1127,11 +1147,102 @@ static void visit_rendermodel(visitor_fn *visitor,
 			{
 				unWidth = pTexture->unWidth;
 				unHeight = pTexture->unHeight;
+				texture_size = unWidth * unHeight * 4;
 				rubTextureMapData = pTexture->rubTextureMapData;
 			}
 			visitor->visit_node(ss->vertex_data, make_result(gsl::make_span(rVertexData, unVertexCount), rc));
 			visitor->visit_node(ss->index_data, make_result(gsl::make_span(rIndexData, unTriangleCount*3), rc));
-			visitor->visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, unWidth * unHeight * 4), rc));
+			visitor->visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, texture_size), rc));
+			
+
+			
+
+			int compressed_size = 0;
+			if (texture_size > 0)
+			{
+
+				// png
+				unsigned char *out;
+				size_t png_size;
+
+				std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+				lodepng_encode32(&out, &png_size, (const unsigned char*)rubTextureMapData, unWidth, unHeight);
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+				std::string fname(plat::make_temporary_filename(render_model_name));
+				fname += "_lodepng.png";
+
+				log_printf("encode of %s took %lld us size %d.\n", fname.c_str(), 
+					std::chrono::duration_cast<std::chrono::microseconds>(end - start).count(),
+					png_size);
+
+				FILE *pf = fopen(fname.c_str(), "wb");
+				fwrite(out, png_size, 1, pf);
+				fclose(pf);
+				free(out);
+
+
+
+#if 0
+				FILE *pf = fopen(plat::make_temporary_filename(render_model_name).c_str(), "wb");
+				fwrite(rubTextureMapData, texture_size, 1, pf);
+				fclose(pf);
+#endif
+
+
+				char *tmp = (char *)malloc(texture_size);
+				{
+					std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+					//int lz4_size = LZ4_compress_default((char *)rubTextureMapData, tmp, texture_size, texture_size);
+					int lz4_size = LZ4_compress_HC((char *)rubTextureMapData, tmp, texture_size, texture_size, 3);
+					std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+					log_printf("lz4 encode of %s took %lld us size %d.\n", fname.c_str(),
+						std::chrono::duration_cast<std::chrono::microseconds>(end - start).count(),
+						lz4_size);
+				}
+				free(tmp);
+
+
+				{
+					std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+					png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+					png_infop  info_ptr = png_create_info_struct(png_ptr);
+
+					datablock ios;
+					ios.cur_pos = 0;
+					ios.data = (char *)malloc(texture_size + 1024);
+
+					png_set_write_fn(png_ptr, &ios, png_user_write_data, nullptr);
+
+					png_set_compression_level(png_ptr, 2);
+
+					png_set_IHDR(png_ptr, info_ptr,
+						unWidth, unHeight, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+					png_write_info(png_ptr, info_ptr);
+
+					for (int i = 0; i < unHeight; i++)
+					{
+						png_write_row(png_ptr, &rubTextureMapData[i*unWidth * 4]);
+					}
+					png_write_end(png_ptr, NULL);
+
+					png_destroy_write_struct(&png_ptr, &info_ptr);
+
+					free(ios.data);
+					std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+					log_printf("libpng encode of %s took %lld us size %d.\n", fname.c_str(),
+						std::chrono::duration_cast<std::chrono::microseconds>(end - start).count(),
+						ios.cur_pos);
+				}
+				
+
+//				log_printf("CRC32 %d %s %d %d %d\n", crc32buf((char *)rubTextureMapData, texture_size), render_model_name, 
+//					texture_size, lz4_size, png_size);
+				
+			}
+			
+			
 			visitor->visit_node(ss->texture_height, make_result(unHeight, rc));
 			visitor->visit_node(ss->texture_width, make_result(unWidth, rc));
 
