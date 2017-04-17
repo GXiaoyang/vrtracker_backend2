@@ -1111,7 +1111,8 @@ static void visit_rendermodel(visitor_fn *visitor,
 	vr_state::rendermodel_schema *ss,
 	int *structure_version,
 	RenderModelsWrapper *wrap,
-	uint32_t unRenderModelIndex)
+	uint32_t unRenderModelIndex,
+	vr_keys *config)
 {
 	const char *render_model_name = ss->get_name().c_str();
 
@@ -1124,143 +1125,43 @@ static void visit_rendermodel(visitor_fn *visitor,
 		if (visitor->reload_render_models() || ss->vertex_data.empty())
 		{
 			RenderModel_t *pRenderModel = nullptr;
-			RenderModel_TextureMap_t *pTexture = nullptr;
 			EVRRenderModelError rc = VRRenderModelError_None;
 			const RenderModel_Vertex_t *rVertexData = nullptr;	// Vertex data for the mesh
 			uint32_t unVertexCount = 0;						// Number of vertices in the vertex data
 			const uint16_t *rIndexData = nullptr;
 			uint32_t unTriangleCount = 0;
-			uint16_t unWidth, unHeight; // width and height of the texture map in pixels
-			uint32_t texture_size = 0;
-			unWidth = unHeight = 0;
-			const uint8_t *rubTextureMapData = nullptr;
+			int texture_index = 0;
 
-			rc = wrap->LoadRenderModel(render_model_name, &pRenderModel, &pTexture);
+			rc = wrap->LoadRenderModel(render_model_name, &pRenderModel);
 			if (pRenderModel)
 			{
 				rVertexData = pRenderModel->rVertexData;
 				unVertexCount = pRenderModel->unVertexCount;
 				rIndexData = pRenderModel->rIndexData;
 				unTriangleCount = pRenderModel->unTriangleCount;
-			}
-			if (pTexture)
-			{
-				unWidth = pTexture->unWidth;
-				unHeight = pTexture->unHeight;
-				texture_size = unWidth * unHeight * 4;
-				rubTextureMapData = pTexture->rubTextureMapData;
+				texture_index = config->GetTextureIndexer().add_texture(pRenderModel->diffuseTextureId, render_model_name);
 			}
 			visitor->visit_node(ss->vertex_data, make_result(gsl::make_span(rVertexData, unVertexCount), rc));
 			visitor->visit_node(ss->index_data, make_result(gsl::make_span(rIndexData, unTriangleCount*3), rc));
-			visitor->visit_node(ss->texture_map_data, make_result(gsl::make_span(rubTextureMapData, texture_size), rc));
-			
-
-			
-
-			int compressed_size = 0;
-			if (texture_size > 0)
-			{
-
-				// png
-				unsigned char *out;
-				size_t png_size;
-
-				std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-				lodepng_encode32(&out, &png_size, (const unsigned char*)rubTextureMapData, unWidth, unHeight);
-				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-				std::string fname(plat::make_temporary_filename(render_model_name));
-				fname += "_lodepng.png";
-
-				log_printf("encode of %s took %lld us size %d.\n", fname.c_str(), 
-					std::chrono::duration_cast<std::chrono::microseconds>(end - start).count(),
-					png_size);
-
-				FILE *pf = fopen(fname.c_str(), "wb");
-				fwrite(out, png_size, 1, pf);
-				fclose(pf);
-				free(out);
-
-
-
-#if 0
-				FILE *pf = fopen(plat::make_temporary_filename(render_model_name).c_str(), "wb");
-				fwrite(rubTextureMapData, texture_size, 1, pf);
-				fclose(pf);
-#endif
-
-
-				char *tmp = (char *)malloc(texture_size);
-				{
-					std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-					//int lz4_size = LZ4_compress_default((char *)rubTextureMapData, tmp, texture_size, texture_size);
-					int lz4_size = LZ4_compress_HC((char *)rubTextureMapData, tmp, texture_size, texture_size, 3);
-					std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-					log_printf("lz4 encode of %s took %lld us size %d.\n", fname.c_str(),
-						std::chrono::duration_cast<std::chrono::microseconds>(end - start).count(),
-						lz4_size);
-				}
-				free(tmp);
-
-
-				{
-					std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-					png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-					png_infop  info_ptr = png_create_info_struct(png_ptr);
-
-					datablock ios;
-					ios.cur_pos = 0;
-					ios.data = (char *)malloc(texture_size + 1024);
-
-					png_set_write_fn(png_ptr, &ios, png_user_write_data, nullptr);
-
-					png_set_compression_level(png_ptr, 2);
-
-					png_set_IHDR(png_ptr, info_ptr,
-						unWidth, unHeight, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-					png_write_info(png_ptr, info_ptr);
-
-					for (int i = 0; i < unHeight; i++)
-					{
-						png_write_row(png_ptr, &rubTextureMapData[i*unWidth * 4]);
-					}
-					png_write_end(png_ptr, NULL);
-
-					png_destroy_write_struct(&png_ptr, &info_ptr);
-
-					free(ios.data);
-					std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-					log_printf("libpng encode of %s took %lld us size %d.\n", fname.c_str(),
-						std::chrono::duration_cast<std::chrono::microseconds>(end - start).count(),
-						ios.cur_pos);
-				}
-				
-
-//				log_printf("CRC32 %d %s %d %d %d\n", crc32buf((char *)rubTextureMapData, texture_size), render_model_name, 
-//					texture_size, lz4_size, png_size);
-				
-			}
-			
-			
-			visitor->visit_node(ss->texture_height, make_result(unHeight, rc));
-			visitor->visit_node(ss->texture_width, make_result(unWidth, rc));
-
-			// Note: TextureID_t::diffuseTextureId is not stored because the whole texture is stored.
+			visitor->visit_node(ss->texture_index, make_result(texture_index, rc));
 
 			if (pRenderModel)
 			{
-				wrap->FreeRenderModel(pRenderModel, pTexture);
+				wrap->FreeRenderModel(pRenderModel);
 			}
+		}
+		else
+		{
+			visitor->visit_node(ss->vertex_data);
+			visitor->visit_node(ss->index_data);
+			visitor->visit_node(ss->texture_index);
 		}
 	}
 	else
 	{
 		visitor->visit_node(ss->vertex_data);
 		visitor->visit_node(ss->index_data);
-		visitor->visit_node(ss->texture_map_data);
-		visitor->visit_node(ss->texture_height);
-		visitor->visit_node(ss->texture_width);
+		visitor->visit_node(ss->texture_index);
 	}
 
 	if (visitor->spawn_children())
@@ -1504,7 +1405,7 @@ static void visit_overlay_state(visitor_fn *visitor, vr_state::overlay_schema *s
 
 template <typename visitor_fn, typename TaskGroup>
 static void visit_rendermodel_state(visitor_fn *visitor, vr_state::render_models_schema *ss, 
-	RenderModelsWrapper *wrap, TaskGroup &g)
+	RenderModelsWrapper *wrap, vr_keys *config, TaskGroup &g)
 {
 	
 	if (visitor->spawn_children() && visitor->visit_source_interfaces())
@@ -1527,11 +1428,11 @@ static void visit_rendermodel_state(visitor_fn *visitor, vr_state::render_models
 	{
 		int num_iter = std::min(5, num_render_models - i);
 		g.run("render model instances",
-			[visitor, ss, wrap, i, num_iter]
+			[visitor, ss, wrap, i, num_iter, config]
 		{
 			for (int j = i; j < i + num_iter; j++)
 			{
-				visit_rendermodel(visitor, &ss->models[j], &ss->structure_version, wrap, j);
+				visit_rendermodel(visitor, &ss->models[j], &ss->structure_version, wrap, j, config);
 			}
 		});
 		i += num_iter;

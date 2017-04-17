@@ -150,7 +150,7 @@ static void traverse_history_graph(visitor_fn *visitor, capture *outer_state, Wr
 		visit_overlay_state(visitor, &s->overlay_node, wrappers->overlay_wrapper, keys, g);
 	});
 
-	visit_rendermodel_state(visitor, &s->render_models_node, wrappers->rendermodel_wrapper, g);
+	visit_rendermodel_state(visitor, &s->render_models_node, wrappers->rendermodel_wrapper, keys, g);
 
 	g.run("visit_extended_display_state",
 		[&visitor, s, wrappers, keys] {

@@ -136,30 +136,8 @@ vr::EVRRenderModelError VRRenderModelsCursor::LoadTexture_Async(
 	{
 		return vr::VRRenderModelError_InvalidArg;
 	}
-	SynchronizeChildVectors();
-	vr::EVRRenderModelError rc;
-	int index = static_cast<int>(textureId) - 1000;
-	if (index >= 0 && index < size_as_int(iter_ref.models.size()))
-	{
-		// build the return value from vertex and index data
-		CURSOR_SYNC_STATE(texture_width, models[index].texture_width);
-		CURSOR_SYNC_STATE(texture_height, models[index].texture_height);
-		CURSOR_SYNC_STATE(texture_map_data, models[index].texture_map_data);
-
-		if (texture_map_data->is_present())
-		{
-			RenderModel_TextureMap_t *t = new RenderModel_TextureMap_t;
-			t->unWidth = texture_width->val;
-			t->unHeight = texture_height->val;
-			t->rubTextureMapData = &texture_map_data->val.at(0);
-			*ppTexture = t;
-		}
-		rc = texture_map_data->return_code;
-	}
-	else
-	{
-		rc = VRRenderModelError_InvalidTexture;
-	}
+	TextureIndexer& ti(this->m_context->get_keys()->GetTextureIndexer());
+	vr::EVRRenderModelError rc = ti.get_texture(textureId, ppTexture);
 
 	LOG_EXIT_RC(rc, "CppStubLoadTexture_Async");
 }
@@ -167,10 +145,10 @@ vr::EVRRenderModelError VRRenderModelsCursor::LoadTexture_Async(
 void VRRenderModelsCursor::FreeTexture(struct vr::RenderModel_TextureMap_t * pTexture)
 {
 	LOG_ENTRY("CppStubFreeTexture");
-	if (pTexture)
-	{
-		delete pTexture;
-	}
+	
+	TextureIndexer& ti(this->m_context->get_keys()->GetTextureIndexer());
+	ti.free_texture(pTexture);
+
 	LOG_EXIT("CppStubFreeTexture");
 }
 

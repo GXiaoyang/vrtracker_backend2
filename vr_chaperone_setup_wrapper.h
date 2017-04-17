@@ -16,7 +16,6 @@ namespace vr_result
 		inline HmdVector2<bool> GetWorkingPlayAreaSize()
 		{
 			HmdVector2<bool> result;
-			//memset(&result, 0, sizeof(result)); // valgrind
 			result.return_code = chapsi->GetWorkingPlayAreaSize(&result.val.v[0], &result.val.v[1]);
 			return result;
 		}
@@ -24,7 +23,6 @@ namespace vr_result
 		inline HmdQuad<bool> GetWorkingPlayAreaRect()
 		{
 			HmdQuad<bool> result;
-			//memset(&result, 0, sizeof(result)); // valgrind
 			result.return_code = chapsi->GetWorkingPlayAreaRect(&result.val);
 			return result;
 		}

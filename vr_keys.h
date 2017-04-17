@@ -12,6 +12,7 @@
 #include "vr_resources_indexer.h"
 #include "vr_settings_indexer.h"
 #include "vr_mime_types_indexer.h"
+#include "vr_texture_indexer.h"
 
 // case - when external users submit new requests. e.g. spy,
 //        then these keys could be queued and inserted
@@ -61,6 +62,8 @@ struct vr_keys
 			return false;
 		if (m_mime_types_indexer != rhs.m_mime_types_indexer)
 			return false;
+		if (m_texture_indexer != rhs.m_texture_indexer)
+			return false;
 		return true;
 	}
 
@@ -98,6 +101,8 @@ struct vr_keys
 	const SettingsIndexer &GetSettingsIndexer() const { return m_settings_indexer; }
 	SettingsIndexer &GetSettingsIndexer() { return m_settings_indexer; }
 	
+	const TextureIndexer &GetTextureIndexer() const { return m_texture_indexer; }
+	TextureIndexer &GetTextureIndexer() { return m_texture_indexer; }
 
 	MimeTypesIndexer &GetMimeTypesIndexer() { return m_mime_types_indexer; }
 
@@ -189,4 +194,5 @@ private:
 	SettingsIndexer m_settings_indexer;
 	DevicePropertiesIndexer m_device_properties_indexer;
 	MimeTypesIndexer m_mime_types_indexer;
+	TextureIndexer m_texture_indexer;
 };

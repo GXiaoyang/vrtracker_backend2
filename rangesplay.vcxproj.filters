@@ -321,6 +321,9 @@
     <ClInclude Include="vr_texture_indexer.h">
       <Filter>Source Files\3 vr keys</Filter>
     </ClInclude>
+    <ClInclude Include="texture_service.h">
+      <Filter>Source Files\3 vr base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -523,6 +526,12 @@
     </ClCompile>
     <ClCompile Include="unit_tests\test_texture_indexer.cpp">
       <Filter>Source Files\3 vr keys test</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_texture_indexer.cpp">
+      <Filter>Source Files\3 vr keys</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_service.cpp">
+      <Filter>Source Files\3 vr base</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

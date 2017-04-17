@@ -78,8 +78,7 @@ namespace vr_result
 
 		EVRRenderModelError LoadRenderModel(
 			const char *render_model_name,
-			RenderModel_t **pRenderModel,
-			RenderModel_TextureMap_t **pTexture)
+			RenderModel_t **pRenderModel)
 		{
 			EVRRenderModelError error;
 
@@ -94,37 +93,19 @@ namespace vr_result
 			}
 			if (error == VRRenderModelError_None)
 			{
-				//log_printf("ID %s,%d\n", render_model_name, model->diffuseTextureId);
-				while (1)
-				{
-					assert(model->diffuseTextureId >= 0); // are there models with no textures?
-
-					
-					error = remi->LoadTexture_Async(model->diffuseTextureId, &texture);
-					if (error != vr::VRRenderModelError_Loading)
-						break;
-					plat::sleep_ms(1);
-				}
-			}
-			if (error == VRRenderModelError_None)
-			{
 				*pRenderModel = model;
-				*pTexture = texture;
 			}
 			else
 			{
 				*pRenderModel = nullptr;
-				*pTexture = nullptr;
 			}
 			return error;
 		}
 
 		void FreeRenderModel(
-			RenderModel_t *pRenderModel,
-			RenderModel_TextureMap_t *pTexture)
+			RenderModel_t *pRenderModel)
 		{
 			remi->FreeRenderModel(pRenderModel);
-			remi->FreeTexture(pTexture);
 		}
 
 		IVRRenderModels *remi;

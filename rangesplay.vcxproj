@@ -197,6 +197,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="string2int.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="texture_service.h" />
     <ClInclude Include="time_containers.h" />
     <ClInclude Include="tmp_vector.h" />
     <ClInclude Include="traverse_graph.h" />
@@ -272,6 +273,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="texture_service.cpp" />
     <ClCompile Include="unit_tests\capture_test_context.cpp" />
     <ClCompile Include="unit_tests\controller_test_main.cpp" />
     <ClCompile Include="unit_tests\test_base_main.cpp" />
@@ -319,6 +321,7 @@
     <ClCompile Include="vr_settings_indexer.cpp" />
     <ClCompile Include="vr_string_indexer.cpp" />
     <ClCompile Include="vr_system_cursor.cpp" />
+    <ClCompile Include="vr_texture_indexer.cpp" />
     <ClCompile Include="vr_tmp_vector.cpp" />
     <ClCompile Include="vr_tracked_camera_cursor.cpp" />
   </ItemGroup>

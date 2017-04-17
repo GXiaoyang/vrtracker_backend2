@@ -523,20 +523,14 @@ namespace vr_result
 				INIT(original_path),
 				INIT(vertex_data),
 				INIT(index_data),
-				INIT(texture_width),
-				INIT(texture_height),
-				INIT(texture_map_data),
+				INIT(texture_index),
 				INIT(components)
 			{}
 			TIMENODE<String<EVRRenderModelError>> thumbnail_url;
 			TIMENODE<String<EVRRenderModelError>> original_path;
 			TIMENODE<RenderModelVertexString<EVRRenderModelError>> vertex_data;
 			TIMENODE<Uint16String<EVRRenderModelError>> index_data;
-
-			TIMENODE<Uint16<EVRRenderModelError>> texture_width;
-			TIMENODE<Uint16<EVRRenderModelError>> texture_height;
-			TIMENODE<Uint8String<EVRRenderModelError>> texture_map_data;
-
+			TIMENODE<Int32<EVRRenderModelError>> texture_index;
 			VECTOR_OF_SCHEMAS<rendermodel_component_schema> components;
 		};
 
