@@ -33,6 +33,28 @@ public:
 		COMPRESSED
 	};
 
+	bool operator ==(const texture &rhs) const
+	{
+		if (m_state != rhs.m_state)
+			return false;
+		if (m_load_result != rhs.m_load_result)
+			return false;
+		if (m_state == COMPRESSED)
+		{
+			return (m_width == rhs.m_width) && (m_height == rhs.m_height) &&
+				(m_crc == rhs.m_crc);
+		}
+		else
+		{
+			return true;
+		}
+	}
+	
+	bool operator != (const texture &rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	void lock() { m_lock.lock(); }
 	void unlock() { m_lock.unlock(); }
 
@@ -44,6 +66,7 @@ public:
 		{
 			s.write_to_stream(&m_width, sizeof(m_width));
 			s.write_to_stream(&m_height, sizeof(m_height));
+			s.write_to_stream(&m_crc, sizeof(m_crc));
 			s.contiguous_container_out_to_stream(m_compressed);
 		}
 	}
@@ -55,7 +78,13 @@ public:
 		{
 			s.read_from_stream(&m_width, sizeof(m_width));
 			s.read_from_stream(&m_height, sizeof(m_height));
+			s.read_from_stream(&m_crc, sizeof(m_crc));
 			s.contiguous_container_from_stream(m_compressed);
+			m_state = COMPRESSED;
+		}
+		else
+		{
+			m_state = LOAD_FAILED;
 		}
 	}
 

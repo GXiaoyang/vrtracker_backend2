@@ -23,9 +23,17 @@ TextureIndexer& TextureIndexer::operator=(const TextureIndexer &rhs)
 
 bool TextureIndexer::operator == (const TextureIndexer &rhs) const
 {
-	return (m_session2internal_id == rhs.m_session2internal_id) &&
-		(m_render_model_name2id == rhs.m_render_model_name2id) &&
-		(m_textures == rhs.m_textures);
+	if (m_render_model_name2id != rhs.m_render_model_name2id)
+		return false;
+	if (m_textures.size() != rhs.m_textures.size())
+		return false;
+
+	for (int i = 0; i < size_as_int(m_textures.size()); i++)
+	{
+		if (*m_textures[i].get() != *rhs.m_textures[i].get())
+			return false;
+	}
+	return true;
 }
 
 bool TextureIndexer::operator != (const TextureIndexer &rhs) const
@@ -38,8 +46,8 @@ void TextureIndexer::WriteToStream(BaseStream &s) const
 	m_texture_service.process_all_pending();
 
 	// write out the rendermodel_name -> internal id map
-	int num_textures = m_textures.size();
-	s.write_to_stream(&num_textures, sizeof(num_textures));
+	int num_render_models = m_render_model_name2id.size();
+	s.write_to_stream(&num_render_models, sizeof(num_render_models));
 
 	for (auto iter = m_render_model_name2id.begin();
 		iter != m_render_model_name2id.end();
@@ -50,6 +58,8 @@ void TextureIndexer::WriteToStream(BaseStream &s) const
 	}
 	
 	// write out the textures
+	int num_textures = m_textures.size();
+	s.write_to_stream(&num_textures, sizeof(num_textures));
 	for (auto iter = m_textures.begin(); iter != m_textures.end(); iter++)
 	{
 		(*iter)->WriteCompressedTextureToStream(s);
@@ -58,11 +68,11 @@ void TextureIndexer::WriteToStream(BaseStream &s) const
 
 void TextureIndexer::ReadFromStream(BaseStream &s)
 {
-	int num_textures;
-	s.read_from_stream(&num_textures, sizeof(num_textures));
+	int num_render_models;
+	s.read_from_stream(&num_render_models, sizeof(num_render_models));
 
 	m_render_model_name2id.clear();
-	for (int i = 0; i < num_textures; i++)
+	for (int i = 0; i < num_render_models; i++)
 	{
 		std::string render_model_name;
 		s.contiguous_container_from_stream(render_model_name);
@@ -71,7 +81,10 @@ void TextureIndexer::ReadFromStream(BaseStream &s)
 		m_render_model_name2id.insert({ render_model_name, internal_id });
 	}
 
+	int num_textures;
+	s.read_from_stream(&num_textures, sizeof(num_textures));
 	m_textures.clear();
+	m_textures.reserve(num_textures);
 	for (int i = 0; i < num_textures; i++)
 	{
 		std::shared_ptr<texture> tex = std::make_shared<texture>();
@@ -94,6 +107,7 @@ int TextureIndexer::add_texture(int texture_session_id, const char *render_model
 		m_textures.emplace_back(std::make_shared<texture>(texture_session_id));
 		m_texture_service.start();
 		m_texture_service.process_texture(m_textures[internal_id]);
+		log_printf("processing texture %d\n", internal_id);
 		m_session2internal_id.insert({ texture_session_id, internal_id });
 	}
 	else

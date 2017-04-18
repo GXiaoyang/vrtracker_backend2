@@ -79,11 +79,7 @@ void texture_service::stop()
 
 void texture_service::process_texture(std::shared_ptr<texture> tex)
 {
-	if (!m_started)
-	{
-		start();
-	}
-
+	assert(tex->get_state() == texture::INITIAL);
 	m_load_queue_mutex.lock();
 		m_num_textures_submitted++;
 		tex->lock();
@@ -119,10 +115,11 @@ void texture_service::load_task()
 	while (!m_stop_requested)
 	{							// on going in, releases lock and waits
 		std::unique_lock<std::mutex> lock(m_load_queue_mutex);
-		m_load_cv.wait(lock);	// on going out, reacquires lock
+		if (m_load_queue.empty())
+			m_load_cv.wait(lock);	// on going out, reacquires lock
 		if (!m_stop_requested && !m_load_queue.empty())
 		{
-			std::shared_ptr<texture> tex = m_load_queue.back();
+			std::shared_ptr<texture> tex = m_load_queue.front();
 			m_load_queue.pop();
 			lock.unlock();
 
@@ -169,18 +166,21 @@ void texture_service::compression_task()
 	while (!m_stop_requested)
 	{							// on going in, releases lock and waits
 		std::unique_lock<std::mutex> lock(m_compression_queue_mutex);
-		m_compression_cv.wait(lock);	// on going out, reacquires lock
+		if (m_compression_queue.empty())
+			m_compression_cv.wait(lock);	// on going out, reacquires lock
 		if (!m_stop_requested && !m_compression_queue.empty())
 		{
 			// for testing only
 			plat::sleep_ms(100);
 
 			// pop the queue and release the queue lock
-			std::shared_ptr<texture> tex = m_compression_queue.back();
+			std::shared_ptr<texture> tex = m_compression_queue.front();
 			m_compression_queue.pop();
+			log_printf("compressing session_id %d\n", tex->get_texture_session_id());
 			lock.unlock();
 
 			tex->lock();
+			assert(tex->get_state() == texture::WAITING_TO_COMPRESS);
 			tex->set_state(texture::COMPRESSING);
 			tex->unlock();
 
@@ -222,6 +222,9 @@ void texture_service::compression_task()
 void texture_service::enqueue_texture_for_compression(std::shared_ptr<texture> tex)
 {
 	m_compression_queue_mutex.lock();
+	tex->lock();
+	assert(tex->get_state() == texture::WAITING_TO_COMPRESS);
+	tex->unlock();
 	m_compression_queue.push(tex);
 	m_compression_queue_mutex.unlock();
 	m_compression_cv.notify_all();
