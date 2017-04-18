@@ -38,6 +38,9 @@ void TextureIndexer::WriteToStream(BaseStream &s) const
 	m_texture_service.process_all_pending();
 
 	// write out the rendermodel_name -> internal id map
+	int num_textures = m_textures.size();
+	s.write_to_stream(&num_textures, sizeof(num_textures));
+
 	for (auto iter = m_render_model_name2id.begin();
 		iter != m_render_model_name2id.end();
 		iter++)
@@ -55,24 +58,43 @@ void TextureIndexer::WriteToStream(BaseStream &s) const
 
 void TextureIndexer::ReadFromStream(BaseStream &s)
 {
+	int num_textures;
+	s.read_from_stream(&num_textures, sizeof(num_textures));
 
+	m_render_model_name2id.clear();
+	for (int i = 0; i < num_textures; i++)
+	{
+		std::string render_model_name;
+		s.contiguous_container_from_stream(render_model_name);
+		int internal_id;
+		s.read_from_stream(&internal_id, sizeof(internal_id));
+		m_render_model_name2id.insert({ render_model_name, internal_id });
+	}
+
+	m_textures.clear();
+	for (int i = 0; i < num_textures; i++)
+	{
+		std::shared_ptr<texture> tex = std::make_shared<texture>();
+		tex->ReadCompressedTextureFromStream(s);
+		m_textures.push_back(tex);
+	}
 }
-
 
 // if this is a new texture_session_id,
 //	* start loading this texture
 int TextureIndexer::add_texture(int texture_session_id, const char *render_model_name)
 {
-	std::lock_guard<std::mutex> lock(m_list_lock);
+	std::lock_guard<std::mutex> lock(m_list_lock);	// prevent simultaneous updates to the list
 
 	int internal_id;
 	auto iter = m_session2internal_id.find(texture_session_id);
 	if (iter == m_session2internal_id.end())
 	{
-
 		internal_id = m_textures.size();
 		m_textures.emplace_back(std::make_shared<texture>(texture_session_id));
+		m_texture_service.start();
 		m_texture_service.process_texture(m_textures[internal_id]);
+		m_session2internal_id.insert({ texture_session_id, internal_id });
 	}
 	else
 	{
@@ -95,6 +117,11 @@ vr::EVRRenderModelError TextureIndexer::get_texture(int texture_session_id, vr::
 {
 	vr::EVRRenderModelError rc = vr::VRRenderModelError_None;
 
+	if (map_ret)
+	{
+		*map_ret = nullptr;
+	}
+
 	// lock and lookup in list
 	std::shared_ptr<texture> ptexture;
 	{
@@ -110,10 +137,10 @@ vr::EVRRenderModelError TextureIndexer::get_texture(int texture_session_id, vr::
 		}
 	}
 
-	if (vr::VRRenderModelError_None)
+	// if I got a texture, lock it and determine result
+	if (rc == vr::VRRenderModelError_None)
 	{
 		std::lock_guard<texture> lock(*ptexture);
-		// if I got a texture, lock it and handle it
 
 		switch (ptexture->get_state())
 		{
@@ -121,16 +148,18 @@ vr::EVRRenderModelError TextureIndexer::get_texture(int texture_session_id, vr::
 			assert(0);
 			rc = vr::VRRenderModelError_InvalidArg;
 			break;
+		case texture::WAITING_TO_LOAD:
 		case texture::LOADING:
-			// wait
+			// return that we are still loading
 			rc = vr::VRRenderModelError_Loading;
 			break;
 		case texture::LOAD_FAILED:
+			// return the captured load result
 			rc = ptexture->get_load_result();
 			break;
 		case texture::WAITING_TO_COMPRESS:
 		case texture::COMPRESSING:
-			// return uncompressed version
+			// in this state the uncompressed version is still available, so we can use it directly
 			if (map_ret)
 			{
 				vr::RenderModel_TextureMap_t *tex_map = new vr::RenderModel_TextureMap_t();
@@ -138,7 +167,7 @@ vr::EVRRenderModelError TextureIndexer::get_texture(int texture_session_id, vr::
 				tex_map->unHeight = ptexture->get_height();
 				size_t texture_size = tex_map->unWidth*tex_map->unHeight * 4;
 				uint8_t *buf = new uint8_t[texture_size];
-				memcpy(buf, ptexture->get_uncompressed_buffer().data(), texture_size);
+				memcpy(buf, ptexture->m_texture_map->rubTextureMapData, texture_size);
 				tex_map->rubTextureMapData = buf;
 				*map_ret = tex_map;
 			}
@@ -152,7 +181,7 @@ vr::EVRRenderModelError TextureIndexer::get_texture(int texture_session_id, vr::
 				tex_map->unHeight = ptexture->get_height();
 				size_t texture_size = tex_map->unWidth*tex_map->unHeight * 4;
 				uint8_t *buf = new uint8_t[texture_size];
-				LZ4_decompress_fast(ptexture->get_uncompressed_buffer().data(), reinterpret_cast<char*>(buf), texture_size);
+				LZ4_decompress_fast(ptexture->get_compressed_buffer().data(), reinterpret_cast<char*>(buf), texture_size);
 				tex_map->rubTextureMapData = buf;
 				*map_ret = tex_map;
 			}
@@ -169,4 +198,9 @@ void TextureIndexer::free_texture(vr::RenderModel_TextureMap_t *m)
 		delete m->rubTextureMapData;
 	}
 	delete m;
+}
+
+void TextureIndexer::process_all_pending()
+{
+	m_texture_service.process_all_pending();
 }

@@ -41,7 +41,8 @@ struct vr_keys
 		m_resources_indexer(rhs.m_resources_indexer),
 		m_settings_indexer(rhs.m_settings_indexer),
 		m_device_properties_indexer(rhs.m_device_properties_indexer),
-		m_mime_types_indexer(rhs.m_mime_types_indexer)
+		m_mime_types_indexer(rhs.m_mime_types_indexer),
+		m_texture_indexer(rhs.m_texture_indexer)
 	{}
 
 	bool operator == (const vr_keys &rhs) const
@@ -151,6 +152,7 @@ struct vr_keys
 		m_device_properties_indexer.WriteToStream(stream);
 		m_resources_indexer.WriteToStream(stream);
 		m_settings_indexer.WriteToStream(stream);
+		m_texture_indexer.WriteToStream(stream);
 	}
 
 	void decode(BaseStream &stream)
@@ -162,6 +164,7 @@ struct vr_keys
 		m_device_properties_indexer.ReadFromStream(stream);
 		m_resources_indexer.ReadFromStream(stream);
 		m_settings_indexer.ReadFromStream(stream);
+		m_texture_indexer.ReadFromStream(stream);
 	}
 
 	float GetNearZ() const { return m_data.nearz; }

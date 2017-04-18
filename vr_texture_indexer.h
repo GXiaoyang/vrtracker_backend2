@@ -19,8 +19,6 @@
 //
 struct TextureIndexer
 {
-	vr::IVRRenderModels *m_remi;
-
 	TextureIndexer();
 
 	TextureIndexer(const TextureIndexer &rhs);
@@ -41,8 +39,11 @@ struct TextureIndexer
 
 	// given a texture session id, return the texture map and the return code
 	vr::EVRRenderModelError get_texture(int texture_session_id, vr::RenderModel_TextureMap_t **);
-
 	void free_texture(vr::RenderModel_TextureMap_t *);
+
+
+	void process_all_pending();
+
 	
 private:
 	// one id can be uses by multiple textures

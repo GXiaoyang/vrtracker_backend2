@@ -32,8 +32,6 @@ struct capture_traverser
 	bool load_capture_from_binary_file(capture *capture, const char *filename);
 
 private:
-	
-
 	struct impl;
 	impl* m_pimpl;
 };

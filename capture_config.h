@@ -7,7 +7,7 @@
 // unless he tells me, then I need to "spy" it out
 //
 // its meant to be more of a hint than part of the database - ie don't add dependencies to this
-struct CaptureConfig	// aka Hints
+struct CaptureConfig	// external configuration input
 {
 	float nearz;					// intercept: GetProjectionMatrix
 	float farz;

@@ -16,7 +16,7 @@ public:
 	{
 	}
 
-	texture(int texture_session_id)
+	explicit texture(int texture_session_id)
 		:
 		m_state(INITIAL),
 		m_texture_session_id(texture_session_id)
@@ -25,6 +25,7 @@ public:
 	enum texture_state
 	{
 		INITIAL,
+		WAITING_TO_LOAD,
 		LOADING,
 		LOAD_FAILED,
 		WAITING_TO_COMPRESS,	// in the compression queue
@@ -38,14 +39,38 @@ public:
 	void WriteCompressedTextureToStream(BaseStream &s)
 	{
 		assert(m_state == COMPRESSED || m_state == LOAD_FAILED);
-		s.write_to_stream(&m_width, sizeof(m_width));
-		s.write_to_stream(&m_height, sizeof(m_height));
 		s.write_to_stream(&m_load_result, sizeof(m_load_result));
-		s.contiguous_container_out_to_stream(m_compressed);
+		if (m_load_result == vr::VRRenderModelError_None)
+		{
+			s.write_to_stream(&m_width, sizeof(m_width));
+			s.write_to_stream(&m_height, sizeof(m_height));
+			s.contiguous_container_out_to_stream(m_compressed);
+		}
+	}
+
+	void ReadCompressedTextureFromStream(BaseStream &s)
+	{
+		s.read_from_stream(&m_load_result, sizeof(m_load_result));
+		if (m_load_result == vr::VRRenderModelError_None)
+		{
+			s.read_from_stream(&m_width, sizeof(m_width));
+			s.read_from_stream(&m_height, sizeof(m_height));
+			s.contiguous_container_from_stream(m_compressed);
+		}
 	}
 
 	int get_width() const { return m_width; }
+	void set_width(int w) { m_width = w; }
+
 	int get_height() const { return m_height; }
+	void set_height(int h) { m_height = h; }
+
+	uint32_t get_crc() 
+	{
+		assert(m_state == COMPRESSED); // crc is set after compressed.  doesn't have to be, but currently is
+		return m_crc; 
+	}
+	void set_crc(uint32_t crc) { m_crc = crc; }
 
 	texture_state get_state() const { return m_state; }
 	void set_state(texture_state s) { m_state = s; }
@@ -54,23 +79,29 @@ public:
 	void set_load_result(vr::EVRRenderModelError r) { m_load_result = r; }
 	vr::EVRRenderModelError get_load_result() const { return m_load_result; }
 
-	std::vector<char> &get_uncompressed_buffer() { return m_uncompressed; }
+	vr::RenderModel_TextureMap_t *m_texture_map;
 	std::vector<char> &get_compressed_buffer() { return m_compressed; }
 
 private:
 	texture_state m_state;
+	int m_texture_session_id;
 	vr::EVRRenderModelError m_load_result;
 	int m_width;
 	int m_height;
-	int crc;
-	int m_texture_session_id;
+	uint32_t m_crc;
+	
 	std::vector<char> m_compressed;
-	std::vector<char> m_uncompressed;
 	std::mutex m_lock;
 };
 
 struct texture_service
 {
+	texture_service();
+	~texture_service();
+
+	texture_service(const texture_service &rhs);
+	texture_service &operator = (const texture_service &rhs);
+
 	void start();
 	void stop();
 	void process_texture(std::shared_ptr<texture> t);
@@ -80,6 +111,9 @@ private:
 	void load_task();
 	void compression_task();
 	void enqueue_texture_for_compression(std::shared_ptr<texture>);
+
+	bool m_started;
+	volatile bool m_stop_requested;
 
 	vr::IVRRenderModels *m_remi;
 
