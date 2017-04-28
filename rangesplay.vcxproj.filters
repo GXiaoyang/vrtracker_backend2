@@ -28,17 +28,11 @@
     <Filter Include="Source Files\2 time_containers_unit_test">
       <UniqueIdentifier>{36487d94-c0d3-4648-9742-64df37fdb196}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\3 vr base">
-      <UniqueIdentifier>{2fdd1293-eea0-4b18-a0c1-d2ddeec3c30d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\3 vr keys">
       <UniqueIdentifier>{b84fdd1e-9ead-46f1-9974-8afaa28238ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\3 vr_wrappers">
       <UniqueIdentifier>{623f9db7-b5cb-444f-930b-62a2c6e71ed3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\6 cursor">
-      <UniqueIdentifier>{1a6e52d6-3b04-418a-a142-e0748e97d5fb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\5 traverse">
       <UniqueIdentifier>{5f213dd7-4926-444e-a559-ae16253a5b45}</UniqueIdentifier>
@@ -49,26 +43,32 @@
     <Filter Include="Source Files\5 traverse test">
       <UniqueIdentifier>{bb65b6d6-a7c2-42bf-a024-c1467c7c3ab8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\6 cursor test">
-      <UniqueIdentifier>{dbad0958-b406-4db7-811f-078209d9de20}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\4 capture">
       <UniqueIdentifier>{50081c09-ad67-4649-ba99-89c295afc033}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\4 capture test">
       <UniqueIdentifier>{e0bcd322-c486-43c8-b615-5e03b101469a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\6 controller">
-      <UniqueIdentifier>{a1fac219-476f-4d82-b76a-8cb30b25f1c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\6 controller test">
-      <UniqueIdentifier>{2597a492-78ec-4e88-bf7e-4e62a30255f4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\7 openvr_api_monitor">
       <UniqueIdentifier>{5ea53cf9-57c0-47e4-a5bf-8f1f61d70627}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\7 openvr_api_monitor_test">
       <UniqueIdentifier>{0367e584-07d1-4721-a7f1-16e5f11fe070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3 vr schema">
+      <UniqueIdentifier>{2fdd1293-eea0-4b18-a0c1-d2ddeec3c30d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\6 cursor controller">
+      <UniqueIdentifier>{1a6e52d6-3b04-418a-a142-e0748e97d5fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\6 capture controller">
+      <UniqueIdentifier>{a1fac219-476f-4d82-b76a-8cb30b25f1c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\6 capture controller test">
+      <UniqueIdentifier>{2597a492-78ec-4e88-bf7e-4e62a30255f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\6 cursor controller test">
+      <UniqueIdentifier>{dbad0958-b406-4db7-811f-078209d9de20}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -100,10 +100,10 @@
       <Filter>Source Files\3 vr keys</Filter>
     </ClInclude>
     <ClInclude Include="vr_schema.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="vr_types.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="vr_wrappers_common.h">
       <Filter>Source Files\3 vr_wrappers</Filter>
@@ -166,16 +166,16 @@
       <Filter>Source Files\3 vr_wrappers</Filter>
     </ClInclude>
     <ClInclude Include="openvr_broker.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="vr_applications_indexer.h">
       <Filter>Source Files\3 vr keys</Filter>
     </ClInclude>
     <ClInclude Include="vr_tmp_vector.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="vr_constants.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="vr_resources_indexer.h">
       <Filter>Source Files\3 vr keys</Filter>
@@ -184,7 +184,7 @@
       <Filter>Source Files\1 base</Filter>
     </ClInclude>
     <ClInclude Include="openvr_serialization.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="url_named.h">
       <Filter>Source Files\1 base</Filter>
@@ -202,61 +202,61 @@
       <Filter>Source Files\3 vr keys</Filter>
     </ClInclude>
     <ClInclude Include="openvr_cppstub.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="log.h">
       <Filter>Source Files\1 base</Filter>
     </ClInclude>
     <ClInclude Include="vr_system_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_cursor_context.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_cursor_common.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_applications_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_settings_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_chaperone_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_chaperone_setup_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_render_models_wrapper.h">
       <Filter>Source Files\3 vr_wrappers</Filter>
     </ClInclude>
     <ClInclude Include="vr_overlay_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_render_models_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="openvr_softcompare.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="vr_extended_display_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_screenshots_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_resources_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_notifications_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_compositor_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_tracked_camera_cursor.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="traverse_graph.h">
       <Filter>Source Files\4 capture</Filter>
@@ -280,7 +280,7 @@
       <Filter>Source Files\1 base</Filter>
     </ClInclude>
     <ClInclude Include="capture_config.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
     <ClInclude Include="unit_tests\capture_test_context.h">
       <Filter>Source Files\4 capture test</Filter>
@@ -313,16 +313,16 @@
       <Filter>Source Files\7 openvr_api_monitor</Filter>
     </ClInclude>
     <ClInclude Include="capture_controller.h">
-      <Filter>Source Files\6 controller</Filter>
+      <Filter>Source Files\6 capture controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_cursor_controller.h">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClInclude>
     <ClInclude Include="vr_texture_indexer.h">
       <Filter>Source Files\3 vr keys</Filter>
     </ClInclude>
     <ClInclude Include="texture_service.h">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -354,19 +354,19 @@
       <Filter>Source Files\3 vr keys</Filter>
     </ClCompile>
     <ClCompile Include="vr_tmp_vector.cpp">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
     <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
     <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
     <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
     <ClCompile Include="openvr_broker.cpp">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
     <ClCompile Include="vr_settings_indexer.cpp">
       <Filter>Source Files\3 vr keys</Filter>
@@ -378,7 +378,7 @@
       <Filter>Source Files\3 vr keys</Filter>
     </ClCompile>
     <ClCompile Include="openvr_cppstub.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="log.cpp">
       <Filter>Source Files\1 base</Filter>
@@ -387,40 +387,40 @@
       <Filter>Source Files\1 base</Filter>
     </ClCompile>
     <ClCompile Include="vr_system_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_applications_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_settings_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_chaperone_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_chaperone_setup_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_overlay_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_render_models_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_extended_display_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_tracked_camera_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_resources_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_cursor_context.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="vr_compositor_cursor.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_result.cpp">
       <Filter>Source Files\1 base_unit_tests</Filter>
@@ -450,7 +450,7 @@
       <Filter>Source Files\5 traverse test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_cursors.cpp">
-      <Filter>Source Files\6 cursor test</Filter>
+      <Filter>Source Files\6 cursor controller test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_gui_usecase.cpp">
       <Filter>Source Files\4 capture test</Filter>
@@ -459,7 +459,7 @@
       <Filter>Source Files\5 traverse test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_cursors_main.cpp">
-      <Filter>Source Files\6 cursor test</Filter>
+      <Filter>Source Files\6 cursor controller test</Filter>
     </ClCompile>
     <ClCompile Include="crc_32.cpp">
       <Filter>Source Files\1 base</Filter>
@@ -477,7 +477,7 @@
       <Filter>Source Files\4 capture test</Filter>
     </ClCompile>
     <ClCompile Include="capture_config.cpp">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\capture_test_context.cpp">
       <Filter>Source Files\4 capture test</Filter>
@@ -489,13 +489,13 @@
       <Filter>Source Files\5 traverse test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\controller_test_main.cpp">
-      <Filter>Source Files\6 controller test</Filter>
+      <Filter>Source Files\6 capture controller test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_controller.cpp">
-      <Filter>Source Files\6 controller test</Filter>
+      <Filter>Source Files\6 capture controller test</Filter>
     </ClCompile>
     <ClCompile Include="capture_controller.cpp">
-      <Filter>Source Files\6 controller</Filter>
+      <Filter>Source Files\6 capture controller</Filter>
     </ClCompile>
     <ClCompile Include="openvr_dll_client.cpp">
       <Filter>Source Files\7 openvr_api_monitor</Filter>
@@ -513,7 +513,7 @@
       <Filter>Source Files\7 openvr_api_monitor_test</Filter>
     </ClCompile>
     <ClCompile Include="vr_cursor_controller.cpp">
-      <Filter>Source Files\6 cursor</Filter>
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
     <ClCompile Include="platform.cpp">
       <Filter>Source Files\1 base</Filter>
@@ -531,7 +531,7 @@
       <Filter>Source Files\3 vr keys</Filter>
     </ClCompile>
     <ClCompile Include="texture_service.cpp">
-      <Filter>Source Files\3 vr base</Filter>
+      <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

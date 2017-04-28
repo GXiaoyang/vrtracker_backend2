@@ -19,7 +19,6 @@ texture_service::texture_service()
 	m_remi = interfaces.remi;
 }
 
-
 texture_service::~texture_service()
 {
 	stop();
@@ -53,10 +52,14 @@ void texture_service::start()
 			load_task();
 		}));
 
-		m_workers.push_back(std::thread([this]()
+		for (int i = 0; i < 4; i++)
 		{
-			compression_task();
-		}));
+			m_workers.push_back(std::thread([this]()
+			{
+				compression_task();
+			}));
+		}
+		
 		m_started = true;
 	}
 }
@@ -111,7 +114,6 @@ void texture_service::process_all_pending()
 
 void texture_service::load_task()
 {
-	
 	while (!m_stop_requested)
 	{							// on going in, releases lock and waits
 		std::unique_lock<std::mutex> lock(m_load_queue_mutex);
@@ -170,9 +172,6 @@ void texture_service::compression_task()
 			m_compression_cv.wait(lock);	// on going out, reacquires lock
 		if (!m_stop_requested && !m_compression_queue.empty())
 		{
-			// for testing only
-			plat::sleep_ms(100);
-
 			// pop the queue and release the queue lock
 			std::shared_ptr<texture> tex = m_compression_queue.front();
 			m_compression_queue.pop();
@@ -229,4 +228,3 @@ void texture_service::enqueue_texture_for_compression(std::shared_ptr<texture> t
 	m_compression_queue_mutex.unlock();
 	m_compression_cv.notify_all();
 }
-

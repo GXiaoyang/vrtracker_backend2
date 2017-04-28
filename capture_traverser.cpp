@@ -409,7 +409,7 @@ bool capture_traverser::save_capture_to_binary_file(capture *capture, const char
 	header.state_update_bits_size = m_pimpl->calc_state_update_bits_size(capture);
 
 	header.summary_offset           = sizeof(header);
-	header.registry_offset          = header.summary_offset     	+ pad_size(header.summary_size);
+	header.registry_offset          = header.summary_offset     + pad_size(header.summary_size);
 	header.keys_offset              = header.registry_offset	+ pad_size(header.registry_size);
 	header.state_offset             = header.keys_offset		+ pad_size(header.keys_size);
 	header.events_offset            = header.state_offset		+ pad_size(header.state_size);
@@ -478,7 +478,6 @@ bool capture_traverser::save_capture_to_binary_file(capture *capture, const char
 	{
 		rc = false;
 	}
-
 	return rc;
 }
 
@@ -548,21 +547,6 @@ bool capture_traverser::load_capture_from_binary_file(capture *capture, const ch
 	return rc;
 }
 
-#if 0
-// streamer 
-void capture_traverser::streamer(capture *capture, const char *filename)
-{
-	// write magic
-	// write initial state with no updates
-	//	* keys, m_state
-	// after any tick is finalized
-		// write my size
-		// write timestamp
-		// write key updates
-		// write state update bits
-		// write  state update blocks
-}
-#endif
 // if every timestamp had also a list of objects that were updated
 // serialization could use this to efficently stream updates
 

@@ -13,7 +13,6 @@ void capture_controller::init(capture *c, const openvr_broker::open_vr_interface
 	m_interfaces = interfaces;
 }
 
-
 struct capture_controller::pending_controller_update
 {
 	virtual void apply(capture *) = 0;

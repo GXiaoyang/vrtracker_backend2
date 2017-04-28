@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\sean\Downloads\lpng1629;D:\lodepng;D:\lizard\lib;D:\lz4\lib;d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;d:\tbb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>thirdparty/GSL-lite/include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -98,7 +98,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\sean\Downloads\lpng1629\projects\vstudio\Debug Library;D:\lizard\visual\VS2010\bin\Win32_Debug;D:\lz4\visual\VS2010\bin\Win32_Debug;$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; D:\tbb\build\vs2012\Win32\Debug-MT</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\sean\Downloads\lpng1629\projects\vstudio\Debug Library;D:\lizard\visual\VS2010\bin\Win32_Debug;D:\lz4\visual\VS2010\bin\Win32_Debug;$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; thirdparty/tbb/build/vs2012/Win32/Debug-MT</AdditionalLibraryDirectories>
       <AdditionalDependencies>zlib.lib;libpng16.lib;liblizard_static.lib;liblz4_static.lib;tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>

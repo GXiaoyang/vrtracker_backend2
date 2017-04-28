@@ -13,8 +13,7 @@ public:
 	texture()
 		:
 		m_state(INITIAL)
-	{
-	}
+	{}
 
 	explicit texture(int texture_session_id)
 		:
