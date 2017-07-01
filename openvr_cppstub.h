@@ -11,6 +11,7 @@ public:
   bool GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint64_t * pulFrameCounter) override;
   int32_t GetD3D9AdapterIndex() override;
   void GetDXGIOutputInfo(int32_t * pnAdapterIndex) override;
+  void GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType) override;
   bool IsDisplayOnDesktop() override;
   bool SetDisplayVisibility(bool bIsVisibleOnDesktop) override;
   void GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow, struct vr::TrackedDevicePose_t * pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount) override;
@@ -197,6 +198,7 @@ public:
   vr::VROverlayHandle_t GetHighQualityOverlay() override;
   uint32_t GetOverlayKey(vr::VROverlayHandle_t ulOverlayHandle, char * pchValue, uint32_t unBufferSize, vr::EVROverlayError * pError) override;
   uint32_t GetOverlayName(vr::VROverlayHandle_t ulOverlayHandle, char * pchValue, uint32_t unBufferSize, vr::EVROverlayError * pError) override;
+  vr::EVROverlayError SetOverlayName(vr::VROverlayHandle_t ulOverlayHandle, const char *pchName);
   vr::EVROverlayError GetOverlayImageData(vr::VROverlayHandle_t ulOverlayHandle, void * pvBuffer, uint32_t unBufferSize, uint32_t * punWidth, uint32_t * punHeight) override;
   const char * GetOverlayErrorNameFromEnum(vr::EVROverlayError error) override;
   vr::EVROverlayError SetOverlayRenderingPid(vr::VROverlayHandle_t ulOverlayHandle, uint32_t unPID) override;
@@ -219,6 +221,8 @@ public:
   vr::EVROverlayError GetOverlayTextureColorSpace(vr::VROverlayHandle_t ulOverlayHandle, vr::EColorSpace * peTextureColorSpace) override;
   vr::EVROverlayError SetOverlayTextureBounds(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::VRTextureBounds_t * pOverlayTextureBounds) override;
   vr::EVROverlayError GetOverlayTextureBounds(vr::VROverlayHandle_t ulOverlayHandle, struct vr::VRTextureBounds_t * pOverlayTextureBounds) override;
+  uint32_t GetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, char *pchValue, uint32_t unBufferSize, vr::HmdColor_t *pColor, vr::EVROverlayError *pError) override;
+  vr::EVROverlayError SetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, const char *pchRenderModel, const vr::HmdColor_t *pColor) override;
   vr::EVROverlayError GetOverlayTransformType(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayTransformType * peTransformType) override;
   vr::EVROverlayError SetOverlayTransformAbsolute(vr::VROverlayHandle_t ulOverlayHandle, vr::ETrackingUniverseOrigin eTrackingOrigin, const struct vr::HmdMatrix34_t * pmatTrackingOriginToOverlayTransform) override;
   vr::EVROverlayError GetOverlayTransformAbsolute(vr::VROverlayHandle_t ulOverlayHandle, vr::ETrackingUniverseOrigin * peTrackingOrigin, struct vr::HmdMatrix34_t * pmatTrackingOriginToOverlayTransform) override;
@@ -226,6 +230,9 @@ public:
   vr::EVROverlayError GetOverlayTransformTrackedDeviceRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t * punTrackedDevice, struct vr::HmdMatrix34_t * pmatTrackedDeviceToOverlayTransform) override;
   vr::EVROverlayError SetOverlayTransformTrackedDeviceComponent(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t unDeviceIndex, const char * pchComponentName) override;
   vr::EVROverlayError GetOverlayTransformTrackedDeviceComponent(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t * punDeviceIndex, char * pchComponentName, uint32_t unComponentNameSize) override;
+  vr::EVROverlayError GetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t *ulOverlayHandleParent, vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform) override;
+  vr::EVROverlayError SetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t ulOverlayHandleParent, const vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform) override;
+
   vr::EVROverlayError ShowOverlay(vr::VROverlayHandle_t ulOverlayHandle) override;
   vr::EVROverlayError HideOverlay(vr::VROverlayHandle_t ulOverlayHandle) override;
   bool IsOverlayVisible(vr::VROverlayHandle_t ulOverlayHandle) override;

@@ -97,6 +97,9 @@ public:
 	bool GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint64_t * pulFrameCounter) final;
 	int32_t GetD3D9AdapterIndex() final;
 	void GetDXGIOutputInfo(int32_t * pnAdapterIndex) final;
+
+
+	void GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType) final;
 	bool IsDisplayOnDesktop() final;
 	bool SetDisplayVisibility(bool bIsVisibleOnDesktop) final;
 	void GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow, struct vr::TrackedDevicePose_t * pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount) final;
@@ -262,6 +265,7 @@ public:
 	vr::VROverlayHandle_t GetHighQualityOverlay() final;
 	uint32_t GetOverlayKey(vr::VROverlayHandle_t ulOverlayHandle, char * pchValue, uint32_t unBufferSize, vr::EVROverlayError * pError) final;
 	uint32_t GetOverlayName(vr::VROverlayHandle_t ulOverlayHandle, char * pchValue, uint32_t unBufferSize, vr::EVROverlayError * pError) final;
+	vr::EVROverlayError SetOverlayName(vr::VROverlayHandle_t ulOverlayHandle, const char *pchName) final;
 	vr::EVROverlayError GetOverlayImageData(vr::VROverlayHandle_t ulOverlayHandle, void * pvBuffer, uint32_t unBufferSize, uint32_t * punWidth, uint32_t * punHeight) final;
 	const char * GetOverlayErrorNameFromEnum(vr::EVROverlayError error) final;
 	vr::EVROverlayError SetOverlayRenderingPid(vr::VROverlayHandle_t ulOverlayHandle, uint32_t unPID) final;
@@ -284,6 +288,8 @@ public:
 	vr::EVROverlayError GetOverlayTextureColorSpace(vr::VROverlayHandle_t ulOverlayHandle, vr::EColorSpace * peTextureColorSpace) final;
 	vr::EVROverlayError SetOverlayTextureBounds(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::VRTextureBounds_t * pOverlayTextureBounds) final;
 	vr::EVROverlayError GetOverlayTextureBounds(vr::VROverlayHandle_t ulOverlayHandle, struct vr::VRTextureBounds_t * pOverlayTextureBounds) final;
+	uint32_t GetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, char *pchValue, uint32_t unBufferSize, vr::HmdColor_t *pColor, vr::EVROverlayError *pError) final;
+	vr::EVROverlayError SetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, const char *pchRenderModel, const vr::HmdColor_t *pColor) final;
 	vr::EVROverlayError GetOverlayTransformType(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayTransformType * peTransformType) final;
 	vr::EVROverlayError SetOverlayTransformAbsolute(vr::VROverlayHandle_t ulOverlayHandle, vr::ETrackingUniverseOrigin eTrackingOrigin, const struct vr::HmdMatrix34_t * pmatTrackingOriginToOverlayTransform) final;
 	vr::EVROverlayError GetOverlayTransformAbsolute(vr::VROverlayHandle_t ulOverlayHandle, vr::ETrackingUniverseOrigin * peTrackingOrigin, struct vr::HmdMatrix34_t * pmatTrackingOriginToOverlayTransform) final;
@@ -291,6 +297,8 @@ public:
 	vr::EVROverlayError GetOverlayTransformTrackedDeviceRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t * punTrackedDevice, struct vr::HmdMatrix34_t * pmatTrackedDeviceToOverlayTransform) final;
 	vr::EVROverlayError SetOverlayTransformTrackedDeviceComponent(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t unDeviceIndex, const char * pchComponentName) final;
 	vr::EVROverlayError GetOverlayTransformTrackedDeviceComponent(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t * punDeviceIndex, char * pchComponentName, uint32_t unComponentNameSize) final;
+	vr::EVROverlayError GetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t *ulOverlayHandleParent, vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform) final;
+	vr::EVROverlayError SetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t ulOverlayHandleParent, const vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform) final;
 	vr::EVROverlayError ShowOverlay(vr::VROverlayHandle_t ulOverlayHandle) final;
 	vr::EVROverlayError HideOverlay(vr::VROverlayHandle_t ulOverlayHandle) final;
 	bool IsOverlayVisible(vr::VROverlayHandle_t ulOverlayHandle) final;

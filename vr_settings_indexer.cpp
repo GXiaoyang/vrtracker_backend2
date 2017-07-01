@@ -4,7 +4,6 @@
 const char* const steamvrsection_bool_settings_ary[] =
 {
 	vr::k_pch_SteamVR_DisplayDebug_Bool,
-	vr::k_pch_SteamVR_EnableDistortion_Bool,
 	vr::k_pch_SteamVR_SendSystemButtonToAllApps_Bool,
 	vr::k_pch_SteamVR_BackgroundUseDomeProjection_Bool,
 	vr::k_pch_SteamVR_ShowStage_Bool,
@@ -23,8 +22,8 @@ const char* const steamvrsection_bool_settings_ary[] =
 	vr::k_pch_SteamVR_StartDashboardFromAppLaunch_Bool,
 	vr::k_pch_SteamVR_StartOverlayAppsFromDashboard_Bool,
 	vr::k_pch_SteamVR_EnableHomeApp,
-	vr::k_pch_SteamVR_SetInitialDefaultHomeApp,
 	vr::k_pch_SteamVR_RetailDemo_Bool,
+	vr::k_pch_SteamVR_AllowSupersampleFiltering_Bool
 };
 
 const char* const steamvrsection_stri_settings_ary[] =
@@ -45,7 +44,7 @@ const char* const steamvrsection_floa_settings_ary[] =
 	vr::k_pch_SteamVR_BackgroundCameraHeight_Float,
 	vr::k_pch_SteamVR_BackgroundDomeRadius_Float,
 	vr::k_pch_SteamVR_SpeakersForwardYawOffsetDegrees_Float,
-	vr::k_pch_SteamVR_RenderTargetMultiplier_Float,
+	vr::k_pch_SteamVR_SupersampleScale_Float,
 	vr::k_pch_SteamVR_IpdOffset_Float,
 };
 
@@ -221,7 +220,7 @@ const char* const dashboardsection_bool_settings_ary[] =
 
 const char *const compositor_floa_settings_ary[] =
 {
-	vr::k_pch_SteamVR_RenderTargetMultiplier_Float,	// discussed here https://www.reddit.com/r/Vive/comments/59go2a/new_option_to_set_rendertargetmultipler_for/?st=izalffbw&sh=289a4f21
+	vr::k_pch_SteamVR_SupersampleScale_Float,	// discussed here https://www.reddit.com/r/Vive/comments/59go2a/new_option_to_set_rendertargetmultipler_for/?st=izalffbw&sh=289a4f21
 };
 
 

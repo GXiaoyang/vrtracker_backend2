@@ -319,6 +319,13 @@ void openvr_bridge::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
    LOG_EXIT("BridgeGetDXGIOutputInfo");
 }
 
+void openvr_bridge::GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType)
+{
+	LOG_ENTRY("BridgeGetOutputDevice");
+	m_down_stream.sysi->GetOutputDevice(pnDevice, textureType);
+	LOG_EXIT("BridgeGetOutputDevice");
+}
+
 bool openvr_bridge::IsDisplayOnDesktop()
 {
    LOG_ENTRY("BridgeIsDisplayOnDesktop");
@@ -1821,6 +1828,14 @@ uint32_t openvr_bridge::GetOverlayName(vr::VROverlayHandle_t ulOverlayHandle, ch
    LOG_EXIT_RC(rc, "BridgeGetOverlayName");
 }
 
+vr::EVROverlayError openvr_bridge::SetOverlayName(vr::VROverlayHandle_t ulOverlayHandle, const char *pchName)
+{
+	LOG_ENTRY("BridgeSetOverlayName");
+	vr::EVROverlayError rc = m_down_stream.ovi->SetOverlayName(ulOverlayHandle, pchName);
+	LOG_EXIT_RC(rc, "BridgeSetOverlayName");
+}
+
+
 vr::EVROverlayError openvr_bridge::GetOverlayImageData(vr::VROverlayHandle_t ulOverlayHandle, void * pvBuffer, uint32_t unBufferSize, uint32_t * punWidth, uint32_t * punHeight)
 {
    LOG_ENTRY("BridgeGetOverlayImageData");
@@ -1975,6 +1990,21 @@ vr::EVROverlayError openvr_bridge::GetOverlayTextureBounds(vr::VROverlayHandle_t
    LOG_EXIT_RC(rc, "BridgeGetOverlayTextureBounds");
 }
 
+uint32_t openvr_bridge::GetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, char *pchValue, uint32_t unBufferSize, vr::HmdColor_t *pColor, vr::EVROverlayError *pError)
+{
+	LOG_ENTRY("BridgeGetOverlayRenderModel");
+	uint32_t rc = m_down_stream.ovi->GetOverlayRenderModel(ulOverlayHandle, pchValue, unBufferSize, pColor, pError);
+	LOG_EXIT_RC(rc, "BridgeGetOverlayRenderModel");
+}
+
+vr::EVROverlayError openvr_bridge::SetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, const char *pchRenderModel, const vr::HmdColor_t *pColor)
+{
+	LOG_ENTRY("BridgeSetOverlayRenderModel");
+	vr::EVROverlayError rc = m_down_stream.ovi->SetOverlayRenderModel(ulOverlayHandle, pchRenderModel, pColor);
+	LOG_EXIT_RC(rc, "BridgeSetOverlayRenderModel");
+}
+
+
 vr::EVROverlayError openvr_bridge::GetOverlayTransformType(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayTransformType * peTransformType)
 {
    LOG_ENTRY("BridgeGetOverlayTransformType");
@@ -2022,6 +2052,19 @@ vr::EVROverlayError openvr_bridge::GetOverlayTransformTrackedDeviceComponent(vr:
    LOG_ENTRY("BridgeGetOverlayTransformTrackedDeviceComponent");
    vr::EVROverlayError rc = m_down_stream.ovi->GetOverlayTransformTrackedDeviceComponent(ulOverlayHandle,punDeviceIndex,pchComponentName,unComponentNameSize);
    LOG_EXIT_RC(rc, "BridgeGetOverlayTransformTrackedDeviceComponent");
+}
+
+vr::EVROverlayError openvr_bridge::GetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t *ulOverlayHandleParent, vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform)
+{
+	LOG_ENTRY("BridgeGetOverlayTransformOverlayRelative");
+	vr::EVROverlayError rc = m_down_stream.ovi->GetOverlayTransformOverlayRelative(ulOverlayHandle, ulOverlayHandleParent, pmatParentOverlayToOverlayTransform);
+	LOG_EXIT_RC(rc, "BridgeGetOverlayTransformOverlayRelative");
+}
+vr::EVROverlayError openvr_bridge::SetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t ulOverlayHandleParent, const vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform)
+{
+	LOG_ENTRY("BridgeSetOverlayTransformOverlayRelative");
+	vr::EVROverlayError rc = m_down_stream.ovi->SetOverlayTransformOverlayRelative(ulOverlayHandle, ulOverlayHandleParent, pmatParentOverlayToOverlayTransform);
+	LOG_EXIT_RC(rc, "BridgeSetOverlayTransformOverlayRelative");
 }
 
 vr::EVROverlayError openvr_bridge::ShowOverlay(vr::VROverlayHandle_t ulOverlayHandle)

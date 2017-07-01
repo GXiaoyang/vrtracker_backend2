@@ -92,6 +92,12 @@ void VRSystemCppStub::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
 	LOG_EXIT("CppStubGetDXGIOutputInfo");
 }
 
+void VRSystemCppStub::GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType)
+{
+	LOG_ENTRY("GetOutputDevice");
+	LOG_EXIT("GetOutputDevice");
+}
+
 bool VRSystemCppStub::IsDisplayOnDesktop()
 {
 	LOG_ENTRY("CppStubIsDisplayOnDesktop");
@@ -1169,6 +1175,13 @@ uint32_t VROverlayCppStub::GetOverlayName(vr::VROverlayHandle_t ulOverlayHandle,
 	LOG_EXIT_RC(rc, "CppStubGetOverlayName");
 }
 
+vr::EVROverlayError VROverlayCppStub::SetOverlayName(vr::VROverlayHandle_t ulOverlayHandle, const char *pchName)
+{
+	LOG_ENTRY("SetOverlayName");
+	static vr::EVROverlayError rc;
+	LOG_EXIT_RC(rc, "SetOverlayName");
+}
+
 vr::EVROverlayError VROverlayCppStub::GetOverlayImageData(vr::VROverlayHandle_t ulOverlayHandle, void * pvBuffer, uint32_t unBufferSize, uint32_t * punWidth, uint32_t * punHeight)
 {
 	LOG_ENTRY("CppStubGetOverlayImageData");
@@ -1323,6 +1336,20 @@ vr::EVROverlayError VROverlayCppStub::GetOverlayTextureBounds(vr::VROverlayHandl
 	LOG_EXIT_RC(rc, "CppStubGetOverlayTextureBounds");
 }
 
+uint32_t VROverlayCppStub::GetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, char *pchValue, uint32_t unBufferSize, vr::HmdColor_t *pColor, vr::EVROverlayError *pError)
+{
+	LOG_ENTRY("CppStubGetOverlayRenderModel");
+	static uint32_t rc;
+	LOG_EXIT_RC(rc, "CppGetOverlayRenderModel");
+}
+
+vr::EVROverlayError VROverlayCppStub::SetOverlayRenderModel(vr::VROverlayHandle_t ulOverlayHandle, const char *pchRenderModel, const vr::HmdColor_t *pColor)
+{
+	LOG_ENTRY("CppStubSetOverlayRenderModel");
+	static vr::EVROverlayError rc;
+	LOG_EXIT_RC(rc, "CppSetOverlayRenderModel");
+}
+
 vr::EVROverlayError VROverlayCppStub::GetOverlayTransformType(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayTransformType * peTransformType)
 {
 	LOG_ENTRY("CppStubGetOverlayTransformType");
@@ -1370,6 +1397,19 @@ vr::EVROverlayError VROverlayCppStub::GetOverlayTransformTrackedDeviceComponent(
 	LOG_ENTRY("CppStubGetOverlayTransformTrackedDeviceComponent");
 	static vr::EVROverlayError rc;
 	LOG_EXIT_RC(rc, "CppStubGetOverlayTransformTrackedDeviceComponent");
+}
+
+vr::EVROverlayError VROverlayCppStub::GetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t *ulOverlayHandleParent, vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform)
+{
+	LOG_ENTRY("CppStubGetOverlayTransformOverlayRelative");
+	static vr::EVROverlayError rc;
+	LOG_EXIT_RC(rc, "CppStubGetOverlayTransformOverlayRelative");
+}
+vr::EVROverlayError VROverlayCppStub::SetOverlayTransformOverlayRelative(vr::VROverlayHandle_t ulOverlayHandle, vr::VROverlayHandle_t ulOverlayHandleParent, const vr::HmdMatrix34_t *pmatParentOverlayToOverlayTransform)
+{
+	LOG_ENTRY("CppStubSetOverlayTransformOverlayRelative");
+	static vr::EVROverlayError rc;
+	LOG_EXIT_RC(rc, "CppStubSetOverlayTransformOverlayRelative");
 }
 
 vr::EVROverlayError VROverlayCppStub::ShowOverlay(vr::VROverlayHandle_t ulOverlayHandle)

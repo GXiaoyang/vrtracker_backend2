@@ -98,7 +98,13 @@ const PropertiesIndexer::device_property_row device_bool_properties_table[] =
 	EXPANDO_DEVICE_PROPERTY_BOOLO(IsOnDesktop),
 	EXPANDO_DEVICE_PROPERTY_BOOLO(DisplaySuppressed),
 	EXPANDO_DEVICE_PROPERTY_BOOLO(DisplayAllowNightMode),
-	EXPANDO_DEVICE_PROPERTY_BOOLO(UsesDriverDirectMode),
+	EXPANDO_DEVICE_PROPERTY_BOOLO(DriverDirectModeSendsVsyncEvents),
+	EXPANDO_DEVICE_PROPERTY_BOOLO(DisplayDebugMode),
+	EXPANDO_DEVICE_PROPERTY_BOOLO(HasDisplayComponent),
+	EXPANDO_DEVICE_PROPERTY_BOOLO(HasControllerComponent),
+	EXPANDO_DEVICE_PROPERTY_BOOLO(HasCameraComponent),
+	EXPANDO_DEVICE_PROPERTY_BOOLO(HasDriverDirectModeComponent),
+	EXPANDO_DEVICE_PROPERTY_BOOLO(HasVirtualDisplayComponent)
 };
 
 #define EXPANDO_DEVICE_PROPERTY_STRINGO(x) { vr::Prop_ ## x ## _String , #x }
