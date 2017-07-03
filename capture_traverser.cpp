@@ -62,7 +62,8 @@ struct WrapperSet
 	rendermodel_wrapper(nullptr),
 	extended_display_wrapper(nullptr),
 	tracked_camera_wrapper(nullptr),
-	resources_wrapper(nullptr)
+	resources_wrapper(nullptr),
+	driver_manager_wrapper(nullptr)
 	{}
 
 	void assign(openvr_broker::open_vr_interfaces *interfaces)
@@ -78,6 +79,7 @@ struct WrapperSet
 		extended_display_wrapper = new ExtendedDisplayWrapper(interfaces->exdi);
 		tracked_camera_wrapper = new TrackedCameraWrapper(interfaces->taci);
 		resources_wrapper = new ResourcesWrapper(interfaces->resi);
+		driver_manager_wrapper = new DriverManagerWrapper(interfaces->drivi);
 	}
 
 	~WrapperSet()
@@ -93,6 +95,7 @@ struct WrapperSet
 		delete extended_display_wrapper;
 		delete tracked_camera_wrapper;
 		delete resources_wrapper;
+		delete driver_manager_wrapper;
 	}
 	SystemWrapper			*system_wrapper;
 	ApplicationsWrapper		*application_wrapper;
@@ -105,6 +108,7 @@ struct WrapperSet
 	ExtendedDisplayWrapper	*extended_display_wrapper;
 	TrackedCameraWrapper	*tracked_camera_wrapper;
 	ResourcesWrapper		*resources_wrapper;
+	DriverManagerWrapper	*driver_manager_wrapper;
 };
 
 template <typename TaskGroup, typename visitor_fn>
@@ -163,6 +167,10 @@ static void traverse_history_graph(visitor_fn *visitor, capture *outer_state, Wr
 	g.run("visit_resources_state",
 		[&visitor, s, wrappers, keys] {
 		visit_resources_state(visitor, &s->resources_node, wrappers->resources_wrapper, keys);
+	});
+	g.run("visit_driver_manager_state",
+		[&visitor, s, wrappers, keys] {
+		visit_driver_manager_state(visitor, &s->driver_manager_node, wrappers->driver_manager_wrapper, keys);
 	});
 	g.wait();
 }

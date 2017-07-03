@@ -171,6 +171,7 @@ namespace vr_result
 				INIT(num_reference),
 				INIT(input_focus_captured_by_other),
 				INIT(d3d9_adapter_index),
+				INIT(output_devices),
 				INIT(dxgi_output_info),
 				structure_version(0),
 
@@ -191,6 +192,7 @@ namespace vr_result
 			TIMENODE<Uint32<>> num_reference;
 			TIMENODE<Bool<>> input_focus_captured_by_other;
 			TIMENODE<Int32<>> d3d9_adapter_index;
+			TIMENODE<OutputDevices<>> output_devices;
 			TIMENODE<Int32<>> dxgi_output_info;
 			int structure_version;
 
@@ -634,6 +636,27 @@ namespace vr_result
 			VECTOR_OF_SCHEMAS<resource_schema> resources;
 		};
 
+		struct driver_schema : schema<is_iterator>
+		{
+			driver_schema() {}
+			explicit driver_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name, registry),
+				INIT(driver_name)
+			{}
+			TIMENODE<String<>> driver_name;
+		};
+
+		struct driver_manager_schema : schema<is_iterator>
+		{
+			driver_manager_schema() {}
+			explicit driver_manager_schema(const base::URL &name, SerializableRegistry *registry ALLOC_DECL)
+				: schema<is_iterator>(name, registry),
+				INIT(drivers)
+			{}
+
+			VECTOR_OF_SCHEMAS<driver_schema> drivers;
+		};
+
 		vr_schema() {}
 		explicit vr_schema(const base::URL &name, SerializableRegistry *registry)
 			: schema<is_iterator>(name,registry),
@@ -647,7 +670,8 @@ namespace vr_result
 			INIT(render_models_node),
 			INIT(extended_display_node),
 			INIT(tracked_camera_node),
-			INIT(resources_node)
+			INIT(resources_node),
+			INIT(driver_manager_node)
 		{}
 
 		system_schema			system_node;		// schema is the type. node is the instace
@@ -661,6 +685,7 @@ namespace vr_result
 		extended_display_schema	extended_display_node;
 		tracked_camera_schema	tracked_camera_node;
 		resources_schema        resources_node;
+		driver_manager_schema	driver_manager_node;
 	};
 	
 	using vr_state = vr_schema<false, VRAllocatorTemplate>;
@@ -705,5 +730,8 @@ namespace vr_result
 
 	using resources_state       = vr_state::resources_schema;
 	using resources_iterator = vr_iterator::resources_schema;
+
+	using driver_manager_state = vr_state::driver_manager_schema;
+	using driver_manager_iterator = vr_iterator::driver_manager_schema;
 
 }

@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>thirdparty/GSL-lite/include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\sean\Downloads\lpng1629;D:\lz4\lib;D:\lodepng;thirdparty/GSL-lite/include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -217,6 +217,8 @@
     <ClInclude Include="vr_cursor_common.h" />
     <ClInclude Include="vr_cursor_context.h" />
     <ClInclude Include="vr_device_properties_indexer.h" />
+    <ClInclude Include="vr_driver_manager_cursor.h" />
+    <ClInclude Include="vr_driver_manager_wrapper.h" />
     <ClInclude Include="vr_extended_display_cursor.h" />
     <ClInclude Include="vr_extended_display_wrapper.h" />
     <ClInclude Include="vr_mime_types_indexer.h" />
@@ -309,6 +311,7 @@
     <ClCompile Include="vr_cursor_controller.cpp" />
     <ClCompile Include="vr_cursor_context.cpp" />
     <ClCompile Include="vr_device_properties_indexer.cpp" />
+    <ClCompile Include="vr_driver_manager_cursor.cpp" />
     <ClCompile Include="vr_extended_display_cursor.cpp" />
     <ClCompile Include="vr_mime_types_indexer.cpp" />
     <ClCompile Include="vr_overlay_cursor.cpp" />

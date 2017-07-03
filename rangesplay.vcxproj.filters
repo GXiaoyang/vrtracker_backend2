@@ -324,6 +324,12 @@
     <ClInclude Include="texture_service.h">
       <Filter>Source Files\3 vr schema</Filter>
     </ClInclude>
+    <ClInclude Include="vr_driver_manager_wrapper.h">
+      <Filter>Source Files\3 vr_wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="vr_driver_manager_cursor.h">
+      <Filter>Source Files\6 cursor controller</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -532,6 +538,9 @@
     </ClCompile>
     <ClCompile Include="texture_service.cpp">
       <Filter>Source Files\3 vr schema</Filter>
+    </ClCompile>
+    <ClCompile Include="vr_driver_manager_cursor.cpp">
+      <Filter>Source Files\6 cursor controller</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

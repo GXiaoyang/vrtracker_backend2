@@ -255,6 +255,15 @@ namespace vr
 		uint32_t width;
 		uint32_t height;
 	};
+
+	struct OutputDevices_t
+	{
+		uint64_t directx;
+		uint64_t opengl;
+		uint64_t vulkan;
+		uint64_t ios;
+		uint64_t directx12;
+	};
 }
 
 namespace vr_result
@@ -367,6 +376,9 @@ namespace vr_result
 	using VideoStreamTextureSize = Result<vr::VideoStreamTextureSize_t, ReturnCode>;
 
 	template <typename ReturnCode = NoReturnCode>
+	using OutputDevices = Result<vr::OutputDevices_t, ReturnCode>;
+
+	template <typename ReturnCode = NoReturnCode>
 	using WindowBounds = Result<vr::WindowBounds_t, ReturnCode>;
 
 	template <typename ReturnCode = NoReturnCode>
@@ -462,6 +474,7 @@ MEMCMP_OPERATOR_EQ(vr::AbsoluteTransform)
 MEMCMP_OPERATOR_EQ(vr::FloatRange)
 MEMCMP_OPERATOR_EQ(vr::RGBColor)
 MEMCMP_OPERATOR_EQ(vr::VideoStreamTextureSize_t)
+MEMCMP_OPERATOR_EQ(vr::OutputDevices_t)
 MEMCMP_OPERATOR_EQ(vr::CameraFrameIntrinsics_t)
 MEMCMP_OPERATOR_EQ(vr::CameraFrameSize_t)
 MEMCMP_OPERATOR_EQ(vr::WindowBounds_t)

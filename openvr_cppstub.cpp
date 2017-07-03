@@ -1973,3 +1973,16 @@ uint32_t VRResourcesCppStub::GetResourceFullPath(const char * pchResourceName, c
 	LOG_EXIT_RC(rc, "CppStubGetResourceFullPath");
 }
 
+uint32_t VRDriverManagerCppStub::GetDriverCount() const
+{
+	LOG_ENTRY("CppStubGetDriverCount");
+	static uint32_t rc = 0;
+	LOG_EXIT_RC(rc, "CppStubGetDriverCount");
+}
+
+uint32_t VRDriverManagerCppStub::GetDriverName(vr::DriverId_t nDriver, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize)
+{
+	LOG_ENTRY("CppStubGetDriverName");
+	static uint32_t rc = 0;
+	LOG_EXIT_RC(rc, "CppStubGetDriverName");
+}

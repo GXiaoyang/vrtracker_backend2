@@ -87,6 +87,7 @@ static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces
 	interfaces->screeni = vr::VRScreenshots();
 	interfaces->noti = nullptr;  // from openvr.h: This current interface is not yet implemented. Do not use yet.
 	interfaces->resi = vr::VRResources();
+	interfaces->drivi = vr::VRDriverManager();
 	return true;
 }
 #endif
@@ -115,6 +116,7 @@ static bool acquire_null_interfaces(openvr_broker::open_vr_interfaces *interface
 	interfaces->screeni = nullptr;
 	interfaces->noti = nullptr;  // from openvr.h: This current interface is not yet implemented. Do not use yet.
 	interfaces->resi = nullptr;
+	interfaces->drivi = nullptr;
 	return true;
 }
 
@@ -134,5 +136,6 @@ static bool acquire_stub_interfaces(openvr_broker::open_vr_interfaces *interface
 	interfaces->screeni = nullptr;
 	interfaces->noti = nullptr;  // from openvr.h: This current interface is not yet implemented. Do not use yet.
 	interfaces->resi = nullptr;
+	interfaces->drivi = nullptr;
 	return true;
 }

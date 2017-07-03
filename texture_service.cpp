@@ -175,7 +175,7 @@ void texture_service::compression_task()
 			// pop the queue and release the queue lock
 			std::shared_ptr<texture> tex = m_compression_queue.front();
 			m_compression_queue.pop();
-			log_printf("compressing session_id %d\n", tex->get_texture_session_id());
+			log_printf("compressing texture id %d\n", tex->get_texture_session_id());
 			lock.unlock();
 
 			tex->lock();

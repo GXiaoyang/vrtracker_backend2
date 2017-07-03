@@ -334,3 +334,10 @@ public:
   uint32_t LoadSharedResource(const char * pchResourceName, char * pchBuffer, uint32_t unBufferLen) override;
   uint32_t GetResourceFullPath(const char * pchResourceName, const char * pchResourceTypeDirectory, char * pchPathBuffer, uint32_t unBufferLen) override;
 };
+class VRDriverManagerCppStub : public vr::IVRDriverManager
+{
+public:
+	uint32_t GetDriverCount() const override;
+	uint32_t GetDriverName(vr::DriverId_t nDriver, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize) override;
+};
+

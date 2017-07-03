@@ -29,6 +29,7 @@ namespace openvr_broker
 		vr::IVRTrackedCamera	*taci;
 		vr::IVRScreenshots		*screeni;
 		vr::IVRResources		*resi;
+		vr::IVRDriverManager    *drivi;
 	};
 	
 	struct open_vr_interfaces_void
@@ -46,6 +47,7 @@ namespace openvr_broker
 		void *taci;
 		void *screeni;
 		void *resi;
+		void *drivi;
 	};
 
 

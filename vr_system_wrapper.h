@@ -28,6 +28,18 @@ struct SystemWrapper
 		return make_result(sysi->IsDisplayOnDesktop());
 	}
 
+	inline OutputDevices<> GetOutputDevices()
+	{
+		OutputDevices<> ret;
+		memset(&ret.val, 0, sizeof(ret.val));
+		sysi->GetOutputDevice(&ret.val.directx, vr::TextureType_DirectX);
+		sysi->GetOutputDevice(&ret.val.opengl, vr::TextureType_OpenGL);
+		sysi->GetOutputDevice(&ret.val.vulkan, vr::TextureType_Vulkan);
+		sysi->GetOutputDevice(&ret.val.ios, vr::TextureType_IOSurface);
+		sysi->GetOutputDevice(&ret.val.directx12, vr::TextureType_DirectX12);
+		return ret;
+	}
+
 	inline void GetTimeSinceLastVsync(
 		Float<bool> *seconds_since_last_vsync,
 		Uint64<bool> *frame_counter_since_last_vsync)

@@ -12,7 +12,8 @@ void test_loading_render_model_and_texture(int index, vr::IVRRenderModels *remi,
 	
 	char namebuf[256];
 	remi->GetRenderModelName(index, namebuf, sizeof(namebuf));
-	log_printf("testing rendermodel: %d %s\n", index, namebuf);
+	log_printf("testing texture indexer behaviour\n");
+	log_printf("loading and indexing of rendermodel: %d %s\n", index, namebuf);
 	vr::RenderModel_t *model = nullptr;
 	vr::EVRRenderModelError ret = remi->LoadRenderModel_Async(namebuf, &model);
 	while (1)

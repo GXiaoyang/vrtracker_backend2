@@ -30,7 +30,7 @@ struct capture_id_fixer
 		auto iter = url2id.find(url);
 		if (iter == url2id.end())
 		{
-			// assert - 
+			// assert - if this fails, make sure you initialized the node in the constructor with it's url name
 			assert(0);
 		}
 		return iter->second;

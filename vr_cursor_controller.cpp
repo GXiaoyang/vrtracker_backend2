@@ -12,6 +12,7 @@
 #include "vr_tracked_camera_cursor.h"
 #include "vr_screenshots_cursor.h"
 #include "vr_resources_cursor.h"
+#include "vr_driver_manager_cursor.h"
 
 #include "vr_cursor_context.h"
 #include "vr_schema.h"
@@ -34,7 +35,8 @@ struct vr_cursor_controller::VRCursorImpl
 		m_extendeddisplay_cursor(&m_context),
 		m_trackedcamera_cursor(&m_context),
 		m_screenshots_cursor(&m_context),
-		m_resources_cursor(&m_context)
+		m_resources_cursor(&m_context),
+		m_driver_manager_cursor(&m_context)
 	{}
 
 	vr_result::vr_iterator iterators;
@@ -53,6 +55,7 @@ struct vr_cursor_controller::VRCursorImpl
 	VRTrackedCameraCursor	m_trackedcamera_cursor;
 	VRScreenshotsCursor		m_screenshots_cursor;
 	VRResourcesCursor       m_resources_cursor;
+	VRDriverManagerCursor   m_driver_manager_cursor;
 };
 
 //

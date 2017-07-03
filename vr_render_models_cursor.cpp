@@ -187,7 +187,7 @@ uint32_t VRRenderModelsCursor::GetRenderModelName(
 	LOG_EXIT_RC(rc, "CppStubGetRenderModelName");
 }
 
-uint32_t VRRenderModelsCursor::GetRenderModelCount()
+uint32_t VRRenderModelsCursor::GetRenderModelCount() 
 {
 	LOG_ENTRY("CppStubGetRenderModelCount");
 	SynchronizeChildVectors();

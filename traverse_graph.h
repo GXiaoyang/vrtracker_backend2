@@ -14,6 +14,7 @@
 #include "vr_extended_display_wrapper.h"
 #include "vr_tracked_camera_wrapper.h"
 #include "vr_resources_wrapper.h"
+#include "vr_driver_manager_wrapper.h"
 #include "vr_keys.h"
 #include "openvr_string.h"
 #include "lz4.h"
@@ -399,6 +400,7 @@ static void visit_system_node(
 		g.run("system scalars1", 
 			[sysw, ss, visitor] {
 			VISIT(is_display_on_desktop, sysw->GetIsDisplayOnDesktop());
+			VISIT(output_devices, sysw->GetOutputDevices());
 		});
 
 		g.run("system scalars2",
@@ -1613,6 +1615,59 @@ static void visit_resources_state(visitor_fn *visitor,
 		visit_per_resource(visitor, ss, wrap, i, keys);
 	}
 	END_VECTOR(resources);
+
+	visitor->end_group_node(ss->get_url(), -1);
+}
+
+template <typename visitor_fn>
+static void visit_per_driver(visitor_fn *visitor,
+	vr_state::driver_manager_schema *ss, DriverManagerWrapper *wrap,
+	int i, vr_keys *keys
+)
+{
+	visitor->start_group_node(ss->get_url(), i);
+
+	if (visitor->visit_source_interfaces())
+	{
+		TMPString<> driver_name;
+		visitor->visit_node(ss->drivers[i].driver_name, wrap->GetDriverName(i, &driver_name));
+	}
+	else
+	{
+		visitor->visit_node(ss->drivers[i].driver_name);
+	}
+
+	visitor->end_group_node(ss->get_url(), i);
+}
+
+
+
+template <typename visitor_fn>
+static void visit_driver_manager_state(visitor_fn *visitor,
+	vr_state::driver_manager_schema *ss, DriverManagerWrapper *wrap,
+	vr_keys *keys
+)
+{
+	visitor->start_group_node(ss->get_url(), -1);
+	if (visitor->spawn_children())
+	{
+		if (size_as_int(ss->drivers.size()) < wrap->GetDriverCount())
+		{
+			ss->drivers.reserve(wrap->GetDriverCount());
+			while (size_as_int(ss->drivers.size()) < wrap->GetDriverCount())
+			{
+				std::string child_name = std::to_string(ss->drivers.size());
+				visitor->spawn_child(ss->drivers, child_name.c_str());
+			}
+		}
+	}
+
+	START_VECTOR(drivers);
+	for (int i = 0; i < size_as_int(ss->drivers.size()); i++)
+	{
+		visit_per_driver(visitor, ss, wrap, i, keys);
+	}
+	END_VECTOR(drivers);
 
 	visitor->end_group_node(ss->get_url(), -1);
 }
