@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\sean\Downloads\lpng1629;D:\lz4\lib;D:\lodepng;thirdparty/GSL-lite/include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>thirdparty/lpng1629;thirdparty/lz4/lib;thirdparty/lodepng;thirdparty/GSL-lite/include;$(ProjectDir);thirdparty/vrstrings_deploy/headers;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -98,8 +98,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\sean\Downloads\lpng1629\projects\vstudio\Debug Library;D:\lizard\visual\VS2010\bin\Win32_Debug;D:\lz4\visual\VS2010\bin\Win32_Debug;$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; thirdparty/tbb/build/vs2012/Win32/Debug-MT</AdditionalLibraryDirectories>
-      <AdditionalDependencies>zlib.lib;libpng16.lib;liblizard_static.lib;liblz4_static.lib;tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>thirdparty/lpng1629\projects\vstudio\Debug Library;thirdparty/lz4\visual\VS2010\bin\Win32_Debug;$(OPENVR_BASE)/lib/win32; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; thirdparty/tbb/build/vs2012/Win32/Debug-MT</AdditionalLibraryDirectories>
+      <AdditionalDependencies>zlib.lib;libpng16.lib;liblz4_static.lib;tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
@@ -110,15 +110,15 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)_DEBUG;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>d:\GSL-lite\include;$(ProjectDir);C:\projects\vrstrings\headers;D:\boost_1_63_0;D:\boost_1_63_0;$(OPENVR_BASE)/headers;d:\tbb\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>thirdparty/lpng1629;thirdparty/lz4/lib;thirdparty/lodepng;thirdparty/GSL-lite/include;$(ProjectDir);thirdparty/vrstrings_deploy/headers;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalLibraryDirectories>C:\Users\sean\Downloads\lpng1629\projects\vstudio\Release Library;$(OPENVR_BASE)/lib/win64; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win64; D:\tbb\build\vs2012\x64\Debug-MT</AdditionalLibraryDirectories>
-      <AdditionalDependencies>tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>thirdparty/tbb/build/vs2012/x64/Debug-MT;thirdparty/lpng1629\projects\vstudio\x64\Debug Library;thirdparty/lz4\visual\VS2010\bin\x64_Debug; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; thirdparty/tbb/build/vs2012/Win32/Debug-MTC:\Users\sean\Downloads\lpng1629\projects\vstudio\Release Library;$(OPENVR_BASE)/lib/win64; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win64; </AdditionalLibraryDirectories>
+      <AdditionalDependencies>zlib.lib;libpng16.lib;liblz4_static.lib;tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,18 +147,21 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>thirdparty/lpng1629;thirdparty/lz4/lib;thirdparty/lodepng;thirdparty/GSL-lite/include;$(ProjectDir);thirdparty/vrstrings_deploy/headers;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>zlib.lib;libpng16.lib;liblz4_static.lib;tbb.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>thirdparty/tbb/build/vs2012/x64/Release-MT;thirdparty/lpng1629\projects\vstudio\x64\Release Library;thirdparty/lz4\visual\VS2010\bin\x64_Release; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; thirdparty/tbb/build/vs2012/Win32/Debug-MTC:\Users\sean\Downloads\lpng1629\projects\vstudio\Release Library;$(OPENVR_BASE)/lib/win64; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win64; </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

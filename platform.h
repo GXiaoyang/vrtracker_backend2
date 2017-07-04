@@ -27,6 +27,10 @@ constexpr int size_as_int(const T &size_in) {
 	return static_cast<int>(size_in);
 }
 
+constexpr int ptrdiff_as_int(const ptrdiff_t &size_in) {
+	return static_cast<int>(size_in);
+}
+
 template <typename T>
 constexpr int size_as_serialization_id(const T &size_in) {
 	return static_cast<serialization_id>(size_in);

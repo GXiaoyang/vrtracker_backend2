@@ -71,7 +71,7 @@ struct SystemWrapper
 	{
 		result->val.resize(sysi->GetSortedTrackedDeviceIndicesOfClass(
 			device_class, result->val.data(),
-			result->val.max_size(),
+			size_as_int(result->val.max_size()),
 			unRelativeToTrackedDeviceIndex));
 		return *result;
 	}

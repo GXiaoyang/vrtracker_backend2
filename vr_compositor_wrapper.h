@@ -62,7 +62,7 @@ namespace vr_result
 		inline TMPString<> &GetVulkanInstanceExtensionsRequired(TMPString<> *result)
 		{
 			result->val.data()[0] = 0;
-			compi->GetVulkanInstanceExtensionsRequired(result->val.data(), result->val.max_size());
+			compi->GetVulkanInstanceExtensionsRequired(result->val.data(), size_as_int(result->val.max_size()));
 			result->val.resize(strlen(result->val.data()) + 1);
 			return *result;
 		}

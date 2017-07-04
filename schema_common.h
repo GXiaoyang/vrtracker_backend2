@@ -164,7 +164,7 @@ struct named_vector :	public std::vector<T, Allocator>,
 	{
 		encode_id(e);
 		base::url_named::encode(e);
-		int mysize = std::vector<T, Allocator>::size();
+		int mysize = size_as_int(std::vector<T, Allocator>::size());
 		e.write_to_stream(&mysize, sizeof(mysize));
 	}
 

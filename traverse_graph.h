@@ -336,7 +336,7 @@ static void visit_controller_state(visitor_fn *visitor,
 			{
 				ss->components.reserve(component_count);
 				TMPString<> component_name;
-				int component_index = ss->components.size();
+				int component_index = size_as_int(ss->components.size());
 				rmw->GetComponentModelName(render_model.val.data(), component_index, &component_name);
 				visitor->spawn_child(ss->components, component_name.val.data());
 				system_ss->structure_version++;
@@ -552,7 +552,7 @@ void spawn_check(
 	if (size_as_int(vec.size()) < num_props)
 	{
 		vec.reserve(num_props);
-		for (int index = vec.size(); index < num_props; index++)
+		for (int index = size_as_int(vec.size()); index < num_props; index++)
 		{
 			const char *prop_name = indexer->GetName(prop_type, index);
 			visitor->spawn_child(vec, prop_name);
@@ -711,16 +711,16 @@ static void visit_applications_node(visitor_fn *visitor, vr_state::applications_
 			ss->applications.reserve(keys->GetApplicationsIndexer().get_num_applications());
 			while (size_as_int(ss->applications.size()) < keys->GetApplicationsIndexer().get_num_applications())
 			{
-				const char *application_name = keys->GetApplicationsIndexer().get_key_for_index(ss->applications.size());
+				const char *application_name = keys->GetApplicationsIndexer().get_key_for_index(size_as_int(ss->applications.size()));
 				visitor->spawn_child(ss->applications, application_name);
 			}
 			ss->structure_version++;
 		}
-		int num_mime_types = keys->GetMimeTypesIndexer().GetNumMimeTypes();
+		int num_mime_types = size_as_int(keys->GetMimeTypesIndexer().GetNumMimeTypes());
 		while (size_as_int(ss->mime_types.size()) < num_mime_types)
 		{
 			ss->mime_types.reserve(num_mime_types);
-			const char *mime_type = keys->GetMimeTypesIndexer().GetNameForIndex(ss->mime_types.size());
+			const char *mime_type = keys->GetMimeTypesIndexer().GetNameForIndex(size_as_int(ss->mime_types.size()));
 			visitor->spawn_child(ss->mime_types, mime_type);
 			ss->structure_version++;
 		}
@@ -790,7 +790,7 @@ void spawn_check(
 	{
 		vec.reserve(required_size);
 		const char **field_names = indexer->GetFieldNames(section_name, setting_type);
-		for (int i = vec.size(); i < required_size; i++)
+		for (int i = size_as_int(vec.size()); i < required_size; i++)
 		{
 			const char *field_name = field_names[i];
 			visitor->spawn_child(vec, field_name);
@@ -1175,7 +1175,7 @@ static void visit_rendermodel(visitor_fn *visitor,
 			TMPString<> component_model_name;
 			while (size_as_int(ss->components.size()) < component_count)
 			{
-				wrap->GetComponentModelName(render_model_name, ss->components.size(), &component_model_name);
+				wrap->GetComponentModelName(render_model_name, size_as_int(ss->components.size()), &component_model_name);
 				visitor->spawn_child(ss->components, component_model_name.val.data());
 				*structure_version += 1;
 			}
@@ -1349,7 +1349,7 @@ static void visit_overlay_state(visitor_fn *visitor, vr_state::overlay_schema *s
 			ss->overlays.reserve(keys->GetOverlayIndexer().get_num_overlays());
 			while (size_as_int(ss->overlays.size()) < keys->GetOverlayIndexer().get_num_overlays())
 			{
-				const char *child_name = keys->GetOverlayIndexer().get_overlay_key_for_index(ss->overlays.size());
+				const char *child_name = keys->GetOverlayIndexer().get_overlay_key_for_index(size_as_int(ss->overlays.size()));
 				visitor->spawn_child(ss->overlays, child_name);
 			}
 		}

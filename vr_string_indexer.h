@@ -119,7 +119,7 @@ public:
 		{
 			if (is_new_key)
 				*is_new_key = true;
-			string_indexer_index = keys.size();
+			string_indexer_index = size_as_int(keys.size());
 			auto iter = keys.push_back(key);					// update caches
 			const char *p = (*iter).c_str(); // p needs to point to the char in keys
 			keys2index.insert({ p, string_indexer_index });		// spawn new value

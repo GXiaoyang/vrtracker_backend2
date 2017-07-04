@@ -7,7 +7,7 @@ StringIndexer::StringIndexer(const StringIndexer &rhs)
 	keys2index(rhs.keys2index),
 	live_indexes(rhs.live_indexes)
 {
-	updated_size = keys.size();
+	updated_size = size_as_int(keys.size());
 }
 
 StringIndexer &StringIndexer::operator=(const StringIndexer &rhs)
@@ -15,7 +15,7 @@ StringIndexer &StringIndexer::operator=(const StringIndexer &rhs)
 	keys = rhs.keys;
 	keys2index = rhs.keys2index;
 	live_indexes = rhs.live_indexes;
-	updated_size = keys.size();
+	updated_size = size_as_int(keys.size());
 	return *this;
 }
 

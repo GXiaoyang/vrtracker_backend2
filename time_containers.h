@@ -157,7 +157,7 @@ template <typename T,
 	void encode(BaseStream &e) const 
 	{
 		base::url_named::encode(e);
-		int size = container.size();
+		int size = size_as_int(container.size());
 		e.write_to_stream(&size, sizeof(size)); // write the container size
 		
 		for (const auto &timeval: container)

@@ -46,7 +46,7 @@ void TextureIndexer::WriteToStream(BaseStream &s) const
 	m_texture_service.process_all_pending();
 
 	// write out the rendermodel_name -> internal id map
-	int num_render_models = m_render_model_name2id.size();
+	int num_render_models = size_as_int(m_render_model_name2id.size());
 	s.write_to_stream(&num_render_models, sizeof(num_render_models));
 
 	for (auto iter = m_render_model_name2id.begin();
@@ -58,7 +58,7 @@ void TextureIndexer::WriteToStream(BaseStream &s) const
 	}
 	
 	// write out the textures
-	int num_textures = m_textures.size();
+	int num_textures = size_as_int(m_textures.size());
 	s.write_to_stream(&num_textures, sizeof(num_textures));
 	for (auto iter = m_textures.begin(); iter != m_textures.end(); iter++)
 	{
@@ -103,7 +103,7 @@ int TextureIndexer::add_texture(int texture_session_id, const char *render_model
 	auto iter = m_session2internal_id.find(texture_session_id);
 	if (iter == m_session2internal_id.end())
 	{
-		internal_id = m_textures.size();
+		internal_id = size_as_int(m_textures.size());
 		m_textures.emplace_back(std::make_shared<texture>(texture_session_id));
 		m_texture_service.start();
 		m_texture_service.process_texture(m_textures[internal_id]);
@@ -193,7 +193,7 @@ vr::EVRRenderModelError TextureIndexer::get_texture(int texture_session_id, vr::
 				vr::RenderModel_TextureMap_t *tex_map = new vr::RenderModel_TextureMap_t();
 				tex_map->unWidth = ptexture->get_width();
 				tex_map->unHeight = ptexture->get_height();
-				size_t texture_size = tex_map->unWidth*tex_map->unHeight * 4;
+				int texture_size = tex_map->unWidth*tex_map->unHeight * 4;
 				uint8_t *buf = new uint8_t[texture_size];
 				LZ4_decompress_fast(ptexture->get_compressed_buffer().data(), reinterpret_cast<char*>(buf), texture_size);
 				tex_map->rubTextureMapData = buf;

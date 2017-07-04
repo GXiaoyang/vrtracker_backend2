@@ -46,7 +46,7 @@ void test_controller()
 
 		// add an overlay key
 		{
-			int num_key_updates_before = model.m_keys_updates.size();
+			int num_key_updates_before = size_as_int(model.m_keys_updates.size());
 
 			const char *test_key = "test_overlay";
 			assert(model.m_keys.GetOverlayIndexer().get_index_for_key(test_key) == -1);
@@ -67,7 +67,7 @@ void test_controller()
 
 		// add an app key
 		{
-			int num_key_updates_before = model.m_keys_updates.size();
+			int num_key_updates_before = size_as_int(model.m_keys_updates.size());
 
 			const char *test_key = "test_key";
 			assert(model.m_keys.GetApplicationsIndexer().get_index_for_key(test_key) == -1);
@@ -88,7 +88,7 @@ void test_controller()
 
 		// add a setting
 		{
-			int num_key_updates_before = model.m_keys_updates.size();
+			int num_key_updates_before = size_as_int(model.m_keys_updates.size());
 
 			const char *test_section = "test_section";
 			SettingsIndexer::SectionSettingType test_setting_type = SettingsIndexer::SETTING_TYPE_BOOL;
@@ -112,7 +112,7 @@ void test_controller()
 
 		// add a device property
 		{
-			int num_key_updates_before = model.m_keys_updates.size();
+			int num_key_updates_before = size_as_int(model.m_keys_updates.size());
 
 			PropertiesIndexer::PropertySettingType test_prop_type = PropertiesIndexer::PROP_FLOAT;
 			const char *test_prop_name = "test_device_prop";
@@ -135,7 +135,7 @@ void test_controller()
 
 		// add a resource
 		{
-			int num_key_updates_before = model.m_keys_updates.size();
+			int num_key_updates_before = size_as_int(model.m_keys_updates.size());
 
 			std::string test_resource_name = "test_resource";
 			std::string test_resource_directory = "c:\\test_resource";
@@ -158,7 +158,7 @@ void test_controller()
 
 		// nearz farz
 		{
-			int num_key_updates_before = model.m_keys_updates.size();
+			int num_key_updates_before = size_as_int(model.m_keys_updates.size());
 
 			float test_nearz = 11.f;
 			float test_farz = 12.f;

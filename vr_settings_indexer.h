@@ -94,7 +94,7 @@ public:
 		if (iter != name2section.end())
 		{
 			int section = iter->second;
-			rc = sections[section].typed_data[setting_type].fieldnames.size();
+			rc = size_as_int(sections[section].typed_data[setting_type].fieldnames.size());
 		}
 		return rc;
 	}

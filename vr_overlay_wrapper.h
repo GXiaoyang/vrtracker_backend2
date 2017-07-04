@@ -172,7 +172,7 @@ namespace vr_result
 			// this function can 2/17/2017 this function can return uninitialized values
 			device_index->val = k_unTrackedDeviceIndexInvalid;
 			EVROverlayError rc = ovi->GetOverlayTransformTrackedDeviceComponent(h, &device_index->val,
-				component->val.data(), component->val.size());
+				component->val.data(), size_as_int(component->val.size()));
 			device_index->return_code = rc;
 			component->return_code = rc;
 		}

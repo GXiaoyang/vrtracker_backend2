@@ -368,7 +368,7 @@ bool SettingsIndexer::AddCustomSetting(const char *section_name_in, SectionSetti
 		int section_index;
 		if (section_iter == name2section.end())
 		{
-			section_index = sections.size();
+			section_index = size_as_int(sections.size());
 			name2section.insert({ section_name, section_index });
 			sections.emplace_back(section_name);
 		}
@@ -377,7 +377,7 @@ bool SettingsIndexer::AddCustomSetting(const char *section_name_in, SectionSetti
 			section_index = section_iter->second;
 		}
 
-		int field_index = sections[section_index].typed_data[section_type].fieldnames.size();
+		int field_index = size_as_int(sections[section_index].typed_data[section_type].fieldnames.size());
 		sections[section_index].typed_data[section_type].fieldnames.push_back(setting_name);
 		sections[section_index].typed_data[section_type].fieldname2index.insert({ setting_name, field_index });
 	}

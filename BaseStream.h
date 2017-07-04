@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <platform.h>
 #include <cstdint>
 #include <memory.h>
 #include <assert.h>
@@ -14,7 +15,7 @@ struct BaseStream
 	template <typename Container>
 	void contiguous_container_out_to_stream(const Container &container)
 	{
-		int size = container.size();	// dont' use size_t because it's different on 32 vs 64 bit
+		int size = size_as_int(container.size());	// dont' use size_t because it's different on 32 vs 64 bit
 		write_to_stream(&size, sizeof(size));
 		write_to_stream(container.data(), size * sizeof(*container.data()));
 	}
@@ -35,7 +36,7 @@ struct BaseStream
 	template <typename Container>
 	void forward_container_out_to_stream(const Container &container)
 	{
-		int size = container.size();	// dont' use size_t because it's different on 32 vs 64 bit
+		int size = size_as_int(container.size());	// don't store the result in a size_t because it's different on 32 vs 64 bit
 		write_to_stream(&size, sizeof(size));
 		for (auto & val : container)
 		{

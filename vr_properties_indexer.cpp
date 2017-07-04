@@ -78,7 +78,7 @@ void PropertiesIndexer::AddCustomProperty(PropertySettingType prop_type, const c
 	{
 		custom_names[prop_type].push_back(name);
 		custom_enum_values[prop_type].push_back(val);
-		int index = enum2index[prop_type].size();	// assign an index to allows the properties to be stepped from 0..n-1
+		int index = size_as_int(enum2index[prop_type].size());	// assign an index to allows the properties to be stepped from 0..n-1
 		enum2index[prop_type].insert({ val, index });
 	}
 }
@@ -122,7 +122,7 @@ void PropertiesIndexer::ReadFromStream(BaseStream &s)
 		enum2index[setting_type].reserve(enum2index[setting_type].size() + custom_enum_values[setting_type].size());
 		for (int i = 0; i < size_as_int(custom_enum_values[setting_type].size()); i++)
 		{
-			int index = enum2index[setting_type].size();
+			int index = size_as_int(enum2index[setting_type].size());
 			enum2index[setting_type].insert({ static_cast<int>(custom_enum_values[setting_type][i]), index });
 		}
 	}

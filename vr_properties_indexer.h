@@ -48,7 +48,7 @@ public:
 
 	inline int GetNumPropertiesOfType(PropertySettingType setting_type)
 	{
-		return enum2index[setting_type].size();
+		return size_as_int(enum2index[setting_type].size());
 	}
 
 	inline int GetEnumVal(PropertySettingType setting_type, int index)

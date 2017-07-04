@@ -31,7 +31,7 @@ namespace vr_result
 	template<typename InterfaceHandle, typename FunctionPtr, typename ...Params>
 	void query_vector_rccount(TMPString<> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
 	{
-		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), result->val.max_size()));
+		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), size_as_int(result->val.max_size())));
 		assert(result->val.size() < result->val.max_size());
 	}
 
@@ -42,14 +42,14 @@ namespace vr_result
 	template<typename ReturnType, typename InterfaceHandle, typename FunctionPtr, typename ...Params>
 	inline void query_vector_rccount(Result<TMPStringVectorOnly, ReturnType> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
 	{
-		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), result->val.max_size(), &result->return_code));
+		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), size_as_int(result->val.max_size()), &result->return_code));
 		assert(result->val.size() < result->val.max_size());
 	}
 
 	template<typename ElementType, typename InterfaceHandle, typename FunctionPtr, typename ...Params>
 	inline void query_vector_zero_means_not_present(Result<ElementType, bool> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
 	{
-		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), result->val.max_size()));
+		result->val.resize((ifh->*function_ptr)(params..., result->val.data(), size_as_int(result->val.max_size())));
 		result->return_code = result->val.size() != 0;
 		assert(result->val.size() < result->val.max_size());
 	}
@@ -62,7 +62,7 @@ namespace vr_result
 	template<typename ReturnType, typename InterfaceHandle, typename FunctionPtr, typename ...Params>
 	void query_vector_rcerror(Result<TMPStringVectorOnly, ReturnType> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
 	{
-		result->return_code = (ifh->*function_ptr)(params..., result->val.data(), result->val.max_size());
+		result->return_code = (ifh->*function_ptr)(params..., result->val.data(), size_as_int(result->val.max_size()));
 		result->val.resize(strlen(result->val.data()) + 1);
 	}
 
@@ -75,7 +75,7 @@ namespace vr_result
 	template<typename ReturnType, typename InterfaceHandle, typename FunctionPtr, typename ...Params>
 	void query_vector_rcvoid(Result<TMPStringVectorOnly, ReturnType> *result, InterfaceHandle *ifh, FunctionPtr function_ptr, Params... params)
 	{
-		(ifh->*function_ptr)(params..., result->val.data(), result->val.max_size(), &result->return_code);
+		(ifh->*function_ptr)(params..., result->val.data(), size_as_int(result->val.max_size()), &result->return_code);
 		result->val.resize(strlen(result->val.data()) + 1); 
 	}
 
