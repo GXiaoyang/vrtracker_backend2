@@ -5,7 +5,11 @@
 
 // responsibilities
 //	* export an interface
-//  * bind to a configurable downstream interface
+//  * bind to an externally supplied downstream interface
+//	
+// collaborators:
+//	* something else needs to choose and provide the downstream interfaces
+//
 // specials:
 //	* second texture downstream since sometimes you want to replay from an old file, AND view the output on real device
 //  * configuration discovery.  since the bridge can see all the incoming queries, it can update the capture
@@ -97,9 +101,8 @@ public:
 	bool GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint64_t * pulFrameCounter) final;
 	int32_t GetD3D9AdapterIndex() final;
 	void GetDXGIOutputInfo(int32_t * pnAdapterIndex) final;
-
-
-	void GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType) final;
+	void GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType, VkInstance_T *pInstance) final;
+	
 	bool IsDisplayOnDesktop() final;
 	bool SetDisplayVisibility(bool bIsVisibleOnDesktop) final;
 	void GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow, struct vr::TrackedDevicePose_t * pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount) final;
@@ -118,6 +121,7 @@ public:
 	int32_t GetInt32TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) final;
 	uint64_t GetUint64TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) final;
 	struct vr::HmdMatrix34_t GetMatrix34TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) final;
+	uint32_t GetArrayTrackedDeviceProperty(vr::TrackedDeviceIndex_t, vr::ETrackedDeviceProperty, vr::PropertyTypeTag_t, void *, uint32_t, vr::ETrackedPropertyError *) final;
 	uint32_t GetStringTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, char * pchValue, uint32_t unBufferSize, vr::ETrackedPropertyError * pError) final;
 	const char * GetPropErrorNameFromEnum(vr::ETrackedPropertyError error) final;
 	bool PollNextEvent(struct vr::VREvent_t * pEvent, uint32_t uncbVREvent) final;
@@ -129,9 +133,12 @@ public:
 	void TriggerHapticPulse(vr::TrackedDeviceIndex_t unControllerDeviceIndex, uint32_t unAxisId, unsigned short usDurationMicroSec) final;
 	const char * GetButtonIdNameFromEnum(vr::EVRButtonId eButtonId) final;
 	const char * GetControllerAxisTypeNameFromEnum(vr::EVRControllerAxisType eAxisType) final;
-	bool CaptureInputFocus() final;
-	void ReleaseInputFocus() final;
-	bool IsInputFocusCapturedByAnotherProcess() final;
+	bool IsInputAvailable() final;
+
+	bool IsSteamVRDrawingControllers() final;
+	bool ShouldApplicationPause() final;
+	bool ShouldApplicationReduceRenderingWork() final;
+
 	uint32_t DriverDebugRequest(vr::TrackedDeviceIndex_t unDeviceIndex, const char * pchRequest, char * pchResponseBuffer, uint32_t unResponseBufferSize) final;
 	vr::EVRFirmwareError PerformFirmwareUpdate(vr::TrackedDeviceIndex_t unDeviceIndex) final;
 	void AcknowledgeQuit_Exiting() final;
@@ -258,6 +265,9 @@ public:
 	uint32_t GetVulkanInstanceExtensionsRequired(char * pchValue, uint32_t unBufferSize) final;
 	uint32_t GetVulkanDeviceExtensionsRequired(struct VkPhysicalDevice_T * pPhysicalDevice, char * pchValue, uint32_t unBufferSize) final;
 
+	void SetExplicitTimingMode(vr::EVRCompositorTimingMode eTimingMode);
+	vr::EVRCompositorError SubmitExplicitTimingData();
+
 	vr::EVROverlayError FindOverlay(const char * pchOverlayKey, vr::VROverlayHandle_t * pOverlayHandle) final;
 	vr::EVROverlayError CreateOverlay(const char * pchOverlayKey, const char * pchOverlayFriendlyName, vr::VROverlayHandle_t * pOverlayHandle) final;
 	vr::EVROverlayError DestroyOverlay(vr::VROverlayHandle_t ulOverlayHandle) final;
@@ -309,12 +319,14 @@ public:
 	vr::EVROverlayError GetOverlayMouseScale(vr::VROverlayHandle_t ulOverlayHandle, struct vr::HmdVector2_t * pvecMouseScale) final;
 	vr::EVROverlayError SetOverlayMouseScale(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::HmdVector2_t * pvecMouseScale) final;
 	bool ComputeOverlayIntersection(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::VROverlayIntersectionParams_t * pParams, struct vr::VROverlayIntersectionResults_t * pResults) final;
-	bool HandleControllerOverlayInteractionAsMouse(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t unControllerDeviceIndex) final;
 	bool IsHoverTargetOverlay(vr::VROverlayHandle_t ulOverlayHandle) final;
 	vr::VROverlayHandle_t GetGamepadFocusOverlay() final;
 	vr::EVROverlayError SetGamepadFocusOverlay(vr::VROverlayHandle_t ulNewFocusOverlay) final;
 	vr::EVROverlayError SetOverlayNeighbor(vr::EOverlayDirection eDirection, vr::VROverlayHandle_t ulFrom, vr::VROverlayHandle_t ulTo) final;
 	vr::EVROverlayError MoveGamepadFocusToNeighbor(vr::EOverlayDirection eDirection, vr::VROverlayHandle_t ulFrom) final;
+	vr::EVROverlayError SetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, const vr::HmdVector2_t & vCenter, float fRadius) final;
+	vr::EVROverlayError GetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, vr::HmdVector2_t *pvCenter, float *pfRadius) final;
+
 	vr::EVROverlayError SetOverlayTexture(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::Texture_t * pTexture) final;
 	vr::EVROverlayError ClearOverlayTexture(vr::VROverlayHandle_t ulOverlayHandle) final;
 	vr::EVROverlayError SetOverlayRaw(vr::VROverlayHandle_t ulOverlayHandle, void * pvBuffer, uint32_t unWidth, uint32_t unHeight, uint32_t unDepth) final;
@@ -338,6 +350,7 @@ public:
 	vr::EVROverlayError SetOverlayIntersectionMask(vr::VROverlayHandle_t ulOverlayHandle, struct vr::VROverlayIntersectionMaskPrimitive_t * pMaskPrimitives, uint32_t unNumMaskPrimitives, uint32_t unPrimitiveSize) final;
 	vr::EVROverlayError GetOverlayFlags(vr::VROverlayHandle_t ulOverlayHandle, uint32_t * pFlags) final;
 	vr::VRMessageOverlayResponse ShowMessageOverlay(const char * pchText, const char * pchCaption, const char * pchButton0Text, const char * pchButton1Text, const char * pchButton2Text, const char * pchButton3Text) final;
+	void CloseMessageOverlay() final;
 
 	vr::EVRRenderModelError LoadRenderModel_Async(const char * pchRenderModelName, struct vr::RenderModel_t ** ppRenderModel) final;
 	void FreeRenderModel(struct vr::RenderModel_t * pRenderModel) final;

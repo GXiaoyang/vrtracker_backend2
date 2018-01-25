@@ -39,315 +39,335 @@ void **GetCppStubInterfaces()
 	return vr_interfaces_cppstub;
 }
 
-void VRSystemCppStub::GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight)
-{
-	LOG_ENTRY("CppStubGetRecommendedRenderTargetSize");
-	LOG_EXIT("CppStubGetRecommendedRenderTargetSize");
-}
+	void VRSystemCppStub::GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight)
+	{
+		LOG_ENTRY("CppStubGetRecommendedRenderTargetSize");
+		LOG_EXIT("CppStubGetRecommendedRenderTargetSize");
+	}
 
-struct vr::HmdMatrix44_t VRSystemCppStub::GetProjectionMatrix(vr::EVREye eEye, float fNearZ, float fFarZ)
-{
-	LOG_ENTRY("CppStubGetProjectionMatrix");
-	static struct vr::HmdMatrix44_t rc;
-	LOG_EXIT_RC(rc, "CppStubGetProjectionMatrix");
-}
+	struct vr::HmdMatrix44_t VRSystemCppStub::GetProjectionMatrix(vr::EVREye eEye, float fNearZ, float fFarZ)
+	{
+		LOG_ENTRY("CppStubGetProjectionMatrix");
+		static struct vr::HmdMatrix44_t rc;
+		LOG_EXIT_RC(rc, "CppStubGetProjectionMatrix");
+	}
 
-void VRSystemCppStub::GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * pfRight, float * pfTop, float * pfBottom)
-{
-	LOG_ENTRY("CppStubGetProjectionRaw");
-	LOG_EXIT("CppStubGetProjectionRaw");
-}
+	void VRSystemCppStub::GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * pfRight, float * pfTop, float * pfBottom)
+	{
+		LOG_ENTRY("CppStubGetProjectionRaw");
+		LOG_EXIT("CppStubGetProjectionRaw");
+	}
 
-bool VRSystemCppStub::ComputeDistortion(vr::EVREye eEye, float fU, float fV, struct vr::DistortionCoordinates_t * pDistortionCoordinates)
-{
-	LOG_ENTRY("CppStubComputeDistortion");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubComputeDistortion");
-}
+	bool VRSystemCppStub::ComputeDistortion(vr::EVREye eEye, float fU, float fV, struct vr::DistortionCoordinates_t * pDistortionCoordinates)
+	{
+		LOG_ENTRY("CppStubComputeDistortion");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubComputeDistortion");
+	}
 
-struct vr::HmdMatrix34_t VRSystemCppStub::GetEyeToHeadTransform(vr::EVREye eEye)
-{
-	LOG_ENTRY("CppStubGetEyeToHeadTransform");
-	static struct vr::HmdMatrix34_t rc;
-	LOG_EXIT_RC(rc, "CppStubGetEyeToHeadTransform");
-}
+	struct vr::HmdMatrix34_t VRSystemCppStub::GetEyeToHeadTransform(vr::EVREye eEye)
+	{
+		LOG_ENTRY("CppStubGetEyeToHeadTransform");
+		static struct vr::HmdMatrix34_t rc;
+		LOG_EXIT_RC(rc, "CppStubGetEyeToHeadTransform");
+	}
 
-bool VRSystemCppStub::GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint64_t * pulFrameCounter)
-{
-	LOG_ENTRY("CppStubGetTimeSinceLastVsync");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubGetTimeSinceLastVsync");
-}
+	bool VRSystemCppStub::GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint64_t * pulFrameCounter)
+	{
+		LOG_ENTRY("CppStubGetTimeSinceLastVsync");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubGetTimeSinceLastVsync");
+	}
 
-int32_t VRSystemCppStub::GetD3D9AdapterIndex()
-{
-	LOG_ENTRY("CppStubGetD3D9AdapterIndex");
-	static int32_t rc = 0;
-	LOG_EXIT_RC(rc, "CppStubGetD3D9AdapterIndex");
-}
+	int32_t VRSystemCppStub::GetD3D9AdapterIndex()
+	{
+		LOG_ENTRY("CppStubGetD3D9AdapterIndex");
+		static int32_t rc = 0;
+		LOG_EXIT_RC(rc, "CppStubGetD3D9AdapterIndex");
+	}
 
-void VRSystemCppStub::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
-{
-	LOG_ENTRY("CppStubGetDXGIOutputInfo");
-	LOG_EXIT("CppStubGetDXGIOutputInfo");
-}
+	void VRSystemCppStub::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
+	{
+		LOG_ENTRY("CppStubGetDXGIOutputInfo");
+		LOG_EXIT("CppStubGetDXGIOutputInfo");
+	}
 
-void VRSystemCppStub::GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType)
-{
-	LOG_ENTRY("GetOutputDevice");
-	LOG_EXIT("GetOutputDevice");
-}
+	void VRSystemCppStub::GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType, VkInstance_T *pInstance)
+	{
+		LOG_ENTRY("GetOutputDevice");
+		if (pnDevice)
+		{
+			pnDevice = nullptr;
+		}
+		LOG_EXIT("GetOutputDevice");
+	}
 
-bool VRSystemCppStub::IsDisplayOnDesktop()
-{
-	LOG_ENTRY("CppStubIsDisplayOnDesktop");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubIsDisplayOnDesktop");
-}
+	bool VRSystemCppStub::IsDisplayOnDesktop()
+	{
+		LOG_ENTRY("CppStubIsDisplayOnDesktop");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubIsDisplayOnDesktop");
+	}
 
-bool VRSystemCppStub::SetDisplayVisibility(bool bIsVisibleOnDesktop)
-{
-	LOG_ENTRY("CppStubSetDisplayVisibility");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubSetDisplayVisibility");
-}
+	bool VRSystemCppStub::SetDisplayVisibility(bool bIsVisibleOnDesktop)
+	{
+		LOG_ENTRY("CppStubSetDisplayVisibility");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubSetDisplayVisibility");
+	}
 
-void VRSystemCppStub::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow, struct vr::TrackedDevicePose_t * pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount)
-{
-	LOG_ENTRY("CppStubGetDeviceToAbsoluteTrackingPose");
-	LOG_EXIT("CppStubGetDeviceToAbsoluteTrackingPose");
-}
+	void VRSystemCppStub::GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow, struct vr::TrackedDevicePose_t * pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount)
+	{
+		LOG_ENTRY("CppStubGetDeviceToAbsoluteTrackingPose");
+		LOG_EXIT("CppStubGetDeviceToAbsoluteTrackingPose");
+	}
 
-void VRSystemCppStub::ResetSeatedZeroPose()
-{
-	LOG_ENTRY("CppStubResetSeatedZeroPose");
-	LOG_EXIT("CppStubResetSeatedZeroPose");
-}
+	void VRSystemCppStub::ResetSeatedZeroPose()
+	{
+		LOG_ENTRY("CppStubResetSeatedZeroPose");
+		LOG_EXIT("CppStubResetSeatedZeroPose");
+	}
 
-struct vr::HmdMatrix34_t VRSystemCppStub::GetSeatedZeroPoseToStandingAbsoluteTrackingPose()
-{
-	LOG_ENTRY("CppStubGetSeatedZeroPoseToStandingAbsoluteTrackingPose");
-	static struct vr::HmdMatrix34_t rc;
-	LOG_EXIT_RC(rc, "CppStubGetSeatedZeroPoseToStandingAbsoluteTrackingPose");
-}
+	struct vr::HmdMatrix34_t VRSystemCppStub::GetSeatedZeroPoseToStandingAbsoluteTrackingPose()
+	{
+		LOG_ENTRY("CppStubGetSeatedZeroPoseToStandingAbsoluteTrackingPose");
+		static struct vr::HmdMatrix34_t rc;
+		LOG_EXIT_RC(rc, "CppStubGetSeatedZeroPoseToStandingAbsoluteTrackingPose");
+	}
 
-struct vr::HmdMatrix34_t VRSystemCppStub::GetRawZeroPoseToStandingAbsoluteTrackingPose()
-{
-	LOG_ENTRY("CppStubGetRawZeroPoseToStandingAbsoluteTrackingPose");
-	static struct vr::HmdMatrix34_t rc;
-	LOG_EXIT_RC(rc, "CppStubGetRawZeroPoseToStandingAbsoluteTrackingPose");
-}
+	struct vr::HmdMatrix34_t VRSystemCppStub::GetRawZeroPoseToStandingAbsoluteTrackingPose()
+	{
+		LOG_ENTRY("CppStubGetRawZeroPoseToStandingAbsoluteTrackingPose");
+		static struct vr::HmdMatrix34_t rc;
+		LOG_EXIT_RC(rc, "CppStubGetRawZeroPoseToStandingAbsoluteTrackingPose");
+	}
 
-uint32_t VRSystemCppStub::GetSortedTrackedDeviceIndicesOfClass(vr::ETrackedDeviceClass eTrackedDeviceClass, vr::TrackedDeviceIndex_t * punTrackedDeviceIndexArray, uint32_t unTrackedDeviceIndexArrayCount, vr::TrackedDeviceIndex_t unRelativeToTrackedDeviceIndex)
-{
-	LOG_ENTRY("CppStubGetSortedTrackedDeviceIndicesOfClass");
-	static uint32_t rc = 0;
-	LOG_EXIT_RC(rc, "CppStubGetSortedTrackedDeviceIndicesOfClass");
-}
+	uint32_t VRSystemCppStub::GetSortedTrackedDeviceIndicesOfClass(vr::ETrackedDeviceClass eTrackedDeviceClass, vr::TrackedDeviceIndex_t * punTrackedDeviceIndexArray, uint32_t unTrackedDeviceIndexArrayCount, vr::TrackedDeviceIndex_t unRelativeToTrackedDeviceIndex)
+	{
+		LOG_ENTRY("CppStubGetSortedTrackedDeviceIndicesOfClass");
+		static uint32_t rc = 0;
+		LOG_EXIT_RC(rc, "CppStubGetSortedTrackedDeviceIndicesOfClass");
+	}
 
-vr::EDeviceActivityLevel VRSystemCppStub::GetTrackedDeviceActivityLevel(vr::TrackedDeviceIndex_t unDeviceId)
-{
-	LOG_ENTRY("CppStubGetTrackedDeviceActivityLevel");
-	static vr::EDeviceActivityLevel rc;
-	LOG_EXIT_RC(rc, "CppStubGetTrackedDeviceActivityLevel");
-}
+	vr::EDeviceActivityLevel VRSystemCppStub::GetTrackedDeviceActivityLevel(vr::TrackedDeviceIndex_t unDeviceId)
+	{
+		LOG_ENTRY("CppStubGetTrackedDeviceActivityLevel");
+		static vr::EDeviceActivityLevel rc;
+		LOG_EXIT_RC(rc, "CppStubGetTrackedDeviceActivityLevel");
+	}
 
-void VRSystemCppStub::ApplyTransform(struct vr::TrackedDevicePose_t * pOutputPose, const struct vr::TrackedDevicePose_t * pTrackedDevicePose, const struct vr::HmdMatrix34_t * pTransform)
-{
-	LOG_ENTRY("CppStubApplyTransform");
-	LOG_EXIT("CppStubApplyTransform");
-}
+	void VRSystemCppStub::ApplyTransform(struct vr::TrackedDevicePose_t * pOutputPose, const struct vr::TrackedDevicePose_t * pTrackedDevicePose, const struct vr::HmdMatrix34_t * pTransform)
+	{
+		LOG_ENTRY("CppStubApplyTransform");
+		LOG_EXIT("CppStubApplyTransform");
+	}
 
-vr::TrackedDeviceIndex_t VRSystemCppStub::GetTrackedDeviceIndexForControllerRole(vr::ETrackedControllerRole unDeviceType)
-{
-	LOG_ENTRY("CppStubGetTrackedDeviceIndexForControllerRole");
-	static vr::TrackedDeviceIndex_t rc;
-	LOG_EXIT_RC(rc, "CppStubGetTrackedDeviceIndexForControllerRole");
-}
+	vr::TrackedDeviceIndex_t VRSystemCppStub::GetTrackedDeviceIndexForControllerRole(vr::ETrackedControllerRole unDeviceType)
+	{
+		LOG_ENTRY("CppStubGetTrackedDeviceIndexForControllerRole");
+		static vr::TrackedDeviceIndex_t rc;
+		LOG_EXIT_RC(rc, "CppStubGetTrackedDeviceIndexForControllerRole");
+	}
 
-vr::ETrackedControllerRole VRSystemCppStub::GetControllerRoleForTrackedDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex)
-{
-	LOG_ENTRY("CppStubGetControllerRoleForTrackedDeviceIndex");
-	static vr::ETrackedControllerRole rc;
-	LOG_EXIT_RC(rc, "CppStubGetControllerRoleForTrackedDeviceIndex");
-}
+	vr::ETrackedControllerRole VRSystemCppStub::GetControllerRoleForTrackedDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex)
+	{
+		LOG_ENTRY("CppStubGetControllerRoleForTrackedDeviceIndex");
+		static vr::ETrackedControllerRole rc;
+		LOG_EXIT_RC(rc, "CppStubGetControllerRoleForTrackedDeviceIndex");
+	}
 
-vr::ETrackedDeviceClass VRSystemCppStub::GetTrackedDeviceClass(vr::TrackedDeviceIndex_t unDeviceIndex)
-{
-	LOG_ENTRY("CppStubGetTrackedDeviceClass");
-	static vr::ETrackedDeviceClass rc;
-	LOG_EXIT_RC(rc, "CppStubGetTrackedDeviceClass");
-}
+	vr::ETrackedDeviceClass VRSystemCppStub::GetTrackedDeviceClass(vr::TrackedDeviceIndex_t unDeviceIndex)
+	{
+		LOG_ENTRY("CppStubGetTrackedDeviceClass");
+		static vr::ETrackedDeviceClass rc;
+		LOG_EXIT_RC(rc, "CppStubGetTrackedDeviceClass");
+	}
 
-bool VRSystemCppStub::IsTrackedDeviceConnected(vr::TrackedDeviceIndex_t unDeviceIndex)
-{
-	LOG_ENTRY("CppStubIsTrackedDeviceConnected");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubIsTrackedDeviceConnected");
-}
+	bool VRSystemCppStub::IsTrackedDeviceConnected(vr::TrackedDeviceIndex_t unDeviceIndex)
+	{
+		LOG_ENTRY("CppStubIsTrackedDeviceConnected");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubIsTrackedDeviceConnected");
+	}
 
-bool VRSystemCppStub::GetBoolTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
-{
-	LOG_ENTRY("CppStubGetBoolTrackedDeviceProperty");
-	static bool rc = true;
-	if (pError) { *pError = (vr::ETrackedPropertyError)0; }
-	LOG_EXIT_RC(rc, "CppStubGetBoolTrackedDeviceProperty");
-}
+	bool VRSystemCppStub::GetBoolTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
+	{
+		LOG_ENTRY("CppStubGetBoolTrackedDeviceProperty");
+		static bool rc = true;
+		if (pError) { *pError = (vr::ETrackedPropertyError)0; }
+		LOG_EXIT_RC(rc, "CppStubGetBoolTrackedDeviceProperty");
+	}
 
-float VRSystemCppStub::GetFloatTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
-{
-	LOG_ENTRY("CppStubGetFloatTrackedDeviceProperty");
-	static float rc;
-	if (pError) { *pError = (vr::ETrackedPropertyError)0; }
-	LOG_EXIT_RC(rc, "CppStubGetFloatTrackedDeviceProperty");
-}
+	float VRSystemCppStub::GetFloatTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
+	{
+		LOG_ENTRY("CppStubGetFloatTrackedDeviceProperty");
+		static float rc;
+		if (pError) { *pError = (vr::ETrackedPropertyError)0; }
+		LOG_EXIT_RC(rc, "CppStubGetFloatTrackedDeviceProperty");
+	}
 
-int32_t VRSystemCppStub::GetInt32TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
-{
-	LOG_ENTRY("CppStubGetInt32TrackedDeviceProperty");
-	static int32_t rc = 0;
-	if (pError) { *pError = (vr::ETrackedPropertyError)0; }
-	LOG_EXIT_RC(rc, "CppStubGetInt32TrackedDeviceProperty");
-}
+	int32_t VRSystemCppStub::GetInt32TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
+	{
+		LOG_ENTRY("CppStubGetInt32TrackedDeviceProperty");
+		static int32_t rc = 0;
+		if (pError) { *pError = (vr::ETrackedPropertyError)0; }
+		LOG_EXIT_RC(rc, "CppStubGetInt32TrackedDeviceProperty");
+	}
 
-uint64_t VRSystemCppStub::GetUint64TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
-{
-	LOG_ENTRY("CppStubGetUint64TrackedDeviceProperty");
-	static uint64_t rc = 0;
-	if (pError) { *pError = (vr::ETrackedPropertyError)0; }
-	LOG_EXIT_RC(rc, "CppStubGetUint64TrackedDeviceProperty");
-}
+	uint64_t VRSystemCppStub::GetUint64TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
+	{
+		LOG_ENTRY("CppStubGetUint64TrackedDeviceProperty");
+		static uint64_t rc = 0;
+		if (pError) { *pError = (vr::ETrackedPropertyError)0; }
+		LOG_EXIT_RC(rc, "CppStubGetUint64TrackedDeviceProperty");
+	}
 
-struct vr::HmdMatrix34_t VRSystemCppStub::GetMatrix34TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
-{
-	LOG_ENTRY("CppStubGetMatrix34TrackedDeviceProperty");
-	static struct vr::HmdMatrix34_t rc;
-	if (pError) { *pError = (vr::ETrackedPropertyError)0; }
-	LOG_EXIT_RC(rc, "CppStubGetMatrix34TrackedDeviceProperty");
-}
+	struct vr::HmdMatrix34_t VRSystemCppStub::GetMatrix34TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError)
+	{
+		LOG_ENTRY("CppStubGetMatrix34TrackedDeviceProperty");
+		static struct vr::HmdMatrix34_t rc;
+		if (pError) { *pError = (vr::ETrackedPropertyError)0; }
+		LOG_EXIT_RC(rc, "CppStubGetMatrix34TrackedDeviceProperty");
+	}
 
-uint32_t VRSystemCppStub::GetStringTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, char * pchValue, uint32_t unBufferSize, vr::ETrackedPropertyError * pError)
-{
-	LOG_ENTRY("CppStubGetStringTrackedDeviceProperty");
-	static uint32_t rc = 0;
-	if (pError) { *pError = (vr::ETrackedPropertyError)0; }
-	LOG_EXIT_RC(rc, "CppStubGetStringTrackedDeviceProperty");
-}
+	uint32_t VRSystemCppStub::GetArrayTrackedDeviceProperty(vr::TrackedDeviceIndex_t, vr::ETrackedDeviceProperty, vr::PropertyTypeTag_t, void *, uint32_t, vr::ETrackedPropertyError *pError)
+	{
+		LOG_ENTRY("GetArrayTrackedDeviceProperty");
+		static uint32_t rc = 0;
+		if (pError) { *pError = (vr::ETrackedPropertyError)0; }
+		LOG_EXIT_RC(rc, "GetArrayTrackedDeviceProperty");
+	}
 
-const char * VRSystemCppStub::GetPropErrorNameFromEnum(vr::ETrackedPropertyError error)
-{
-	LOG_ENTRY("CppStubGetPropErrorNameFromEnum");
-	static const char * rc = "";
-	LOG_EXIT_RC(rc, "CppStubGetPropErrorNameFromEnum");
-}
+		uint32_t VRSystemCppStub::GetStringTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, char * pchValue, uint32_t unBufferSize, vr::ETrackedPropertyError * pError)
+	{
+		LOG_ENTRY("CppStubGetStringTrackedDeviceProperty");
+		static uint32_t rc = 0;
+		if (pError) { *pError = (vr::ETrackedPropertyError)0; }
+		LOG_EXIT_RC(rc, "CppStubGetStringTrackedDeviceProperty");
+	}
 
-bool VRSystemCppStub::PollNextEvent(struct vr::VREvent_t * pEvent, uint32_t uncbVREvent)
-{
-	LOG_ENTRY("CppStubPollNextEvent");
-	static bool rc = false;
-	LOG_EXIT_RC(rc, "CppStubPollNextEvent");
-}
+	const char * VRSystemCppStub::GetPropErrorNameFromEnum(vr::ETrackedPropertyError error)
+	{
+		LOG_ENTRY("CppStubGetPropErrorNameFromEnum");
+		static const char * rc = "";
+		LOG_EXIT_RC(rc, "CppStubGetPropErrorNameFromEnum");
+	}
 
-bool VRSystemCppStub::PollNextEventWithPose(vr::ETrackingUniverseOrigin eOrigin, struct vr::VREvent_t * pEvent, uint32_t uncbVREvent, vr::TrackedDevicePose_t * pTrackedDevicePose)
-{
-	LOG_ENTRY("CppStubPollNextEventWithPose");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubPollNextEventWithPose");
-}
+	bool VRSystemCppStub::PollNextEvent(struct vr::VREvent_t * pEvent, uint32_t uncbVREvent)
+	{
+		LOG_ENTRY("CppStubPollNextEvent");
+		static bool rc = false;
+		LOG_EXIT_RC(rc, "CppStubPollNextEvent");
+	}
 
-const char * VRSystemCppStub::GetEventTypeNameFromEnum(vr::EVREventType eType)
-{
-	LOG_ENTRY("CppStubGetEventTypeNameFromEnum");
-	static const char * rc = "";
-	LOG_EXIT_RC(rc, "CppStubGetEventTypeNameFromEnum");
-}
+	bool VRSystemCppStub::PollNextEventWithPose(vr::ETrackingUniverseOrigin eOrigin, struct vr::VREvent_t * pEvent, uint32_t uncbVREvent, vr::TrackedDevicePose_t * pTrackedDevicePose)
+	{
+		LOG_ENTRY("CppStubPollNextEventWithPose");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubPollNextEventWithPose");
+	}
 
-struct vr::HiddenAreaMesh_t VRSystemCppStub::GetHiddenAreaMesh(vr::EVREye eEye, vr::EHiddenAreaMeshType type)
-{
-	LOG_ENTRY("CppStubGetHiddenAreaMesh");
-	static struct vr::HiddenAreaMesh_t rc;
-	LOG_EXIT_RC(rc, "CppStubGetHiddenAreaMesh");
-}
+	const char * VRSystemCppStub::GetEventTypeNameFromEnum(vr::EVREventType eType)
+	{
+		LOG_ENTRY("CppStubGetEventTypeNameFromEnum");
+		static const char * rc = "";
+		LOG_EXIT_RC(rc, "CppStubGetEventTypeNameFromEnum");
+	}
 
-bool VRSystemCppStub::GetControllerState(vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t * pControllerState, uint32_t unControllerStateSize)
-{
-	LOG_ENTRY("CppStubGetControllerState");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubGetControllerState");
-}
+	struct vr::HiddenAreaMesh_t VRSystemCppStub::GetHiddenAreaMesh(vr::EVREye eEye, vr::EHiddenAreaMeshType type)
+	{
+		LOG_ENTRY("CppStubGetHiddenAreaMesh");
+		static struct vr::HiddenAreaMesh_t rc;
+		LOG_EXIT_RC(rc, "CppStubGetHiddenAreaMesh");
+	}
 
-bool VRSystemCppStub::GetControllerStateWithPose(vr::ETrackingUniverseOrigin eOrigin, vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t * pControllerState, uint32_t unControllerStateSize, struct vr::TrackedDevicePose_t * pTrackedDevicePose)
-{
-	LOG_ENTRY("CppStubGetControllerStateWithPose");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubGetControllerStateWithPose");
-}
+	bool VRSystemCppStub::GetControllerState(vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t * pControllerState, uint32_t unControllerStateSize)
+	{
+		LOG_ENTRY("CppStubGetControllerState");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubGetControllerState");
+	}
 
-void VRSystemCppStub::TriggerHapticPulse(vr::TrackedDeviceIndex_t unControllerDeviceIndex, uint32_t unAxisId, unsigned short usDurationMicroSec)
-{
-	LOG_ENTRY("CppStubTriggerHapticPulse");
-	LOG_EXIT("CppStubTriggerHapticPulse");
-}
+	bool VRSystemCppStub::GetControllerStateWithPose(vr::ETrackingUniverseOrigin eOrigin, vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t * pControllerState, uint32_t unControllerStateSize, struct vr::TrackedDevicePose_t * pTrackedDevicePose)
+	{
+		LOG_ENTRY("CppStubGetControllerStateWithPose");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "CppStubGetControllerStateWithPose");
+	}
 
-const char * VRSystemCppStub::GetButtonIdNameFromEnum(vr::EVRButtonId eButtonId)
-{
-	LOG_ENTRY("CppStubGetButtonIdNameFromEnum");
-	static const char * rc = "";
-	LOG_EXIT_RC(rc, "CppStubGetButtonIdNameFromEnum");
-}
+	void VRSystemCppStub::TriggerHapticPulse(vr::TrackedDeviceIndex_t unControllerDeviceIndex, uint32_t unAxisId, unsigned short usDurationMicroSec)
+	{
+		LOG_ENTRY("CppStubTriggerHapticPulse");
+		LOG_EXIT("CppStubTriggerHapticPulse");
+	}
 
-const char * VRSystemCppStub::GetControllerAxisTypeNameFromEnum(vr::EVRControllerAxisType eAxisType)
-{
-	LOG_ENTRY("CppStubGetControllerAxisTypeNameFromEnum");
-	static const char * rc = "";
-	LOG_EXIT_RC(rc, "CppStubGetControllerAxisTypeNameFromEnum");
-}
+	const char * VRSystemCppStub::GetButtonIdNameFromEnum(vr::EVRButtonId eButtonId)
+	{
+		LOG_ENTRY("CppStubGetButtonIdNameFromEnum");
+		static const char * rc = "";
+		LOG_EXIT_RC(rc, "CppStubGetButtonIdNameFromEnum");
+	}
 
-bool VRSystemCppStub::CaptureInputFocus()
-{
-	LOG_ENTRY("CppStubCaptureInputFocus");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubCaptureInputFocus");
-}
+	const char * VRSystemCppStub::GetControllerAxisTypeNameFromEnum(vr::EVRControllerAxisType eAxisType)
+	{
+		LOG_ENTRY("CppStubGetControllerAxisTypeNameFromEnum");
+		static const char * rc = "";
+		LOG_EXIT_RC(rc, "CppStubGetControllerAxisTypeNameFromEnum");
+	}
 
-void VRSystemCppStub::ReleaseInputFocus()
-{
-	LOG_ENTRY("CppStubReleaseInputFocus");
-	LOG_EXIT("CppStubReleaseInputFocus");
-}
+	bool VRSystemCppStub::IsInputAvailable()
+	{
+		LOG_ENTRY("IsInputAvailable");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "IsInputAvailable");
+	}
 
-bool VRSystemCppStub::IsInputFocusCapturedByAnotherProcess()
-{
-	LOG_ENTRY("CppStubIsInputFocusCapturedByAnotherProcess");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubIsInputFocusCapturedByAnotherProcess");
-}
+	bool VRSystemCppStub::IsSteamVRDrawingControllers()
+	{
+		LOG_ENTRY("IsSteamVRDrawingControllers");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "IsSteamVRDrawingControllers");
+	}
+	
+	bool VRSystemCppStub::ShouldApplicationPause()
+	{
+		LOG_ENTRY("ShouldApplicationPause");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "ShouldApplicationPause");
+	}
 
-uint32_t VRSystemCppStub::DriverDebugRequest(vr::TrackedDeviceIndex_t unDeviceIndex, const char * pchRequest, char * pchResponseBuffer, uint32_t unResponseBufferSize)
-{
-	LOG_ENTRY("CppStubDriverDebugRequest");
-	static uint32_t rc = 0;
-	LOG_EXIT_RC(rc, "CppStubDriverDebugRequest");
-}
+	bool VRSystemCppStub::ShouldApplicationReduceRenderingWork()
+	{
+		LOG_ENTRY("ShouldApplicationReduceRenderingWork");
+		static bool rc = true;
+		LOG_EXIT_RC(rc, "ShouldApplicationReduceRenderingWork");
+	}
 
-vr::EVRFirmwareError VRSystemCppStub::PerformFirmwareUpdate(vr::TrackedDeviceIndex_t unDeviceIndex)
-{
-	LOG_ENTRY("CppStubPerformFirmwareUpdate");
-	static vr::EVRFirmwareError rc;
-	LOG_EXIT_RC(rc, "CppStubPerformFirmwareUpdate");
-}
+	uint32_t VRSystemCppStub::DriverDebugRequest(vr::TrackedDeviceIndex_t unDeviceIndex, const char * pchRequest, char * pchResponseBuffer, uint32_t unResponseBufferSize)
+	{
+		LOG_ENTRY("CppStubDriverDebugRequest");
+		static uint32_t rc = 0;
+		LOG_EXIT_RC(rc, "CppStubDriverDebugRequest");
+	}
 
-void VRSystemCppStub::AcknowledgeQuit_Exiting()
-{
-	LOG_ENTRY("CppStubAcknowledgeQuit_Exiting");
-	LOG_EXIT("CppStubAcknowledgeQuit_Exiting");
-}
+	vr::EVRFirmwareError VRSystemCppStub::PerformFirmwareUpdate(vr::TrackedDeviceIndex_t unDeviceIndex)
+	{
+		LOG_ENTRY("CppStubPerformFirmwareUpdate");
+		static vr::EVRFirmwareError rc;
+		LOG_EXIT_RC(rc, "CppStubPerformFirmwareUpdate");
+	}
 
-void VRSystemCppStub::AcknowledgeQuit_UserPrompt()
-{
-	LOG_ENTRY("CppStubAcknowledgeQuit_UserPrompt");
-	LOG_EXIT("CppStubAcknowledgeQuit_UserPrompt");
-}
+	void VRSystemCppStub::AcknowledgeQuit_Exiting()
+	{
+		LOG_ENTRY("CppStubAcknowledgeQuit_Exiting");
+		LOG_EXIT("CppStubAcknowledgeQuit_Exiting");
+	}
+
+	void VRSystemCppStub::AcknowledgeQuit_UserPrompt()
+	{
+		LOG_ENTRY("CppStubAcknowledgeQuit_UserPrompt");
+		LOG_EXIT("CppStubAcknowledgeQuit_UserPrompt");
+	}
 
 void VRExtendedDisplayCppStub::GetWindowBounds(int32_t * pnX, int32_t * pnY, uint32_t * pnWidth, uint32_t * pnHeight)
 {
@@ -1124,6 +1144,19 @@ uint32_t VRCompositorCppStub::GetVulkanDeviceExtensionsRequired(struct VkPhysica
 	LOG_EXIT_RC(rc, "CppStubGetVulkanDeviceExtensionsRequired");
 }
 
+void VRCompositorCppStub::SetExplicitTimingMode(vr::EVRCompositorTimingMode eTimingMode)
+{
+	LOG_ENTRY("CppStubSetExplicitTimingMode");
+	LOG_EXIT("CppStubSetExplicitTimingMode");
+}
+
+vr::EVRCompositorError VRCompositorCppStub::SubmitExplicitTimingData()
+{
+	LOG_ENTRY("CppStubSubmitExplicitTimingData");
+	static vr::EVRCompositorError rc = vr::VRCompositorError_None;
+	LOG_EXIT_RC(rc, "CppStubSubmitExplicitTimingData");
+}
+
 vr::EVROverlayError VROverlayCppStub::FindOverlay(const char * pchOverlayKey, vr::VROverlayHandle_t * pOverlayHandle)
 {
 	LOG_ENTRY("CppStubFindOverlay");
@@ -1482,13 +1515,6 @@ bool VROverlayCppStub::ComputeOverlayIntersection(vr::VROverlayHandle_t ulOverla
 	LOG_EXIT_RC(rc, "CppStubComputeOverlayIntersection");
 }
 
-bool VROverlayCppStub::HandleControllerOverlayInteractionAsMouse(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t unControllerDeviceIndex)
-{
-	LOG_ENTRY("CppStubHandleControllerOverlayInteractionAsMouse");
-	static bool rc = true;
-	LOG_EXIT_RC(rc, "CppStubHandleControllerOverlayInteractionAsMouse");
-}
-
 bool VROverlayCppStub::IsHoverTargetOverlay(vr::VROverlayHandle_t ulOverlayHandle)
 {
 	LOG_ENTRY("CppStubIsHoverTargetOverlay");
@@ -1522,6 +1548,19 @@ vr::EVROverlayError VROverlayCppStub::MoveGamepadFocusToNeighbor(vr::EOverlayDir
 	LOG_ENTRY("CppStubMoveGamepadFocusToNeighbor");
 	static vr::EVROverlayError rc;
 	LOG_EXIT_RC(rc, "CppStubMoveGamepadFocusToNeighbor");
+}
+
+vr::EVROverlayError VROverlayCppStub::SetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, const vr::HmdVector2_t & vCenter, float fRadius)
+{
+	LOG_ENTRY("SetOverlayDualAnalogTransform");
+	static vr::EVROverlayError rc;
+	LOG_EXIT_RC(rc, "SetOverlayDualAnalogTransform");
+}
+vr::EVROverlayError VROverlayCppStub::GetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, vr::HmdVector2_t *pvCenter, float *pfRadius)
+{
+	LOG_ENTRY("GetOverlayDualAnalogTransform");
+	static vr::EVROverlayError rc;
+	LOG_EXIT_RC(rc, "GetOverlayDualAnalogTransform");
 }
 
 vr::EVROverlayError VROverlayCppStub::SetOverlayTexture(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::Texture_t * pTexture)
@@ -1679,6 +1718,12 @@ vr::VRMessageOverlayResponse VROverlayCppStub::ShowMessageOverlay(const char * p
 	LOG_ENTRY("CppStubShowMessageOverlay");
 	static vr::VRMessageOverlayResponse rc;
 	LOG_EXIT_RC(rc, "CppStubShowMessageOverlay");
+}
+
+void VROverlayCppStub::CloseMessageOverlay()
+{
+	LOG_ENTRY("CloseMessageOverlay");
+	LOG_EXIT("CloseMessageOverlay");
 }
 
 vr::EVRRenderModelError VRRenderModelsCppStub::LoadRenderModel_Async(const char * pchRenderModelName, struct vr::RenderModel_t ** ppRenderModel)

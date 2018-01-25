@@ -10,10 +10,9 @@ extern void test_cursors();
 extern void test_controller();
 extern void test_monitor();
 
-int main()
+void run_unit_tests()
 {
 	test_keys();
-
 	test_traverse();
 	test_monitor();
 	test_controller();
@@ -22,4 +21,13 @@ int main()
 	test_capture();
 	test_cursors();
 	log_printf("all tests done\n");
+}
+
+extern void test_campfire();
+
+
+int main()
+{
+	test_campfire();
+	run_unit_tests();
 }

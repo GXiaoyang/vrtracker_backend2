@@ -711,9 +711,9 @@ const char * VRSystemCursor::GetControllerAxisTypeNameFromEnum(vr::EVRController
 	LOG_EXIT_RC(rc, "CppStubGetControllerAxisTypeNameFromEnum");
 }
 
-bool VRSystemCursor::IsInputFocusCapturedByAnotherProcess()
+bool VRSystemCursor::IsInputAvailable()
 {
 	LOG_ENTRY("CppStubIsInputFocusCapturedByAnotherProcess");
-	CURSOR_SYNC_STATE(input_focus_captured_by_other, input_focus_captured_by_other);
-	LOG_EXIT_RC(input_focus_captured_by_other->val, "CppStubIsInputFocusCapturedByAnotherProcess");
+	CURSOR_SYNC_STATE(input_available, input_available);
+	LOG_EXIT_RC(input_available->val, "CppStubIsInputFocusCapturedByAnotherProcess");
 }

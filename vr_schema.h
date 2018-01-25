@@ -169,7 +169,7 @@ namespace vr_result
 				INIT(num_controller),
 				INIT(num_tracking),
 				INIT(num_reference),
-				INIT(input_focus_captured_by_other),
+				INIT(input_available),
 				INIT(d3d9_adapter_index),
 				INIT(output_devices),
 				INIT(dxgi_output_info),
@@ -190,7 +190,7 @@ namespace vr_result
 			TIMENODE<Uint32<>> num_controller;
 			TIMENODE<Uint32<>> num_tracking;
 			TIMENODE<Uint32<>> num_reference;
-			TIMENODE<Bool<>> input_focus_captured_by_other;
+			TIMENODE<Bool<>> input_available;
 			TIMENODE<Int32<>> d3d9_adapter_index;
 			TIMENODE<OutputDevices<>> output_devices;
 			TIMENODE<Int32<>> dxgi_output_info;

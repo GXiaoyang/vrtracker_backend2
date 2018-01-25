@@ -47,7 +47,8 @@ public:
 	bool GetControllerStateWithPose(vr::ETrackingUniverseOrigin eOrigin, vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t * pControllerState, uint32_t unControllerStateSize, struct vr::TrackedDevicePose_t * pTrackedDevicePose) override;
 	const char * GetButtonIdNameFromEnum(vr::EVRButtonId eButtonId) override;
 	const char * GetControllerAxisTypeNameFromEnum(vr::EVRControllerAxisType eAxisType) override;
-	bool IsInputFocusCapturedByAnotherProcess() override;
+	bool IsInputAvailable() override;
+
 
 	bool IsValidDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex);
 	bool lookup_property_index(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop_enum,

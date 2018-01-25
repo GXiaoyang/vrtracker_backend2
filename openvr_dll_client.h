@@ -1,7 +1,8 @@
 #pragma once
 
 //
-// opens a dll and queries for openvr interfaces
+// opens an openvr dll, queries for openvr interfaces and returns them 
+// as openvr_broker openvr_interfaces
 //
 
 #include "openvr_broker.h"
@@ -19,8 +20,8 @@ public:
 	bool open_lib(LPCTSTR library_name, LPCTSTR extra_path);
 	bool is_open() { return internals != nullptr; }
 	bool close_lib();
-	openvr_broker::open_vr_interfaces *cpp_interfaces();
-	openvr_broker::open_vr_interfaces_void *c_interfaces();
+	openvr_broker::open_vr_interfaces *cpp_interfaces();		// return interfaces as C interfaces
+	openvr_broker::open_vr_interfaces_void *c_interfaces();		// return interfaces as C++ interfaces
 private:
 	struct imp;
 	imp *internals;

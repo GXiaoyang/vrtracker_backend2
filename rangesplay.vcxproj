@@ -278,6 +278,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="test_campfire.cpp" />
     <ClCompile Include="texture_service.cpp" />
     <ClCompile Include="unit_tests\capture_test_context.cpp" />
     <ClCompile Include="unit_tests\controller_test_main.cpp" />

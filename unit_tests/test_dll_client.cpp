@@ -1,6 +1,5 @@
 //
-// test things that traverse the schema:
-//	serialization and update
+// test opening a dll 
 //
 #include "log.h"
 #include "openvr_dll_client.h"

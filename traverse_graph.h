@@ -412,7 +412,6 @@ static void visit_system_node(
 			VISIT(num_controller, sysw->CountDevicesOfClass(vr::TrackedDeviceClass_Controller));
 			VISIT(num_tracking, sysw->CountDevicesOfClass(vr::TrackedDeviceClass_GenericTracker));
 			VISIT(num_reference, sysw->CountDevicesOfClass(TrackedDeviceClass_TrackingReference));
-			VISIT(input_focus_captured_by_other, sysw->IsInputFocusCapturedByAnotherProcess());
 		});
 
 		g.run("system scalars3",
@@ -906,7 +905,7 @@ static void visit_settings_node(
 			ss->sections.reserve(vr::k_unMaxTrackedDeviceCount);
 			while (size_as_int(ss->sections.size()) < required_size)
 			{
-				int section = ss->sections.size();
+				int section = size_as_int(ss->sections.size());
 				const char *section_name = keys->GetSettingsIndexer().GetSectionName(section);
 				visitor->spawn_child(ss->sections, section_name);
 			}
@@ -1418,7 +1417,7 @@ static void visit_rendermodel_state(visitor_fn *visitor, vr_state::render_models
 		{
 			ss->models.reserve(num_render_models);
 			TMPString<> name;
-			wrap->GetRenderModelName(ss->models.size(), &name);
+			wrap->GetRenderModelName(size_as_uint32(ss->models.size()), &name);
 			visitor->spawn_child(ss->models, name.val.data());
 			ss->structure_version += 1;
 		}

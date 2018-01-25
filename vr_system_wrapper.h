@@ -81,7 +81,7 @@ struct SystemWrapper
 		return make_result(sysi->GetSortedTrackedDeviceIndicesOfClass(device_class, nullptr, 0));
 	}
 
-	SCALAR_WRAP(IVRSystem, sysi, IsInputFocusCapturedByAnotherProcess);
+	SCALAR_WRAP(IVRSystem, sysi, IsInputAvailable);
 	SCALAR_WRAP(IVRSystem, sysi, GetSeatedZeroPoseToStandingAbsoluteTrackingPose);
 	SCALAR_WRAP(IVRSystem, sysi, GetRawZeroPoseToStandingAbsoluteTrackingPose);
 

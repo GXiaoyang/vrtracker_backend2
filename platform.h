@@ -27,6 +27,11 @@ constexpr int size_as_int(const T &size_in) {
 	return static_cast<int>(size_in);
 }
 
+template <typename T>
+constexpr int size_as_uint32(const T &size_in) {
+	return static_cast<uint32_t>(size_in);
+}
+
 constexpr int ptrdiff_as_int(const ptrdiff_t &size_in) {
 	return static_cast<int>(size_in);
 }

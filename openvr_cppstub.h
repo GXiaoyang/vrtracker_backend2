@@ -1,54 +1,57 @@
 #pragma once
 #include <openvr.h>
-class VRSystemCppStub : public vr::IVRSystem
-{
-public:
-  void GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight) override;
-  struct vr::HmdMatrix44_t GetProjectionMatrix(vr::EVREye eEye, float fNearZ, float fFarZ) override;
-  void GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * pfRight, float * pfTop, float * pfBottom) override;
-  bool ComputeDistortion(vr::EVREye eEye, float fU, float fV, struct vr::DistortionCoordinates_t * pDistortionCoordinates) override;
-  struct vr::HmdMatrix34_t GetEyeToHeadTransform(vr::EVREye eEye) override;
-  bool GetTimeSinceLastVsync(float * pfSecondsSinceLastVsync, uint64_t * pulFrameCounter) override;
-  int32_t GetD3D9AdapterIndex() override;
-  void GetDXGIOutputInfo(int32_t * pnAdapterIndex) override;
-  void GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType) override;
-  bool IsDisplayOnDesktop() override;
-  bool SetDisplayVisibility(bool bIsVisibleOnDesktop) override;
-  void GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow, struct vr::TrackedDevicePose_t * pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount) override;
-  void ResetSeatedZeroPose() override;
-  struct vr::HmdMatrix34_t GetSeatedZeroPoseToStandingAbsoluteTrackingPose() override;
-  struct vr::HmdMatrix34_t GetRawZeroPoseToStandingAbsoluteTrackingPose() override;
-  uint32_t GetSortedTrackedDeviceIndicesOfClass(vr::ETrackedDeviceClass eTrackedDeviceClass, vr::TrackedDeviceIndex_t * punTrackedDeviceIndexArray, uint32_t unTrackedDeviceIndexArrayCount, vr::TrackedDeviceIndex_t unRelativeToTrackedDeviceIndex) override;
-  vr::EDeviceActivityLevel GetTrackedDeviceActivityLevel(vr::TrackedDeviceIndex_t unDeviceId) override;
-  void ApplyTransform(struct vr::TrackedDevicePose_t * pOutputPose, const struct vr::TrackedDevicePose_t * pTrackedDevicePose, const struct vr::HmdMatrix34_t * pTransform) override;
-  vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForControllerRole(vr::ETrackedControllerRole unDeviceType) override;
-  vr::ETrackedControllerRole GetControllerRoleForTrackedDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex) override;
-  vr::ETrackedDeviceClass GetTrackedDeviceClass(vr::TrackedDeviceIndex_t unDeviceIndex) override;
-  bool IsTrackedDeviceConnected(vr::TrackedDeviceIndex_t unDeviceIndex) override;
-  bool GetBoolTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) override;
-  float GetFloatTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) override;
-  int32_t GetInt32TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) override;
-  uint64_t GetUint64TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) override;
-  struct vr::HmdMatrix34_t GetMatrix34TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError * pError) override;
-  uint32_t GetStringTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, char * pchValue, uint32_t unBufferSize, vr::ETrackedPropertyError * pError) override;
-  const char * GetPropErrorNameFromEnum(vr::ETrackedPropertyError error) override;
-  bool PollNextEvent(struct vr::VREvent_t * pEvent, uint32_t uncbVREvent) override;
-  bool PollNextEventWithPose(vr::ETrackingUniverseOrigin eOrigin, struct vr::VREvent_t * pEvent, uint32_t uncbVREvent, vr::TrackedDevicePose_t * pTrackedDevicePose) override;
-  const char * GetEventTypeNameFromEnum(vr::EVREventType eType) override;
-  struct vr::HiddenAreaMesh_t GetHiddenAreaMesh(vr::EVREye eEye, vr::EHiddenAreaMeshType type) override;
-  bool GetControllerState(vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t * pControllerState, uint32_t unControllerStateSize) override;
-  bool GetControllerStateWithPose(vr::ETrackingUniverseOrigin eOrigin, vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t * pControllerState, uint32_t unControllerStateSize, struct vr::TrackedDevicePose_t * pTrackedDevicePose) override;
-  void TriggerHapticPulse(vr::TrackedDeviceIndex_t unControllerDeviceIndex, uint32_t unAxisId, unsigned short usDurationMicroSec) override;
-  const char * GetButtonIdNameFromEnum(vr::EVRButtonId eButtonId) override;
-  const char * GetControllerAxisTypeNameFromEnum(vr::EVRControllerAxisType eAxisType) override;
-  bool CaptureInputFocus() override;
-  void ReleaseInputFocus() override;
-  bool IsInputFocusCapturedByAnotherProcess() override;
-  uint32_t DriverDebugRequest(vr::TrackedDeviceIndex_t unDeviceIndex, const char * pchRequest, char * pchResponseBuffer, uint32_t unResponseBufferSize) override;
-  vr::EVRFirmwareError PerformFirmwareUpdate(vr::TrackedDeviceIndex_t unDeviceIndex) override;
-  void AcknowledgeQuit_Exiting() override;
-  void AcknowledgeQuit_UserPrompt() override;
-};
+	class VRSystemCppStub : public vr::IVRSystem
+	{
+	public:
+		void GetRecommendedRenderTargetSize(uint32_t *pnWidth, uint32_t *pnHeight) override;
+		vr::HmdMatrix44_t GetProjectionMatrix(vr::EVREye eEye, float fNearZ, float fFarZ) override;
+		void GetProjectionRaw(vr::EVREye eEye, float *pfLeft, float *pfRight, float *pfTop, float *pfBottom) override;
+		bool ComputeDistortion(vr::EVREye eEye, float fU, float fV, vr::DistortionCoordinates_t *pDistortionCoordinates) override;
+		vr::HmdMatrix34_t GetEyeToHeadTransform(vr::EVREye eEye) override;
+		bool GetTimeSinceLastVsync(float *pfSecondsSinceLastVsync, uint64_t *pulFrameCounter) override;
+		int32_t GetD3D9AdapterIndex() override;
+		void GetDXGIOutputInfo(int32_t *pnAdapterIndex) override;
+		void GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType, VkInstance_T *pInstance = nullptr) override;
+		bool IsDisplayOnDesktop() override;
+		bool SetDisplayVisibility(bool bIsVisibleOnDesktop) override;
+		void GetDeviceToAbsoluteTrackingPose(vr::ETrackingUniverseOrigin eOrigin, float fPredictedSecondsToPhotonsFromNow, VR_ARRAY_COUNT(unTrackedDevicePoseArrayCount) vr::TrackedDevicePose_t *pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount) override;
+		void ResetSeatedZeroPose() override;
+		vr::HmdMatrix34_t GetSeatedZeroPoseToStandingAbsoluteTrackingPose() override;
+		vr::HmdMatrix34_t GetRawZeroPoseToStandingAbsoluteTrackingPose() override;
+		uint32_t GetSortedTrackedDeviceIndicesOfClass(vr::ETrackedDeviceClass ETrackedDeviceClass, VR_ARRAY_COUNT(unTrackedDeviceIndexArrayCount) vr::TrackedDeviceIndex_t *punTrackedDeviceIndexArray, uint32_t unTrackedDeviceIndexArrayCount, vr::TrackedDeviceIndex_t unRelativeToTrackedDeviceIndex) override;
+		vr::EDeviceActivityLevel GetTrackedDeviceActivityLevel(vr::TrackedDeviceIndex_t unDeviceId) override;
+		void ApplyTransform(vr::TrackedDevicePose_t *pOutputPose, const vr::TrackedDevicePose_t *pTrackedDevicePose, const vr::HmdMatrix34_t *pTransform) override;
+		vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForControllerRole(vr::ETrackedControllerRole unDeviceType) override;
+		vr::ETrackedControllerRole GetControllerRoleForTrackedDeviceIndex(vr::TrackedDeviceIndex_t unDeviceIndex) override;
+		vr::ETrackedDeviceClass GetTrackedDeviceClass(vr::TrackedDeviceIndex_t unDeviceIndex) override;
+		bool IsTrackedDeviceConnected(vr::TrackedDeviceIndex_t unDeviceIndex) override;
+		bool GetBoolTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *pError = 0L) override;
+		float GetFloatTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *pError = 0L) override;
+		int32_t GetInt32TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *pError = 0L) override;
+		uint64_t GetUint64TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *pError = 0L) override;
+		vr::HmdMatrix34_t GetMatrix34TrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *pError = 0L) override;
+		uint32_t GetArrayTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, vr::PropertyTypeTag_t propType, void *pBuffer, uint32_t unBufferSize, vr::ETrackedPropertyError *pError = 0L) override;
+		uint32_t GetStringTrackedDeviceProperty(vr::TrackedDeviceIndex_t unDeviceIndex, vr::ETrackedDeviceProperty prop, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize, vr::ETrackedPropertyError *pError = 0L) override;
+		const char *GetPropErrorNameFromEnum(vr::ETrackedPropertyError error) override;
+		bool PollNextEvent(vr::VREvent_t *pEvent, uint32_t uncbVREvent) override;
+		bool PollNextEventWithPose(vr::ETrackingUniverseOrigin eOrigin, vr::VREvent_t *pEvent, uint32_t uncbVREvent, vr::TrackedDevicePose_t *pTrackedDevicePose) override;
+		const char *GetEventTypeNameFromEnum(vr::EVREventType eType) override;
+		vr::HiddenAreaMesh_t GetHiddenAreaMesh(vr::EVREye eEye, vr::EHiddenAreaMeshType type) override;
+		bool GetControllerState(vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t *pControllerState, uint32_t unControllerStateSize) override;
+		bool GetControllerStateWithPose(vr::ETrackingUniverseOrigin eOrigin, vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t *pControllerState, uint32_t unControllerStateSize, vr::TrackedDevicePose_t *pTrackedDevicePose) override;
+		void TriggerHapticPulse(vr::TrackedDeviceIndex_t unControllerDeviceIndex, uint32_t unAxisId, unsigned short usDurationMicroSec) override;
+		const char *GetButtonIdNameFromEnum(vr::EVRButtonId eButtonId) override;
+		const char *GetControllerAxisTypeNameFromEnum(vr::EVRControllerAxisType eAxisType) override;
+		bool IsInputAvailable() override;
+		bool IsSteamVRDrawingControllers() override;
+		bool ShouldApplicationPause() override;
+		bool ShouldApplicationReduceRenderingWork() override;
+		uint32_t DriverDebugRequest(vr::TrackedDeviceIndex_t unDeviceIndex, const char *pchRequest, VR_OUT_STRING() char *pchResponseBuffer, uint32_t unResponseBufferSize) override;
+		vr::EVRFirmwareError PerformFirmwareUpdate(vr::TrackedDeviceIndex_t unDeviceIndex) override;
+		void AcknowledgeQuit_Exiting() override;
+		void AcknowledgeQuit_UserPrompt() override;
+	};
+
 class VRExtendedDisplayCppStub : public vr::IVRExtendedDisplay
 {
 public:
@@ -187,7 +190,10 @@ public:
   void UnlockGLSharedTextureForAccess(vr::glSharedTextureHandle_t glSharedTextureHandle) override;
   uint32_t GetVulkanInstanceExtensionsRequired(char * pchValue, uint32_t unBufferSize) override;
   uint32_t GetVulkanDeviceExtensionsRequired(struct VkPhysicalDevice_T * pPhysicalDevice, char * pchValue, uint32_t unBufferSize) override;
+  void SetExplicitTimingMode(vr::EVRCompositorTimingMode eTimingMode) override;
+  vr::EVRCompositorError SubmitExplicitTimingData() override;
 };
+
 class VROverlayCppStub : public vr::IVROverlay
 {
 public:
@@ -243,12 +249,14 @@ public:
   vr::EVROverlayError GetOverlayMouseScale(vr::VROverlayHandle_t ulOverlayHandle, struct vr::HmdVector2_t * pvecMouseScale) override;
   vr::EVROverlayError SetOverlayMouseScale(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::HmdVector2_t * pvecMouseScale) override;
   bool ComputeOverlayIntersection(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::VROverlayIntersectionParams_t * pParams, struct vr::VROverlayIntersectionResults_t * pResults) override;
-  bool HandleControllerOverlayInteractionAsMouse(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t unControllerDeviceIndex) override;
   bool IsHoverTargetOverlay(vr::VROverlayHandle_t ulOverlayHandle) override;
   vr::VROverlayHandle_t GetGamepadFocusOverlay() override;
   vr::EVROverlayError SetGamepadFocusOverlay(vr::VROverlayHandle_t ulNewFocusOverlay) override;
   vr::EVROverlayError SetOverlayNeighbor(vr::EOverlayDirection eDirection, vr::VROverlayHandle_t ulFrom, vr::VROverlayHandle_t ulTo) override;
   vr::EVROverlayError MoveGamepadFocusToNeighbor(vr::EOverlayDirection eDirection, vr::VROverlayHandle_t ulFrom) override;
+  vr::EVROverlayError SetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, const vr::HmdVector2_t & vCenter, float fRadius) override;
+  vr::EVROverlayError GetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, vr::HmdVector2_t *pvCenter, float *pfRadius) override;
+
   vr::EVROverlayError SetOverlayTexture(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::Texture_t * pTexture) override;
   vr::EVROverlayError ClearOverlayTexture(vr::VROverlayHandle_t ulOverlayHandle) override;
   vr::EVROverlayError SetOverlayRaw(vr::VROverlayHandle_t ulOverlayHandle, void * pvBuffer, uint32_t unWidth, uint32_t unHeight, uint32_t unDepth) override;
@@ -272,6 +280,7 @@ public:
   vr::EVROverlayError SetOverlayIntersectionMask(vr::VROverlayHandle_t ulOverlayHandle, struct vr::VROverlayIntersectionMaskPrimitive_t * pMaskPrimitives, uint32_t unNumMaskPrimitives, uint32_t unPrimitiveSize) override;
   vr::EVROverlayError GetOverlayFlags(vr::VROverlayHandle_t ulOverlayHandle, uint32_t * pFlags) override;
   vr::VRMessageOverlayResponse ShowMessageOverlay(const char * pchText, const char * pchCaption, const char * pchButton0Text, const char * pchButton1Text, const char * pchButton2Text, const char * pchButton3Text) override;
+  void CloseMessageOverlay() override;
 };
 class VRRenderModelsCppStub : public vr::IVRRenderModels
 {

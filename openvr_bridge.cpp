@@ -319,10 +319,10 @@ void openvr_bridge::GetDXGIOutputInfo(int32_t * pnAdapterIndex)
    LOG_EXIT("BridgeGetDXGIOutputInfo");
 }
 
-void openvr_bridge::GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType)
+void openvr_bridge::GetOutputDevice(uint64_t *pnDevice, vr::ETextureType textureType, VkInstance_T *pInstance)
 {
 	LOG_ENTRY("BridgeGetOutputDevice");
-	m_down_stream.sysi->GetOutputDevice(pnDevice, textureType);
+	m_down_stream.sysi->GetOutputDevice(pnDevice, textureType, pInstance);
 	LOG_EXIT("BridgeGetOutputDevice");
 }
 
@@ -673,6 +673,12 @@ struct vr::HmdMatrix34_t openvr_bridge::GetMatrix34TrackedDeviceProperty(
    LOG_EXIT_RC(rc, "BridgeGetMatrix34TrackedDeviceProperty");
 }
 
+uint32_t openvr_bridge::GetArrayTrackedDeviceProperty(vr::TrackedDeviceIndex_t, vr::ETrackedDeviceProperty, vr::PropertyTypeTag_t, void *, uint32_t, vr::ETrackedPropertyError *)
+{
+	assert(0 && "todo!");
+	return 0;
+}
+
 uint32_t openvr_bridge::GetStringTrackedDeviceProperty(
 	vr::TrackedDeviceIndex_t unDeviceIndex, 
 	vr::ETrackedDeviceProperty prop, char * pchValue, uint32_t unBufferSize, vr::ETrackedPropertyError * pError)
@@ -867,34 +873,64 @@ const char * openvr_bridge::GetControllerAxisTypeNameFromEnum(vr::EVRControllerA
    LOG_EXIT_RC(rc, "BridgeGetControllerAxisTypeNameFromEnum");
 }
 
-bool openvr_bridge::CaptureInputFocus()
+bool openvr_bridge::IsInputAvailable()
 {
-   LOG_ENTRY("BridgeCaptureInputFocus");
-   bool rc;
-	rc = m_down_stream.sysi->CaptureInputFocus();
-   LOG_EXIT_RC(rc, "BridgeCaptureInputFocus");
-}
-
-void openvr_bridge::ReleaseInputFocus()
-{
-   LOG_ENTRY("BridgeReleaseInputFocus");
-   m_down_stream.sysi->ReleaseInputFocus();
-   LOG_EXIT("BridgeReleaseInputFocus");
-}
-
-bool openvr_bridge::IsInputFocusCapturedByAnotherProcess()
-{
-   LOG_ENTRY("BridgeIsInputFocusCapturedByAnotherProcess");
-   bool rc = m_down_stream.sysi->IsInputFocusCapturedByAnotherProcess();
+   LOG_ENTRY("BridgeIsInputAvailable");
+   bool rc = m_down_stream.sysi->IsInputAvailable();
 
    if (m_lock_step_train_tracker)
    {
 	   refresh_lockstep_capture();
-	   bool tracker_rc = m_lock_step_tracker.sysi->IsInputFocusCapturedByAnotherProcess();
+	   bool tracker_rc = m_lock_step_tracker.sysi->IsInputAvailable();
 	   TRAIN_TRACKER_ASSERT(rc == tracker_rc);
    }
 
-   LOG_EXIT_RC(rc, "BridgeIsInputFocusCapturedByAnotherProcess");
+   LOG_EXIT_RC(rc, "BridgeIsInputAvailable");
+}
+
+bool openvr_bridge::IsSteamVRDrawingControllers()
+{
+	LOG_ENTRY("IsSteamVRDrawingControllers");
+	bool rc = m_down_stream.sysi->IsSteamVRDrawingControllers();
+
+	if (m_lock_step_train_tracker)
+	{
+		refresh_lockstep_capture();
+		bool tracker_rc = m_lock_step_tracker.sysi->IsSteamVRDrawingControllers();
+		TRAIN_TRACKER_ASSERT(rc == tracker_rc);
+	}
+
+	LOG_EXIT_RC(rc, "IsSteamVRDrawingControllers");
+}
+
+bool openvr_bridge::ShouldApplicationPause()
+{
+	LOG_ENTRY("ShouldApplicationPause");
+	bool rc = m_down_stream.sysi->ShouldApplicationPause();
+
+	if (m_lock_step_train_tracker)
+	{
+		refresh_lockstep_capture();
+		bool tracker_rc = m_lock_step_tracker.sysi->ShouldApplicationPause();
+		TRAIN_TRACKER_ASSERT(rc == tracker_rc);
+	}
+
+	LOG_EXIT_RC(rc, "ShouldApplicationPause");
+}
+
+bool openvr_bridge::ShouldApplicationReduceRenderingWork()
+{
+	LOG_ENTRY("ShouldApplicationReduceRenderingWork");
+	bool rc = m_down_stream.sysi->ShouldApplicationReduceRenderingWork();
+
+	if (m_lock_step_train_tracker)
+	{
+		refresh_lockstep_capture();
+		bool tracker_rc = m_lock_step_tracker.sysi->ShouldApplicationReduceRenderingWork();
+		TRAIN_TRACKER_ASSERT(rc == tracker_rc);
+	}
+
+	LOG_EXIT_RC(rc, "ShouldApplicationReduceRenderingWork");
 }
 
 uint32_t openvr_bridge::DriverDebugRequest(
@@ -1779,6 +1815,20 @@ uint32_t openvr_bridge::GetVulkanDeviceExtensionsRequired(struct VkPhysicalDevic
    LOG_EXIT_RC(rc, "BridgeGetVulkanDeviceExtensionsRequired");
 }
 
+void openvr_bridge::SetExplicitTimingMode(vr::EVRCompositorTimingMode eTimingMode)
+{
+	LOG_ENTRY("SetExplicitTimingMode");
+	m_down_stream.compi->SetExplicitTimingMode(eTimingMode);
+	LOG_EXIT("SetExplicitTimingMode");
+}
+
+vr::EVRCompositorError openvr_bridge::SubmitExplicitTimingData()
+{
+	LOG_ENTRY("SubmitExplicitTimingData");
+	vr::EVRCompositorError rc = m_down_stream.compi->SubmitExplicitTimingData();
+	LOG_EXIT_RC(rc, "SubmitExplicitTimingData");
+}
+
 vr::EVROverlayError openvr_bridge::FindOverlay(const char * pchOverlayKey, vr::VROverlayHandle_t * pOverlayHandle)
 {
    LOG_ENTRY("BridgeFindOverlay");
@@ -2137,13 +2187,6 @@ bool openvr_bridge::ComputeOverlayIntersection(vr::VROverlayHandle_t ulOverlayHa
    LOG_EXIT_RC(rc, "BridgeComputeOverlayIntersection");
 }
 
-bool openvr_bridge::HandleControllerOverlayInteractionAsMouse(vr::VROverlayHandle_t ulOverlayHandle, vr::TrackedDeviceIndex_t unControllerDeviceIndex)
-{
-   LOG_ENTRY("BridgeHandleControllerOverlayInteractionAsMouse");
-   bool rc = m_down_stream.ovi->HandleControllerOverlayInteractionAsMouse(ulOverlayHandle,unControllerDeviceIndex);
-   LOG_EXIT_RC(rc, "BridgeHandleControllerOverlayInteractionAsMouse");
-}
-
 bool openvr_bridge::IsHoverTargetOverlay(vr::VROverlayHandle_t ulOverlayHandle)
 {
    LOG_ENTRY("BridgeIsHoverTargetOverlay");
@@ -2177,6 +2220,20 @@ vr::EVROverlayError openvr_bridge::MoveGamepadFocusToNeighbor(vr::EOverlayDirect
    LOG_ENTRY("BridgeMoveGamepadFocusToNeighbor");
    vr::EVROverlayError rc = m_down_stream.ovi->MoveGamepadFocusToNeighbor(eDirection,ulFrom);
    LOG_EXIT_RC(rc, "BridgeMoveGamepadFocusToNeighbor");
+}
+
+vr::EVROverlayError openvr_bridge::SetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, const vr::HmdVector2_t & vCenter, float fRadius)
+{
+	LOG_ENTRY("SetOverlayDualAnalogTransform");
+	vr::EVROverlayError rc = m_down_stream.ovi->SetOverlayDualAnalogTransform(ulOverlay, eWhich, vCenter, fRadius);
+	LOG_EXIT_RC(rc, "SetOverlayDualAnalogTransform");
+}
+
+vr::EVROverlayError openvr_bridge::GetOverlayDualAnalogTransform(vr::VROverlayHandle_t ulOverlay, vr::EDualAnalogWhich eWhich, vr::HmdVector2_t *pvCenter, float *pfRadius)
+{
+	LOG_ENTRY("GetOverlayDualAnalogTransform");
+	vr::EVROverlayError rc = m_down_stream.ovi->GetOverlayDualAnalogTransform(ulOverlay, eWhich, pvCenter, pfRadius);
+	LOG_EXIT_RC(rc, "GetOverlayDualAnalogTransform");
 }
 
 vr::EVROverlayError openvr_bridge::SetOverlayTexture(vr::VROverlayHandle_t ulOverlayHandle, const struct vr::Texture_t * pTexture)
@@ -2338,6 +2395,13 @@ vr::VRMessageOverlayResponse openvr_bridge::ShowMessageOverlay(const char * pchT
    LOG_ENTRY("BridgeShowMessageOverlay");
    vr::VRMessageOverlayResponse rc = m_down_stream.ovi->ShowMessageOverlay(pchText,pchCaption,pchButton0Text,pchButton1Text,pchButton2Text,pchButton3Text);
    LOG_EXIT_RC(rc, "BridgeShowMessageOverlay");
+}
+
+void openvr_bridge::CloseMessageOverlay()
+{
+	LOG_ENTRY("CloseMessageOverlay");
+	m_down_stream.ovi->CloseMessageOverlay();
+	LOG_EXIT("CloseMessageOverlay");
 }
 
 vr::EVRRenderModelError openvr_bridge::LoadRenderModel_Async(const char * pchRenderModelName, struct vr::RenderModel_t ** ppRenderModel)

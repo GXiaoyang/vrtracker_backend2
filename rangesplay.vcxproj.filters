@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\unit tests">
-      <UniqueIdentifier>{e40380c8-f01c-4faa-91af-0571bfdf2b3f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\1 base">
       <UniqueIdentifier>{e5b8d387-ac8b-415b-86fe-5d349bd77190}</UniqueIdentifier>
     </Filter>
@@ -36,9 +33,6 @@
     </Filter>
     <Filter Include="Source Files\5 traverse">
       <UniqueIdentifier>{5f213dd7-4926-444e-a559-ae16253a5b45}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\3 vr keys test">
-      <UniqueIdentifier>{0ac07d45-2135-4267-96fe-f3511496e326}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\5 traverse test">
       <UniqueIdentifier>{bb65b6d6-a7c2-42bf-a024-c1467c7c3ab8}</UniqueIdentifier>
@@ -69,6 +63,12 @@
     </Filter>
     <Filter Include="Source Files\6 cursor controller test">
       <UniqueIdentifier>{dbad0958-b406-4db7-811f-078209d9de20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\main">
+      <UniqueIdentifier>{e40380c8-f01c-4faa-91af-0571bfdf2b3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3 vr schema\3 vr keys test">
+      <UniqueIdentifier>{0ac07d45-2135-4267-96fe-f3511496e326}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -378,7 +378,7 @@
       <Filter>Source Files\3 vr keys</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files\unit tests</Filter>
+      <Filter>Source Files\main</Filter>
     </ClCompile>
     <ClCompile Include="vr_string_indexer.cpp">
       <Filter>Source Files\3 vr keys</Filter>
@@ -450,7 +450,7 @@
       <Filter>Source Files\2 time_containers_unit_test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_vr_keys_main.cpp">
-      <Filter>Source Files\3 vr keys test</Filter>
+      <Filter>Source Files\3 vr schema\3 vr keys test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\UPDATE.cpp">
       <Filter>Source Files\5 traverse test</Filter>
@@ -528,10 +528,10 @@
       <Filter>Source Files\1 base</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_app_indexer.cpp">
-      <Filter>Source Files\3 vr keys test</Filter>
+      <Filter>Source Files\3 vr schema\3 vr keys test</Filter>
     </ClCompile>
     <ClCompile Include="unit_tests\test_texture_indexer.cpp">
-      <Filter>Source Files\3 vr keys test</Filter>
+      <Filter>Source Files\3 vr schema\3 vr keys test</Filter>
     </ClCompile>
     <ClCompile Include="vr_texture_indexer.cpp">
       <Filter>Source Files\3 vr keys</Filter>
@@ -541,6 +541,9 @@
     </ClCompile>
     <ClCompile Include="vr_driver_manager_cursor.cpp">
       <Filter>Source Files\6 cursor controller</Filter>
+    </ClCompile>
+    <ClCompile Include="test_campfire.cpp">
+      <Filter>Source Files\main</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
