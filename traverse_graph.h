@@ -412,6 +412,7 @@ static void visit_system_node(
 			VISIT(num_controller, sysw->CountDevicesOfClass(vr::TrackedDeviceClass_Controller));
 			VISIT(num_tracking, sysw->CountDevicesOfClass(vr::TrackedDeviceClass_GenericTracker));
 			VISIT(num_reference, sysw->CountDevicesOfClass(TrackedDeviceClass_TrackingReference));
+			VISIT(input_available, sysw->IsInputAvailable());
 		});
 
 		g.run("system scalars3",
@@ -1501,7 +1502,7 @@ static void visit_per_controller_state(visitor_fn *visitor,
 		if (ss->cameraframetypes.size() < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES)
 		{
 			ss->cameraframetypes.reserve(EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES);
-			for (int i = ss->cameraframetypes.size(); i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
+			for (int i = size_as_int(ss->cameraframetypes.size()); i < EVRTrackedCameraFrameType::MAX_CAMERA_FRAME_TYPES; i++)
 			{
 				const char *child_name = FrameTypeToGroupName(EVRTrackedCameraFrameType(i));
 				visitor->spawn_child(ss->cameraframetypes, child_name);

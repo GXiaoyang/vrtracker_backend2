@@ -64,9 +64,11 @@ void test_loading_render_model_and_texture(int index, vr::IVRRenderModels *remi,
 
 void test_texture_indexer()
 {
-	capture_test_context context;
-	TextureIndexer& ti(context.get_capture().m_keys.GetTextureIndexer());
-	vr::IVRRenderModels *remi = context.raw_vr_interfaces().remi;
+	capture_test_context context; // utility object used by unit test programs to facilitate setup.
+
+
+	TextureIndexer& ti(context.get_capture().m_keys.GetTextureIndexer()); // taking a reference from the context object will force the indexer to be created
+	vr::IVRRenderModels *remi = context.raw_vr_interfaces().remi; // taking a reference here will force the render model interface to be established into openvr
 
 	for (int i = 0; i < size_as_int(remi->GetRenderModelCount()); i++)
 	{

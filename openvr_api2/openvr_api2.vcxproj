@@ -101,11 +101,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>HAVE_OPEN_VR_RAW;VR_API_EXPORT;_DEBUG;_WINDOWS;_USRDLL;OPENVR_API2_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(OPENVR_BASE)/headers; ..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENVR_BASE)/headers;../thirdparty/tbb/include; ..</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../thirdparty/tbb/build/vs2012/x64/Debug-MT</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

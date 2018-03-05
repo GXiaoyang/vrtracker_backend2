@@ -1,9 +1,15 @@
 // TextureIndexer
-// * Track texture indexes and contents
+//
+// * Assign texture indexes and contents
+// * Provide an asynchronous interface since loading textures can take awhile
+//
 // * Assumptions
 //		I assume textures don't change for a given model.  If they did change, then I could fold
 //      in some CRC mechanism to avoid having to maintain uncompressed textures to be able to do 
 //      diffs.
+// References:
+//	See the comments in vr_keys for a discussion on rationale for having indexes.  Also vr_keys has 
+//  other indexes similar to TextureIndexer.
 //
 #pragma once
 #include "BaseStream.h"
@@ -14,9 +20,6 @@
 #include <mutex>
 #include <texture_service.h>
 
-//
-// Assigns indexes and loads textures
-//
 struct TextureIndexer
 {
 	TextureIndexer();

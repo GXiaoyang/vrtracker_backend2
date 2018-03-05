@@ -214,6 +214,7 @@ struct capture_traverser::impl
 			visitor.url2id.insert({ full_url, i });
 		}
 		traverse_history_graph<ExecuteImmediatelyTaskGroup>(&visitor, capture, &null_wrappers);
+
 	}
 
 	uint64_t calc_keys_size(capture *capture)

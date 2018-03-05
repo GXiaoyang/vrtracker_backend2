@@ -74,10 +74,9 @@ void app_lookup_perf_test(ApplicationsIndexer *ai, vr_result::ApplicationsWrappe
 
 void test_app_indexer()
 {
-	capture_test_context context;
-
-	vr_result::ApplicationsWrapper wrap(context.raw_vr_interfaces().appi);
-	ApplicationsIndexer ai;
+	capture_test_context context;	// utility object used by unit test programs to facilitate setup.
+	vr_result::ApplicationsWrapper wrap(context.raw_vr_interfaces().appi);	// this will force the interface to be bound.
+	ApplicationsIndexer &ai(context.get_capture().m_keys.GetApplicationsIndexer()); // taking a reference here will force the indexer to be initialized.
 	app_lookup_perf_test(&ai, &wrap);
 	app_test_multi_threading(&ai, &wrap);
 }

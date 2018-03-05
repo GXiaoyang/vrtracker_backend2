@@ -13,7 +13,8 @@ void test_capture_serialization()
 	using std::range;
 	
 	log_printf("start of test_capture_serialization\n");
-	capture_test_context::reset_globals();
+	capture_test_context::reset_globals();	// capture_test_context is shared code to setup the capture.  
+											// reset it's global state so persistent data from other unit tests don't influence this unit test.
 
 	capture_traverser traverser;
 	{
@@ -37,7 +38,27 @@ void test_capture_serialization()
 
 		capture_test_context contextb;
 		traverser.load_capture_from_binary_file(&contextb.get_capture(), fname.c_str());
-		assert(contexta.get_capture() == contextb.get_capture());
+
+		bool save_and_load_is_deterministic = (contexta.get_capture() == contextb.get_capture());
+		if (!save_and_load_is_deterministic)
+		{
+			//
+			// IF this fails, it means there is a difference between loading and
+			// initizing an empty item.
+			//
+			// When this occured before, the cause was a new member was initialized in the constructor,
+			// but not populated during traversal.  (eg. it wasn't populated in visit_system_node in traverse_graph.h)
+			//
+			log_printf("contexta registry");
+			contexta.get_capture().m_state_registry.dump();
+
+			log_printf("contextb registry");
+			contextb.get_capture().m_state_registry.dump();
+		}
+		assert(save_and_load_is_deterministic);
+
+
+		
 	}
 
 	capture_test_context::reset_globals();

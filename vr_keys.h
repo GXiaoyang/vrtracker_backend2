@@ -1,7 +1,15 @@
 #pragma once
 // vr_keys
 //
-// root node for a set of indexes that need to be tracked 
+// root node for a set of indexes that need to be tracked.
+// 
+// The purpose of the concept of the set of Indexers and Indexes below are
+//	* deal with the problem that alot of data is expensive to load and does not change frequently
+//	* facilitate references
+//  * deal with the problem that data can disappear - ie the indexes used by these classes are
+//    monotonically increasing so that when data appears or disappears in the present state, the old data
+//    is still available, so time can be rewound.
+//  
 // 
 //
 #include "capture_config.h"
