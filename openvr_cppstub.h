@@ -348,6 +348,6 @@ class VRDriverManagerCppStub : public vr::IVRDriverManager
 public:
 	uint32_t GetDriverCount() const override;
 	uint32_t GetDriverName(vr::DriverId_t nDriver, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize) override;
-	vr::DriverHandle_t GetDriverHandle(const char *pchDriverName) override;
+	//vr::DriverHandle_t GetDriverHandle(const char *pchDriverName) override;
 };
 

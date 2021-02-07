@@ -22,7 +22,7 @@
     <ProjectGuid>{7B45C8F5-6522-475E-A489-97DA38882275}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>rangesplay</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,13 +41,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -110,7 +110,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)_DEBUG;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>thirdparty/lpng1629;thirdparty/lz4/lib;thirdparty/lodepng;thirdparty/GSL-lite/include;$(ProjectDir);thirdparty/vrstrings_deploy/headers;$(OPENVR_BASE)/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>thirdparty/lpng1629;thirdparty/lz4/lib;thirdparty/lodepng;thirdparty/GSL-lite/include;$(ProjectDir);thirdparty/vrstrings_deploy/headers;submodules/openvr/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -255,15 +255,11 @@
     <ClInclude Include="vr_wrappers_common.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp" />
-    <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp" />
-    <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp" />
     <ClCompile Include="base_serialization.cpp" />
     <ClCompile Include="capture_config.cpp" />
     <ClCompile Include="capture_controller.cpp" />
     <ClCompile Include="capture_traverser.cpp" />
     <ClCompile Include="crc_32.cpp" />
-    <ClCompile Include="D:\lodepng\lodepng.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openvr_bridge.cpp" />
@@ -278,6 +274,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="submodules\openvr\samples\shared\lodepng.cpp" />
+    <ClCompile Include="submodules\openvr_strings\src\openvr_string_gen_enums.cpp" />
+    <ClCompile Include="submodules\openvr_strings\src\openvr_string_passthru_enums.cpp" />
+    <ClCompile Include="submodules\openvr_strings\src\openvr_string_structs.cpp" />
     <ClCompile Include="test_campfire.cpp" />
     <ClCompile Include="texture_service.cpp" />
     <ClCompile Include="unit_tests\capture_test_context.cpp" />

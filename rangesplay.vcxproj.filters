@@ -362,15 +362,6 @@
     <ClCompile Include="vr_tmp_vector.cpp">
       <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
-    <ClCompile Include="..\vrstrings\src\openvr_string_structs.cpp">
-      <Filter>Source Files\3 vr schema</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vrstrings\src\openvr_string_passthru_enums.cpp">
-      <Filter>Source Files\3 vr schema</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vrstrings\src\openvr_string_gen_enums.cpp">
-      <Filter>Source Files\3 vr schema</Filter>
-    </ClCompile>
     <ClCompile Include="openvr_broker.cpp">
       <Filter>Source Files\3 vr schema</Filter>
     </ClCompile>
@@ -524,9 +515,6 @@
     <ClCompile Include="platform.cpp">
       <Filter>Source Files\1 base</Filter>
     </ClCompile>
-    <ClCompile Include="D:\lodepng\lodepng.cpp">
-      <Filter>Source Files\1 base</Filter>
-    </ClCompile>
     <ClCompile Include="unit_tests\test_app_indexer.cpp">
       <Filter>Source Files\3 vr schema\3 vr keys test</Filter>
     </ClCompile>
@@ -544,6 +532,18 @@
     </ClCompile>
     <ClCompile Include="test_campfire.cpp">
       <Filter>Source Files\main</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\openvr_strings\src\openvr_string_gen_enums.cpp">
+      <Filter>Source Files\3 vr schema</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\openvr_strings\src\openvr_string_passthru_enums.cpp">
+      <Filter>Source Files\3 vr schema</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\openvr_strings\src\openvr_string_structs.cpp">
+      <Filter>Source Files\3 vr schema</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\openvr\samples\shared\lodepng.cpp">
+      <Filter>Source Files\1 base</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -2032,9 +2032,12 @@ uint32_t VRDriverManagerCppStub::GetDriverName(vr::DriverId_t nDriver, VR_OUT_ST
 	LOG_EXIT_RC(rc, "CppStubGetDriverName");
 }
 
+#if 0
+sdp 2/6/2021 this function disappeared
 vr::DriverHandle_t VRDriverManagerCppStub::GetDriverHandle(const char *pchDriverName) 
 {
 	LOG_ENTRY("GetDriverHandle");
 	static uint32_t rc = 0;
 	LOG_EXIT_RC(rc, "GetDriverHandle");
 }
+#endif
