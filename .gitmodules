@@ -4,3 +4,6 @@
 [submodule "submodules/openvr_strings"]
 	path = submodules/openvr_strings
 	url = https://github.com/spayne/openvr_strings
+[submodule "submodules/oneTBB"]
+	path = submodules/oneTBB
+	url = https://github.com/oneapi-src/oneTBB

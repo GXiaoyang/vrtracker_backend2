@@ -110,14 +110,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;HAVE_OPEN_VR_RAW;_SCL_SECURE_NO_WARNINGS;OPENVR_STRINGS_DISABLE_PASSTHRU;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)_DEBUG;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>thirdparty/lpng1629;thirdparty/lz4/lib;thirdparty/lodepng;thirdparty/GSL-lite/include;$(ProjectDir);thirdparty/vrstrings_deploy/headers;submodules/openvr/headers;thirdparty/tbb/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>thirdparty/lpng1629;thirdparty/lz4/lib;thirdparty/lodepng;thirdparty/GSL-lite/include;$(ProjectDir);thirdparty/vrstrings_deploy/headers;submodules/openvr/headers;submodules/oneTBB/include</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalLibraryDirectories>thirdparty/tbb/build/vs2012/x64/Debug-MT;thirdparty/lpng1629\projects\vstudio\x64\Debug Library;thirdparty/lz4\visual\VS2010\bin\x64_Debug; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; thirdparty/tbb/build/vs2012/Win32/Debug-MTC:\Users\sean\Downloads\lpng1629\projects\vstudio\Release Library;$(OPENVR_BASE)/lib/win64; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win64; </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>submodules/oneTBB/build/vs2012/x64/Debug-MT;thirdparty/lpng1629\projects\vstudio\x64\Debug Library;thirdparty/lz4\visual\VS2010\bin\x64_Debug; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win32; thirdparty/tbb/build/vs2012/Win32/Debug-MTC:\Users\sean\Downloads\lpng1629\projects\vstudio\Release Library;$(OPENVR_BASE)/lib/win64; $(OPENVR_BASE)/samples/thirdparty/sdl2-2.0.3/bin/win64; </AdditionalLibraryDirectories>
       <AdditionalDependencies>zlib.lib;libpng16.lib;liblz4_static.lib;tbb_debug.lib;sdl2main.lib;opengl32.lib;SDL2.lib;openvr_api.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
