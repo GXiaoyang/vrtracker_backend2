@@ -10,6 +10,9 @@ extern void test_cursors();
 extern void test_controller();
 extern void test_monitor();
 
+
+int hack_vr_init_called = 0;
+
 void run_unit_tests()
 {
 	test_keys();

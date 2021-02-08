@@ -10,7 +10,7 @@ extern void test_openvr_bridge();
 void test_monitor()
 {
 	test_openvr_bridge();
-	test_dll_client();
+	// try  not calling thistest_dll_client();
 }
 
 #ifdef TEST_MONITOR_MAIN

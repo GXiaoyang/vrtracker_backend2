@@ -13,7 +13,7 @@ void test_dll_client()
 
 	{
 		static LPCTSTR server_dll = L"openvr_api.dll";
-		static LPCTSTR extra_path = L"C:\\projects\\openvr_clean\\openvr\\bin\\win32";
+		static LPCTSTR extra_path = L"C:\\projects\\rangesplay\\submodules\\openvr\\bin\\win32";
 		
 		openvr_dll_client cli;
 		cli.open_lib(server_dll, extra_path);

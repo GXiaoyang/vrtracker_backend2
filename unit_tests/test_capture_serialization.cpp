@@ -76,7 +76,7 @@ void test_capture_serialization()
 		assert(traverser.load_capture_from_binary_file(&contextb.get_capture(), fname.c_str()));
 		assert(contexta.get_capture() == contextb.get_capture());
 	}
-	capture_test_context::reset_globals();
+	capture_test_context::reset_globals();  // before starting a new test, reset the global state to zero
 	{
 		std::string fname(plat::make_temporary_filename("tracker10.bin"));
 		log_printf("serializing 10 updates to %s\n", fname.c_str());

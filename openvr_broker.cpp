@@ -66,7 +66,17 @@ static bool acquire_raw_interfaces(openvr_broker::open_vr_interfaces *interfaces
 	}
 #endif
 
-	VR_Init(&eError, vr::VRApplication_Scene);
+	extern int hack_vr_init_called; 
+	if (!hack_vr_init_called)
+	{
+		VR_Init(&eError, vr::VRApplication_Scene);
+		hack_vr_init_called = 1;
+	}
+	else
+	{
+		eError = vr::VRInitError_None;
+	}
+	
 	if (eError != vr::VRInitError_None)
 	{
 		snprintf(s_error_message, sizeof(s_error_message), "Unable to init VR runtime: %s",

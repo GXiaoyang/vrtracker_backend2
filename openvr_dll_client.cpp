@@ -358,8 +358,12 @@ openvr_dll_client::openvr_dll_client()
 
 openvr_dll_client::~openvr_dll_client()
 {
-	if (internals)
-		delete internals;
+	// 2/6/2021 Hack - never delete internals because this will 
+	// close the dll, forcing it to be reopened and forcing an
+	// assert when init is called twice and some web thing fails
+
+	//if (internals)
+		//delete internals;
 }
 
 bool openvr_dll_client::open_lib(LPCTSTR library_name, LPCTSTR extra_path)

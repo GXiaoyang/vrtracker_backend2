@@ -37,6 +37,12 @@ void capture_test_context::ForceInitAll()
 
 capture_test_context::~capture_test_context()
 {
+	// don't do this - try just calling vr_init only once openvr_broker::shutdown();
+	// because of when calling vrinit twice : 
+	//ASSERT: "Attempt to init shared state VR_WebServerState twice" at c:\buildslave\steamvr_rel_win64\build\src\common\vrcore\src\vripcsharedstate.cpp:17.
+	// rangesplay.exe has triggered a breakpoint.
+
+
 	delete m_config;
 	delete m_capture;
 	delete m_interfaces;

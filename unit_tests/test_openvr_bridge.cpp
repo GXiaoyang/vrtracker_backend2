@@ -139,5 +139,6 @@ void test_openvr_bridge()
 			b.GetRecommendedRenderTargetSize(&width, &height);
 		}
 	}
+	//openvr_dll.close_lib();
 }
 
